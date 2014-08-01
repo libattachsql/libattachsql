@@ -9,7 +9,7 @@
 
 AC_COPYRIGHT([2014 Hewlett-Packard Development Company, L.P.])
 #AC_REVISION([m4_esyscmd_s([git describe --always])])
-AC_PREREQ([2.69])
+AC_PREREQ([2.68])
 
 # NOTE: Major version should be < 100 and minor/patch < 256 or bad things will
 # happen in src/asql/utility.cc
