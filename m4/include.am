@@ -1,0 +1,53 @@
+# vim:ft=automake
+# Copyright (C) 2012 Data Differential
+# All rights reserved.
+#
+# Use and distribution licensed under the BSD license.  See
+# the COPYING file in the parent directory for full text.
+#
+# included from Top Level Makefile.am
+# All paths should be given relative to the root
+
+EXTRA_DIST+= m4/ax_append_compile_flags.m4
+EXTRA_DIST+= m4/ax_append_flag.m4
+EXTRA_DIST+= m4/ax_append_link_flags.m4
+EXTRA_DIST+= m4/ax_check_compile_flag.m4
+EXTRA_DIST+= m4/ax_check_link_flag.m4
+EXTRA_DIST+= m4/ax_pthread.m4
+EXTRA_DIST+= m4/ax_restore_flags.m4
+EXTRA_DIST+= m4/ax_save_flags.m4
+EXTRA_DIST+= m4/ax_add_am_macro.m4
+EXTRA_DIST+= m4/ax_am_jobserver.m4
+EXTRA_DIST+= m4/ax_am_macros.m4
+EXTRA_DIST+= m4/ax_append_to_file.m4
+EXTRA_DIST+= m4/ax_file_escapes.m4
+EXTRA_DIST+= m4/ax_gcc_version.m4
+EXTRA_DIST+= m4/ax_print_to_file.m4
+EXTRA_DIST+= m4/boost.m4
+
+dist_aclocal_DATA+= m4/ax_assert.m4
+dist_aclocal_DATA+= m4/ax_compiler_version.m4
+dist_aclocal_DATA+= m4/ax_debug.m4
+dist_aclocal_DATA+= m4/ax_endian.m4
+dist_aclocal_DATA+= m4/ax_harden_compiler_flags.m4
+dist_aclocal_DATA+= m4/ax_hex_version.m4
+dist_aclocal_DATA+= m4/ax_libevent.m4
+dist_aclocal_DATA+= m4/ax_platform.m4
+dist_aclocal_DATA+= m4/ax_prog_sphinx_build.m4
+dist_aclocal_DATA+= m4/ax_pthread_timedjoin_np.m4
+dist_aclocal_DATA+= m4/ax_uuid.m4
+dist_aclocal_DATA+= m4/ax_vcs_checkout.m4
+dist_aclocal_DATA+= m4/ax_check_library.m4
+dist_aclocal_DATA+= m4/ax_compiler_vendor.m4
+dist_aclocal_DATA+= m4/ax_count_cpus.m4
+dist_aclocal_DATA+= m4/ax_cxx_gcc_abi_demangle.m4
+dist_aclocal_DATA+= m4/ax_dlopen.m4
+dist_aclocal_DATA+= m4/ax_printf_strerror.m4
+
+
+# These are not finished
+dist_aclocal_DATA+= m4/have_cinttypes.m4
+dist_aclocal_DATA+= m4/have_cstdint.m4
+EXTRA_DIST+= m4/have_libpq.m4
+EXTRA_DIST+= m4/hiredis.m4
+dist_aclocal_DATA+= m4/socket_send_flags.m4

@@ -1,0 +1,18 @@
+# vim:ft=automake
+# included from Top Level Makefile.am
+# All paths should be given relative to the root
+
+noinst_HEADERS+= src/ascore/ascore.h
+noinst_HEADERS+= src/ascore/buffer.h
+noinst_HEADERS+= src/ascore/connect.h
+noinst_HEADERS+= src/ascore/constants.h
+noinst_HEADERS+= src/ascore/command.h
+noinst_HEADERS+= src/ascore/common.h
+noinst_HEADERS+= src/ascore/debug.h
+noinst_HEADERS+= src/ascore/net.h
+noinst_HEADERS+= src/ascore/pack.h
+noinst_HEADERS+= src/ascore/pack_macros.h
+noinst_HEADERS+= src/ascore/return.h
+noinst_HEADERS+= src/ascore/sha1.h
+noinst_HEADERS+= src/ascore/structs.h
+

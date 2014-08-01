@@ -1,0 +1,30 @@
+# vim:ft=automake
+# Copyright (C) 2012 Data Differential
+# All rights reserved.
+#
+# Use and distribution licensed under the BSD license.  See
+# the COPYING file in the parent directory for full text.
+#
+# included from Top Level Makefile.am
+# All paths should be given relative to the root
+
+t_asql_version_SOURCES= tests/asql/version.cc
+t_asql_version_LDADD= src/asql/libattachsql.la
+check_PROGRAMS+= t/asql/version
+noinst_PROGRAMS+= t/asql/version
+
+t_asql_query_SOURCES= tests/asql/query.cc
+t_asql_query_LDADD= src/asql/libattachsql.la
+if BUILD_WIN32
+t_asql_query_LDADD+= -lws2_32
+t_asql_query_LDADD+= -lpsapi
+t_asql_query_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/asql/query
+noinst_PROGRAMS+= t/asql/query
+
+gdb-version: t/asql/version
+	@$(GDB_COMMAND) t/asql/version
+
+gdb-query: t/asql/query
+	@$(GDB_COMMAND) t/asql/query

@@ -1,0 +1,16 @@
+{
+   LibUV Read8
+   Memcheck:Addr8
+   fun:uv__stream_io
+   fun:uv_run
+   fun:ascore_con_poll
+   fun:main
+}
+{
+   LibUV Read4
+   Memcheck:Addr4
+   fun:uv__stream_io
+   fun:uv_run
+   fun:ascore_con_poll
+   fun:main
+}

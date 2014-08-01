@@ -1,0 +1,224 @@
+/* vim:expandtab:shiftwidth=2:tabstop=2:smarttab:
+ * Copyright 2014 Hewlett-Packard Development Company, L.P.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain 
+ * a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ *
+ */
+
+#pragma once
+
+#include "config.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#define ASCORE_DEFAULT_PORT 3306
+#define ASCORE_ERROR_BUFFER_SIZE 255
+#define ASCORE_MAX_SERVER_VERSION_LEN 32
+#define ASCORE_MAX_USER_SIZE 16
+#define ASCORE_MAX_SCHEMA_SIZE 64
+#define ASCORE_MAX_TABLE_SIZE 64
+#define ASCORE_MAX_COLUMN_SIZE 64
+#define ASCORE_MAX_DEFAULT_VALUE_SIZE 2048
+#define ASCORE_MAX_MESSAGE_LEN 2048
+#define ASCORE_SQLSTATE_SIZE 5
+#define ASCORE_WRITE_BUFFER_SIZE 1024
+
+enum ascore_con_protocol_t
+{
+  ASCORE_CON_PROTOCOL_UNKNOWN,
+  ASCORE_CON_PROTOCOL_UDS,
+  ASCORE_CON_PROTOCOL_TCP
+};
+
+enum ascore_con_options_t
+{
+  ASCORE_CON_OPTION_POLLING,
+  ASCORE_CON_OPTION_RAW_SCRAMBLE,
+  ASCORE_CON_OPTION_FOUND_ROWS,
+  ASCORE_CON_OPTION_INTERACTIVE,
+  ASCORE_CON_OPTION_MULTI_STATEMENTS,
+  ASCORE_CON_OPTION_AUTH_PLUGIN,
+  ASCORE_CON_OPTION_PROTOCOL_TCP,
+  ASCORE_CON_OPTION_PROTOCOL_UDS
+};
+
+enum ascore_con_status_t
+{
+  ASCORE_CON_STATUS_PARAMETER_ERROR,
+  ASCORE_CON_STATUS_NOT_CONNECTED,
+  ASCORE_CON_STATUS_CONNECTING,
+  ASCORE_CON_STATUS_CONNECT_FAILED,
+  ASCORE_CON_STATUS_BUSY,
+  ASCORE_CON_STATUS_IDLE
+};
+
+enum ascore_packet_type_t
+{
+  ASCORE_PACKET_TYPE_NONE,
+  ASCORE_PACKET_TYPE_HANDSHAKE,
+  ASCORE_PACKET_TYPE_RESPONSE,
+  ASCORE_PACKET_TYPE_COLUMN,
+  ASCORE_PACKET_TYPE_ROW
+};
+
+enum ascore_capabilities_t
+{
+  ASCORE_CAPABILITY_NONE=               0,
+  ASCORE_CAPABILITY_LONG_PASSWORD=      (1 << 0),
+  ASCORE_CAPABILITY_FOUND_ROWS=         (1 << 1),
+  ASCORE_CAPABILITY_LONG_FLAG=          (1 << 2),
+  ASCORE_CAPABILITY_CONNECT_WITH_DB=    (1 << 3),
+  ASCORE_CAPABILITY_NO_SCHEMA=          (1 << 4),
+  ASCORE_CAPABILITY_COMPRESS=           (1 << 5),
+  ASCORE_CAPABILITY_ODBC=               (1 << 6),
+  ASCORE_CAPABILITY_LOCAL_FILES=        (1 << 7),
+  ASCORE_CAPABILITY_IGNORE_SPACE=       (1 << 8),
+  ASCORE_CAPABILITY_PROTOCOL_41=        (1 << 9),
+  ASCORE_CAPABILITY_INTERACTIVE=        (1 << 10),
+  ASCORE_CAPABILITY_SSL=                (1 << 11),
+  ASCORE_CAPABILITY_IGNORE_SIGPIPE=     (1 << 12),
+  ASCORE_CAPABILITY_TRANSACTIONS=       (1 << 13),
+  ASCORE_CAPABILITY_RESERVED=           (1 << 14),
+  ASCORE_CAPABILITY_SERCURE_CONNECTION= (1 << 15),
+  ASCORE_CAPABILITY_MULTI_STATEMENTS=   (1 << 16),
+  ASCORE_CAPABILITY_MULTI_RESULTS=      (1 << 17),
+  ASCORE_CAPABILITY_PLUGIN_AUTH=        (1 << 19),
+  ASCORE_CAPABILITY_CLIENT=            (ASCORE_CAPABILITY_LONG_PASSWORD   |
+                                        ASCORE_CAPABILITY_FOUND_ROWS      |
+                                        ASCORE_CAPABILITY_LONG_FLAG       |
+                                        ASCORE_CAPABILITY_CONNECT_WITH_DB |
+                                        ASCORE_CAPABILITY_PLUGIN_AUTH     |
+                                        ASCORE_CAPABILITY_TRANSACTIONS    |
+                                        ASCORE_CAPABILITY_PROTOCOL_41     |
+                                        ASCORE_CAPABILITY_SERCURE_CONNECTION)
+};
+
+
+enum ascore_command_status_t
+{
+  ASCORE_COMMAND_STATUS_NONE,
+  ASCORE_COMMAND_STATUS_CONNECTED,
+  ASCORE_COMMAND_STATUS_SEND,
+  ASCORE_COMMAND_STATUS_SEND_FAILED,
+  ASCORE_COMMAND_STATUS_READ_RESPONSE,
+  ASCORE_COMMAND_STATUS_READ_COLUMN,
+  ASCORE_COMMAND_STATUS_READ_ROW,
+  ASCORE_COMMAND_STATUS_READ_FAILED,
+  ASCORE_COMMAND_STATUS_ROW_IN_BUFFER,
+  ASCORE_COMMAND_STATUS_EOF
+};
+
+enum ascore_command_t
+{
+  ASCORE_COMMAND_SLEEP=               0x00,
+  ASCORE_COMMAND_QUIT=                0x01,
+  ASCORE_COMMAND_INITDB=              0x02,
+  ASCORE_COMMAND_QUERY=               0x03,
+  ASCORE_COMMAND_FIELD_LIST=          0x04,
+  ASCORE_COMMAND_CREATE_DB=           0x05,
+  ASCORE_COMMAND_DROP_DB=             0x06,
+  ASCORE_COMMAND_REFRESH=             0x07,
+  ASCORE_COMMAND_SHUTDOWN=            0x08,
+  ASCORE_COMMAND_STATISTICS=          0x09,
+  ASCORE_COMMAND_PROCESS_INFO=        0x0a,
+  ASCORE_COMMAND_CONNECT=             0x0b,
+  ASCORE_COMMAND_PROCESS_KILL=        0x0c,
+  ASCORE_COMMAND_DEBUG=               0x0d,
+  ASCORE_COMMAND_PING=                0x0e,
+  ASCORE_COMMAND_TIME=                0x0f,
+  ASCORE_COMMAND_DELAYED_INSERT=      0x10,
+  ASCORE_COMMAND_CHANGE_USER=         0x11,
+  ASCORE_COMMAND_BINLOG_DUMP=         0x12,
+  ASCORE_COMMAND_TABLE_DUMP=          0x13,
+  ASCORE_COMMAND_CONNECT_OUT=         0x14, /* Internal (unused) */
+  ASCORE_COMMAND_REGISTER_SLAVE=      0x15,
+  ASCORE_COMMAND_STMT_PREPARE=        0x16,
+  ASCORE_COMMAND_STMT_EXECUTE=        0x17,
+  ASCORE_COMMAND_STMT_SEND_LONG_DATA= 0x18,
+  ASCORE_COMMAND_STMT_CLOSE=          0x19,
+  ASCORE_COMMAND_STMT_RESET=          0x1a,
+  ASCORE_COMMAND_SET_OPTION=          0x1b,
+  ASCORE_COMMAND_STMT_FETCH=          0x1c,
+  ASCORE_COMMAND_DAEMON=              0x1d,
+  ASCORE_COMMAND_BINLOG_DUMP_GTID=    0x1e,
+  ASCORE_COMMAND_RESET_CONNECTION=    0x1f
+};
+
+enum ascore_column_type_t
+{
+  ASCORE_COLUMN_TYPE_DECIMAL=     0x00,
+  ASCORE_COLUMN_TYPE_TINY=        0x01,
+  ASCORE_COLUMN_TYPE_SHORT=       0x02,
+  ASCORE_COLUMN_TYPE_LONG=        0x03,
+  ASCORE_COLUMN_TYPE_FLOAT=       0x04,
+  ASCORE_COLUMN_TYPE_DOUBLE=      0x05,
+  ASCORE_COLUMN_TYPE_NULL=        0x06,
+  ASCORE_COLUMN_TYPE_TIMESTAMP=   0x07,
+  ASCORE_COLUMN_TYPE_LONGLONG=    0x08,
+  ASCORE_COLUMN_TYPE_INT24=       0x09,
+  ASCORE_COLUMN_TYPE_DATE=        0x0a,
+  ASCORE_COLUMN_TYPE_TIME=        0x0b,
+  ASCORE_COLUMN_TYPE_DATETIME=    0x0c,
+  ASCORE_COLUMN_TYPE_YEAR=        0x0d,
+  ASCORE_COLUMN_TYPE_NEWDATE=     0x0e, // Internal only
+  ASCORE_COLUMN_TYPE_VARCHAR=     0x0f,
+  ASCORE_COLUMN_TYPE_BIT=         0x10,
+  ASCORE_COLUMN_TYPE_TIMESTAMP2=  0x11, // Internal only
+  ASCORE_COLUMN_TYPE_DATETIME2=   0x12, // Internal only
+  ASCORE_COLUMN_TYPE_TIME2=       0x13, // Internal only
+  ASCORE_COLUMN_TYPE_NEWDECIMAL=  0xf6,
+  ASCORE_COLUMN_TYPE_ENUM=        0xf7,
+  ASCORE_COLUMN_TYPE_SET=         0xf8,
+  ASCORE_COLUMN_TYPE_TINY_BLOB=   0xf9,
+  ASCORE_COLUMN_TYPE_MEDIUM_BLOB= 0xfa,
+  ASCORE_COLUMN_TYPE_LONG_BLOB=   0xfb,
+  ASCORE_COLUMN_TYPE_BLOB=        0xfc,
+  ASCORE_COLUMN_TYPE_VARSTRING=   0xfd,
+  ASCORE_COLUMN_TYPE_STRING=      0xfe,
+  ASCORE_COLUMN_TYPE_GEOMETRY=    0xff
+};
+
+enum ascore_column_flags_t
+{
+  ASCORE_COLUMN_FLAGS_NONE=              0,
+  ASCORE_COLUMN_FLAGS_NOT_NULL=          (1 << 0),
+  ASCORE_COLUMN_FLAGS_PRIMARY_KEY=       (1 << 1),
+  ASCORE_COLUMN_FLAGS_UNIQUE_KEY=        (1 << 2),
+  ASCORE_COLUMN_FLAGS_MULTIPLE_KEY=      (1 << 3),
+  ASCORE_COLUMN_FLAGS_BLOB=              (1 << 4),
+  ASCORE_COLUMN_FLAGS_UNSIGNED=          (1 << 5),
+  ASCORE_COLUMN_FLAGS_ZEROFILL=          (1 << 6),
+  ASCORE_COLUMN_FLAGS_BINARY=            (1 << 7),
+  ASCORE_COLUMN_FLAGS_ENUM=              (1 << 8),
+  ASCORE_COLUMN_FLAGS_AUTO_INCREMENT=    (1 << 9),
+  ASCORE_COLUMN_FLAGS_TIMESTAMP=         (1 << 10),
+  ASCORE_COLUMN_FLAGS_SET=               (1 << 11),
+  ASCORE_COLUMN_FLAGS_NO_DEFAULT_VALUE=  (1 << 12),
+  ASCORE_COLUMN_FLAGS_ON_UPDATE_NOW=     (1 << 13),
+  ASCORE_COLUMN_FLAGS_PART_KEY=          (1 << 14),
+  ASCORE_COLUMN_FLAGS_NUM=               (1 << 15),
+  ASCORE_COLUMN_FLAGS_GROUP=             (1 << 15), // NUM and GROUP are both this
+  ASCORE_COLUMN_FLAGS_UNIQUE=            (1 << 16),
+  ASCORE_COLUMN_FLAGS_BINCMP=            (1 << 17),
+  ASCORE_COLUMN_FLAGS_GET_FIELD_COLUMNS= (1 << 18),
+  ASCORE_COLUMN_FLAGS_IN_PART_FUNC=      (1 << 19),
+  ASCORE_COLUMN_FLAGS_IN_ADD_INDEX=      (1 << 20),
+  ASCORE_COLUMN_FLAGS_RENAMED=           (1 << 21)
+};
+
+#ifdef __cplusplus
+}
+#endif
+

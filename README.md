@@ -1,4 +1,4 @@
 libattachsql
 ============
 
-A lightweight C/C++ API for MySQL servers
+**THIS PROJECT IS CURRENTLY IN AN EXPERIMENTAL PRE-ALPHA**
