@@ -5,11 +5,12 @@ compiler:
 before_install:
   - sudo apt-add-repository ppa:linuxjedi/ppa -y
   - sudo apt-get update -qq
-  - sudo apt-get install -y libuv-dev
+  - sudo apt-get install -y libuv-dev python-sphinx
   - mysql -uroot -e "grant all on *.* to 'test'@'localhost' identified by 'test';"
 script:
   - ./bootstrap.sh
   - make check
+  - make html
 
 notifications:
   irc: chat.freenode.net#libAttachSQL

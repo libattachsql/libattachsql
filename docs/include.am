@@ -28,7 +28,7 @@ install-html-local: html-local
 	@cp -r ${top_builddir}/html $(htmldir)/
 
 html-local: docs/conf.py
-	@PYTHONPATH=${top_srcdir}/docs $(SPHINXBUILD) -b html $(ALLSPHINXOPTS) ${top_builddir}/html
+	@PYTHONPATH=${top_srcdir}/docs $(SPHINXBUILD) -nW -b html $(ALLSPHINXOPTS) ${top_builddir}/html
 
 singlehtml: html-local
 	@PYTHONPATH=${top_srcdir}/docs  $(SPHINXBUILD) -b singlehtml $(ALLSPHINXOPTS) $(SPHINX_BUILDDIR)/singlehtml

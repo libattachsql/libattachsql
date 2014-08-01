@@ -1,12 +1,14 @@
 Updating Documentation
 ======================
 
-reStructuredText
-----------------
+Overview
+--------
 
 This documentation is stored along with the source in the ``docs`` directory of the git tree and uses the `reStructuredText format <http://en.wikipedia.org/wiki/ReStructuredText>`_.
 
 We recommend reading this `reStructuredText Primer <http://sphinx-doc.org/rest.html>`_ before editing the docs for the first time.
+
+The documentation is automatically generated into HTML and PDF by `Read The Docs <https://readthedocs.org/>`_ once a branch has been merged into master.  This output can be found at `libAttachSQL's documentation page <http://docs.libattachsql.org/>`_.
 
 Compiling Docs
 --------------

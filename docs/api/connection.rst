@@ -15,3 +15,10 @@ Connection Functions
    :param schema: The default schema for the connection
    :param error: A pointer to a pointer of an error struct which is created if an error occurs.
    :returns: A newly allocated connection structure or :c:type:`NULL` on error
+
+.. c:function:: attachsql_error_st *attachsql_connect(attachsql_connect_t *con)
+
+   Starts an asyncronus connection to a MySQL server.
+
+   :param con: The connetion object to use for the connection
+   :returns: An error struct or NULL if there is no error
