@@ -30,7 +30,6 @@ config.in~
 config.log
 config.status
 configure
-docs/conf.py
 gdb.txt
 html
 libtool
