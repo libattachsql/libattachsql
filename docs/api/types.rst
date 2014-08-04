@@ -8,6 +8,9 @@ Basic Types
 
    A connection object allocated by :c:func:`attachsql_connect_create` and used to send and receive data from the MySQL server.
 
+Builtin Types
+-------------
+
 .. c:type:: in_port_t
 
    A port number as defined in the standard header ``arpa/inet.h``.  In Windows this is typedef'd to ``uint16_t``.
@@ -15,6 +18,10 @@ Basic Types
 .. c:type:: NULL
 
    A null pointer as defined in the standard header ``string.h``.
+
+.. c:type:: uint8_t
+
+   An 8-bit unsigned integer as define in the standard header ``stdint.h``
 
 Structs
 -------

@@ -1,7 +1,7 @@
 libattachsql
 ============
 
-:Release: |version|
+:Release: |release|
 :Date: |today|
 
 Introduction
@@ -20,6 +20,7 @@ API Documentation
 
    api/types
    api/connection
+   api/utility
 
 Contributing
 ------------
