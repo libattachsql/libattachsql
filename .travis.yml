@@ -18,3 +18,5 @@ notifications:
       - "chat.freenode.net#libAttachSQL"
     use_notice: true
     skip_join: true
+    template:
+      - "%{result}: %{repository_name}#%{build_number} (%{branch} - %{commit} : %{author}): %{build_url}"

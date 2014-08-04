@@ -13,7 +13,7 @@ Builtin Types
 
 .. c:type:: in_port_t
 
-   A port number as defined in the standard header ``arpa/inet.h``.  In Windows this is typedef'd to ``uint16_t``.
+   A port number as defined in the standard header ``arpa/inet.h``.  In Windows this is typedef'd to :c:type:`uint16_t`.
 
 .. c:type:: NULL
 
@@ -22,6 +22,10 @@ Builtin Types
 .. c:type:: uint8_t
 
    An 8-bit unsigned integer as define in the standard header ``stdint.h``
+
+.. c:type:: uint16_t
+
+   A 16-bit unsigned integer as define in the standard header ``stdint.h``
 
 Structs
 -------
