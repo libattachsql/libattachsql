@@ -13,4 +13,8 @@ script:
   - make html
 
 notifications:
-  irc: chat.freenode.net#libAttachSQL
+  irc:
+    channels:
+      - "chat.freenode.net#libAttachSQL"
+    use_notice: true
+    skip_join: true
