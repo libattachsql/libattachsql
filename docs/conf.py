@@ -34,7 +34,7 @@ extensions = []
 #googleanalytics_enabled = 'False'
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+#templates_path = ['_templates']
 
 # The suffix of source filenames.
 source_suffix = '.rst'
@@ -62,7 +62,7 @@ release = '0.1.0pre-alpha'
 # for a list of supported languages.
 # language = en
 
-primary_domain=None
+primary_domain='c'
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:
@@ -108,6 +108,12 @@ html_theme = 'default'
 
 # Add any paths that contain custom themes here, relative to this directory.
 #html_theme_path = []
+
+on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+
+if not on_rtd:
+  html_theme = 'sphinx_rtd_theme'
+  html_theme_path = ["_themes"]
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".

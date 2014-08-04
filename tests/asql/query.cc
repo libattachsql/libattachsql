@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
   attachsql_connect_t *con;
   attachsql_error_st *error;
   const char *data= "SHOW PROCESSLIST";
-  attachsql_return_t ret= ATTACHSQL_RETURN_OK;
+  attachsql_return_t ret= ATTACHSQL_RETURN_NONE;
   attachsql_query_row_st *row;
   uint16_t columns, col;
 
@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
   ASSERT_NULL_(error, "Error not NULL");
   while(ret != ATTACHSQL_RETURN_EOF)
   {
-    ret= attachsql_connection_poll(con, &error);
+    ret= attachsql_connect_poll(con, &error);
     if (ret == ATTACHSQL_RETURN_ROW_READY)
     {
       row= attachsql_query_row_get(con, &error);

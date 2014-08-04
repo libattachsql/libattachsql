@@ -37,7 +37,7 @@ ASQL_API
 uint32_t attachsql_connect_get_connection_id(attachsql_connect_t *con);
 
 ASQL_API
-attachsql_return_t attachsql_connection_poll(attachsql_connect_t *con, attachsql_error_st **error);
+attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_error_st **error);
 
 ASQL_API
 attachsql_error_st *attachsql_connect(attachsql_connect_t *con);

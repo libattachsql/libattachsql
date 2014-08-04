@@ -37,7 +37,7 @@ typedef void (attachsql_callback_fn)(attachsql_connect_t *con, attachsql_events_
 
 enum attachsql_return_t
 {
-  ATTACHSQL_RETURN_OK,
+  ATTACHSQL_RETURN_NONE,
   ATTACHSQL_RETURN_NOT_CONNECTED,
   ATTACHSQL_RETURN_CONNECTING,
   ATTACHSQL_RETURN_IDLE,

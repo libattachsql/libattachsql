@@ -96,7 +96,7 @@ uint32_t attachsql_connect_get_connection_id(attachsql_connect_t *con)
   return con->core_con->thread_id;
 }
 
-attachsql_return_t attachsql_connection_poll(attachsql_connect_t *con, attachsql_error_st **error)
+attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_error_st **error)
 {
   ascore_con_status_t status;
 
