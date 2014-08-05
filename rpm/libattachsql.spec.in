@@ -1,0 +1,66 @@
+Summary: libattachsql
+Name: @PACKAGE@
+Version: @VERSION@
+Release: 1
+License: Apache2
+Group: System Environment/Libraries
+BuildRequires: libuv-devel
+URL: https://github.com/tangentorg/ddm4
+
+Packager: Andrew Hutchings <andrew@linuxjedi.co.uk>
+
+Source: %{name}-%{version}.tar.gz
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
+
+%description
+libAttachSQL is a lightweight C connector for MySQL servers.
+
+This package provides the client utilities.
+
+%package devel
+Summary: Header files and development libraries for %{name}
+Group: Development/Libraries
+Requires: %{name} = %{version}-%{release}
+
+%description devel
+This package contains the header files and development libraries
+for %{name}. If you like to develop programs using %{name}, 
+you will need to install %{name}-devel.
+
+%prep
+%setup -q
+
+%configure
+
+
+%build
+%{__make} %{?_smp_mflags}
+
+%install
+%{__rm} -rf %{buildroot}
+%{__make} install  DESTDIR="%{buildroot}" AM_INSTALL_PROGRAM_FLAGS=""
+mkdir -p $RPM_BUILD_ROOT/
+
+%check
+%{__make} check
+
+%clean
+%{__rm} -rf %{buildroot}
+
+%files
+%defattr(-,root,root,-)
+%doc LICENSE README.rst
+%{_libdir}/libattachsql.a
+%{_libdir}/libattachsql.la
+%{_libdir}/libattachsql.so
+%{_libdir}/libattachsql.so.*
+%{_bindir}/libattachsql-config
+
+%files devel
+%defattr(-,root,root,-)
+%doc LICENSE README.rst
+%{_includedir}/libattachsql-1.0/*.h
+
+%changelog
+* Tue Aug 05 2014 Andrew Hutchings <andrew@linuxjedi.co.uk>
+- Make packaging work with libattachsql

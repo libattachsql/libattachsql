@@ -9,6 +9,7 @@ TESTS =
 CLEANFILES =
 DISTCLEANFILES =
 bin_PROGRAMS =
+dist_bin_SCRIPTS =
 noinst_HEADERS =
 lib_LTLIBRARIES =
 noinst_LTLIBRARIES =
@@ -17,6 +18,7 @@ include_HEADERS =
 nobase_include_HEADERS =
 check_PROGRAMS =
 EXTRA_HEADERS =
+EXTRA_SCRIPTS =
 BUILT_SOURCES=
 EXTRA_DIST=
 CONFIGURE_DEPENDENCIES=
@@ -25,9 +27,10 @@ dist_man_MANS=
 #includes additional rules from aminclude.am
 @INC_AMINCLUDE@
 DISTCLEANFILES+= aminclude.am
+CLEANFILES+= $(dist_bin_SCRIPTS)
 
-EXTRA_DIST+= README.md
-EXTRA_DIST+= HACKING
+EXTRA_DIST+= README.rst
+EXTRA_DIST+= LICENSE
 
 aclocaldir= $(datadir)/aclocal
 dist_aclocal_DATA=
@@ -39,11 +42,12 @@ include src/ascore/include.am
 include src/asql/include.am
 include libattachsql-1.0/include.am
 include tests/include.am
-include bin/include.am
 include rpm/include.mk
 include docs/include.am
 include man/include.am
 include yatl/include.am
+
+dist_bin_SCRIPTS+= @GENERIC_CONFIG@
 
 # Cleanup individual files in order to preserve uninstall/etc order
 maintainer-clean-local:
