@@ -2,8 +2,7 @@
 # included from Top Level Makefile.am
 # All paths should be given relative to the root
 
-dist_man_MANS+= man/cxxflags.1
-dist_man_MANS+= man/cflags.1
+#dist_man_MANS+= man/cxxflags.1
 
 # Build rule for documentation
 $(dist_man_MANS): $(top_srcdir)/configure.ac

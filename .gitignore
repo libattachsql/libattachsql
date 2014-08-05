@@ -4,6 +4,7 @@
 *\.doctrees
 *\.exe
 *\.gz
+*\.rpm
 *\.log
 *\.libs
 *\.o
@@ -20,8 +21,6 @@ Makefile.in
 aclocal.m4
 aminclude.am
 autom4te.cache
-bin/cflags
-bin/cxxflags
 build-aux
 confdefs.h
 config.h
@@ -39,9 +38,10 @@ m4/ltsugar.m4
 m4/ltversion.m4
 m4/lt~obsolete.m4
 man/libattachsql.1
-rpm/spec
+rpm/*\.spec
 stamp-h1
 t
 test-suite.log
 version.h
 docs/latex
+libattachsql-config

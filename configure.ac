@@ -13,7 +13,7 @@ AC_PREREQ([2.68])
 
 # NOTE: Major version should be < 100 and minor/patch < 256 or bad things will
 # happen in src/asql/utility.cc
-AC_INIT([libattachsql],m4_esyscmd_s([tr -d '\n' < VERSION]),[andrew@linuxjedi.co.uk],[ddm4],[https://github.com/HPATG/libattachsql])
+AC_INIT([libattachsql],m4_esyscmd_s([tr -d '\n' < VERSION]),[andrew@linuxjedi.co.uk],[libattachsql],[https://github.com/HPATG/libattachsql])
 
 # Setup the compilers early on
 AC_PROG_CC([cc gcc clang])
@@ -38,7 +38,6 @@ AC_DEFUN([PROTECT_AC_USE_SYSTEM_EXTENSIONS],
 PROTECT_AC_USE_SYSTEM_EXTENSIONS
 
 AC_CONFIG_HEADERS([config.h:config.in])dnl Keep filename to 8.3 for MS-DOS.
-AC_CONFIG_SRCDIR([bin/cflags.c])
 
 # shared library versioning
 LIBATTACHSQL_LIBRARY_VERSION=1:0:0
@@ -142,9 +141,11 @@ AS_IF([test -n "${LSB_RELEASE}"],[
 AX_AM_JOBSERVER([yes])
 
 AC_CONFIG_FILES([Makefile
-                 rpm/spec
+                 rpm/libattachsql.spec
                  version.h
                  ])
+
+AX_CREATE_GENERIC_CONFIG
 
 AC_OUTPUT
 

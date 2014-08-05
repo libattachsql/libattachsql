@@ -28,7 +28,7 @@ $(DIST_ARCHIVES): $(DISTFILES)
 $(RPM_SOURCE): $(DIST_ARCHIVES) $(RPM_BUILDDIR)
 	@cp $< $@
 
-$(RPM_BUILD_TARGET): support/@PACKAGE@.spec $(RPM_SOURCE)
+$(RPM_BUILD_TARGET): rpm/@PACKAGE@.spec $(RPM_SOURCE)
 	-@rm -f $(BUILD_RPMS) $(BUILD_SRPMS)
 	-@rm -rf $(BUILD_RPM_DIR)
 	@@RPMBUILD@ -ba $<
@@ -50,5 +50,5 @@ dist-rpm: $(RPM_BUILD_TARGET)
 release: rpm rpm-sign
 
 .PHONY: auto-rpmbuild
-auto-rpmbuild: support/@PACKAGE@.spec
+auto-rpmbuild: rpm/@PACKAGE@.spec
 	@auto-br-rpmbuild -ba $<
