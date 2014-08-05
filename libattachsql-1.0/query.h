@@ -38,7 +38,7 @@ enum attachsql_column_type_t
   ATTACHSQL_COLUMN_TYPE_DATETIME=    0x0c,
   ATTACHSQL_COLUMN_TYPE_YEAR=        0x0d,
   ATTACHSQL_COLUMN_TYPE_NEWDATE=     0x0e, // Internal only
-  ATTACHSQL_COLUMN_TYPE_VARCHAR=     0x0f,
+  ATTACHSQL_COLUMN_TYPE_VARCHAR=     0x0f, // Internal only
   ATTACHSQL_COLUMN_TYPE_BIT=         0x10,
   ATTACHSQL_COLUMN_TYPE_TIMESTAMP2=  0x11, // Internal only
   ATTACHSQL_COLUMN_TYPE_DATETIME2=   0x12, // Internal only
@@ -46,9 +46,9 @@ enum attachsql_column_type_t
   ATTACHSQL_COLUMN_TYPE_NEWDECIMAL=  0xf6,
   ATTACHSQL_COLUMN_TYPE_ENUM=        0xf7,
   ATTACHSQL_COLUMN_TYPE_SET=         0xf8,
-  ATTACHSQL_COLUMN_TYPE_TINY_BLOB=   0xf9,
-  ATTACHSQL_COLUMN_TYPE_MEDIUM_BLOB= 0xfa,
-  ATTACHSQL_COLUMN_TYPE_LONG_BLOB=   0xfb,
+  ATTACHSQL_COLUMN_TYPE_TINY_BLOB=   0xf9, // Internal only
+  ATTACHSQL_COLUMN_TYPE_MEDIUM_BLOB= 0xfa, // Internal only
+  ATTACHSQL_COLUMN_TYPE_LONG_BLOB=   0xfb, // Internal only
   ATTACHSQL_COLUMN_TYPE_BLOB=        0xfc,
   ATTACHSQL_COLUMN_TYPE_VARSTRING=   0xfd,
   ATTACHSQL_COLUMN_TYPE_STRING=      0xfe,
@@ -62,25 +62,25 @@ enum attachsql_column_flags_t
   ATTACHSQL_COLUMN_FLAGS_PRIMARY_KEY=       (1 << 1),
   ATTACHSQL_COLUMN_FLAGS_UNIQUE_KEY=        (1 << 2),
   ATTACHSQL_COLUMN_FLAGS_MULTIPLE_KEY=      (1 << 3),
-  ATTACHSQL_COLUMN_FLAGS_BLOB=              (1 << 4),
+  ATTACHSQL_COLUMN_FLAGS_BLOB=              (1 << 4), // Deprecated in MySQL
   ATTACHSQL_COLUMN_FLAGS_UNSIGNED=          (1 << 5),
   ATTACHSQL_COLUMN_FLAGS_ZEROFILL=          (1 << 6),
   ATTACHSQL_COLUMN_FLAGS_BINARY=            (1 << 7),
   ATTACHSQL_COLUMN_FLAGS_ENUM=              (1 << 8),
   ATTACHSQL_COLUMN_FLAGS_AUTO_INCREMENT=    (1 << 9),
-  ATTACHSQL_COLUMN_FLAGS_TIMESTAMP=         (1 << 10),
+  ATTACHSQL_COLUMN_FLAGS_TIMESTAMP=         (1 << 10), // Deprecated in MySQL
   ATTACHSQL_COLUMN_FLAGS_SET=               (1 << 11),
   ATTACHSQL_COLUMN_FLAGS_NO_DEFAULT_VALUE=  (1 << 12),
-  ATTACHSQL_COLUMN_FLAGS_ON_UPDATE_NOW=     (1 << 13),
-  ATTACHSQL_COLUMN_FLAGS_PART_KEY=          (1 << 14),
+  ATTACHSQL_COLUMN_FLAGS_ON_UPDATE_NOW=     (1 << 13), // Undocumented in MySQL
+  ATTACHSQL_COLUMN_FLAGS_PART_KEY=          (1 << 14), // Undocumented in MySQL
   ATTACHSQL_COLUMN_FLAGS_NUM=               (1 << 15),
-  ATTACHSQL_COLUMN_FLAGS_GROUP=             (1 << 15), /* NUM and GROUP are both this */
-  ATTACHSQL_COLUMN_FLAGS_UNIQUE=            (1 << 16),
-  ATTACHSQL_COLUMN_FLAGS_BINCMP=            (1 << 17),
-  ATTACHSQL_COLUMN_FLAGS_GET_FIELD_COLUMNS= (1 << 18),
-  ATTACHSQL_COLUMN_FLAGS_IN_PART_FUNC=      (1 << 19),
-  ATTACHSQL_COLUMN_FLAGS_IN_ADD_INDEX=      (1 << 20),
-  ATTACHSQL_COLUMN_FLAGS_RENAMED=           (1 << 21)
+  ATTACHSQL_COLUMN_FLAGS_GROUP=             (1 << 15), // NUM and GROUP are both this // Undocumented in MySQL
+  ATTACHSQL_COLUMN_FLAGS_UNIQUE=            (1 << 16), // Undocumented in MySQL
+  ATTACHSQL_COLUMN_FLAGS_BINCMP=            (1 << 17), // Undocumented in MySQL
+  ATTACHSQL_COLUMN_FLAGS_GET_FIELD_COLUMNS= (1 << 18), // Undocumented in MySQL
+  ATTACHSQL_COLUMN_FLAGS_IN_PART_FUNC=      (1 << 19), // Undocumented in MySQL
+  ATTACHSQL_COLUMN_FLAGS_IN_ADD_INDEX=      (1 << 20), // Undocumented in MySQL
+  ATTACHSQL_COLUMN_FLAGS_RENAMED=           (1 << 21)  // Undocumented in MySQL
 };
 
 enum attachsql_query_parameter_type_t

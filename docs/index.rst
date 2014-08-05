@@ -20,6 +20,8 @@ API Documentation
 
    api/types
    api/connection
+   api/query
+   api/error
    api/utility
 
 Contributing
