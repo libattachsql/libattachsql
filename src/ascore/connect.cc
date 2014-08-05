@@ -181,7 +181,7 @@ void on_resolved(uv_getaddrinfo_t *resolver, int status, struct addrinfo *res)
 
 ascore_con_status_t ascore_con_poll(ascon_st *con)
 {
-  asdebug("Connection poll");
+  //asdebug("Connection poll");
   if (con == NULL)
   {
     return ASCORE_CON_STATUS_PARAMETER_ERROR;
@@ -311,7 +311,7 @@ uv_buf_t on_alloc(uv_handle_t *client, size_t suggested_size)
   uv_buf_t buf;
   ascon_st *con= (ascon_st*) client->loop->data;
 
-  asdebug("%lld bytes requested for read buffer", suggested_size);
+  asdebug("%zd bytes requested for read buffer", suggested_size);
 
   if (con->read_buffer == NULL)
   {
@@ -321,7 +321,7 @@ uv_buf_t on_alloc(uv_handle_t *client, size_t suggested_size)
   buffer_free= ascore_buffer_get_available(con->read_buffer);
   if (buffer_free < suggested_size)
   {
-    asdebug("Enlarging buffer, free: %lld, requested: %lld", buffer_free, suggested_size);
+    asdebug("Enlarging buffer, free: %zd, requested: %zd", buffer_free, suggested_size);
     ascore_buffer_increase(con->read_buffer);
     buffer_free= ascore_buffer_get_available(con->read_buffer);
   }

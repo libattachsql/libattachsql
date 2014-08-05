@@ -304,6 +304,30 @@ do \
   } \
 } while (0)
 
+#define ASSERT_STREQL_(__expected_str, __actual_str, __length,...) \
+do \
+{ \
+  int ret= strncmp(__expected_str, __actual_str, __length); \
+  if (ret) { \
+    size_t ask= snprintf(0, 0, __VA_ARGS__); \
+    ask++; \
+    char *buffer= (char*)alloca(sizeof(char) * ask); \
+    ask= snprintf(buffer, ask, __VA_ARGS__); \
+    if (YATL_FULL) { \
+      FAIL("Assertion '%.*s' != '%.*s' [ %.*s ]", \
+           (int)(__length), (__expected_str), \
+           (int)(__length), (__actual_str), \
+           (int)(ask), buffer); \
+    } \
+    fprintf(stderr, "\n%s:%d: %s Assertion '%.*s' != '%.*s' [ %.*s ]\n", __FILE__, __LINE__, __PRETTY_FUNCTION__, \
+            (int)(__length), (__expected_str), \
+            (int)(__length), (__actual_str), \
+            (int)(ask), buffer); \
+    exit(EXIT_FAILURE); \
+  } \
+} while (0)
+
+
 #define ASSERT_STRNE(__expected_str, __actual_str) \
 do \
 { \

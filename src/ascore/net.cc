@@ -26,7 +26,7 @@ void ascore_send_data(ascon_st *con, char *data, size_t length)
 {
   uv_buf_t send_buffer[2];
 
-  asdebug("Sending %lld bytes to server", length);
+  asdebug("Sending %zd bytes to server", length);
   ascore_pack_int3(con->packet_header, length);
   con->packet_number++;
   con->packet_header[3]= con->packet_number;
@@ -74,7 +74,7 @@ void ascore_read_data_cb(uv_stream_t* tcp, ssize_t read_size, const uv_buf_t buf
     con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
     return;
   }
-  asdebug("Got data, %lld bytes", read_size);
+  asdebug("Got data, %zd bytes", read_size);
   ascore_buffer_move_write_ptr(con->read_buffer, read_size);
   ascore_con_process_packets(con);
 }
@@ -100,7 +100,7 @@ bool ascore_con_process_packets(ascon_st *con)
 
     if ((packet_len + 4) > data_size)
     {
-      asdebug("Don't have whole packet, expected %u bytes, got %llu", packet_len, data_size - 4);
+      asdebug("Don't have whole packet, expected %u bytes, got %zu", packet_len, data_size - 4);
       return false;
     }
 

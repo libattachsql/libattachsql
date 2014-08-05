@@ -139,7 +139,6 @@ attachsql_error_st *attachsql_query(attachsql_connect_t *con, size_t length, con
           }
           break;
       }
-      pos++;
       param++;
     }
   }

@@ -29,6 +29,14 @@ ascore_command_status_t ascore_command_send(ascon_st *con, ascore_command_t comm
     return con->command_status;
   }
 
+  /* Reset a bunch of internals */
+  con->result.current_column= 0;
+  con->affected_rows= 0;
+  con->insert_id= 0;
+  con->server_status= 0;
+  con->warning_count= 0;
+  con->server_errno= 0;
+
   asdebug("Sending command %02X to sever", command);
   con->local_errcode= ASRET_OK;
   con->errmsg[0]= '\0';
@@ -46,7 +54,7 @@ ascore_command_status_t ascore_command_send(ascon_st *con, ascore_command_t comm
   {
     send_buffer[2].base= data;
     send_buffer[2].len= length;
-    asdebug("Sending %lld bytes with command to server", length);
+    asdebug("Sending %zd bytes with command to server", length);
     asdebug_hex(data, length);
     ret= uv_write(&con->uv_objects.write_req, con->uv_objects.stream, send_buffer, 3, on_write);
   }
