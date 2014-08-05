@@ -1,5 +1,5 @@
-Introduction
-============
+Introduction to Contributing
+============================
 
 There are many ways to contribute to libAttachSQL.  Simply using it and creating an issue report when you found a bug or have a suggestion is a great contribution.  Documentation and code contribituions are also greatly appreciated.
 
