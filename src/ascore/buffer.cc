@@ -36,6 +36,7 @@ buffer_st *ascore_buffer_create()
   buffer->buffer= (char*)malloc(ASCORE_DEFAULT_BUFFER_SIZE);
   if (buffer->buffer == NULL)
   {
+    delete buffer;
     return NULL;
   }
 

@@ -35,6 +35,7 @@ uint64_t ascore_unpack_length(char *buffer, uint8_t *bytes, ascore_pack_status_t
   if ((bytes == NULL) || (buffer == NULL))
   {
     *status= ASCORE_PACK_INVALID_ARGUMENT;
+    return 0;
   }
   *status= ASCORE_PACK_OK;
 
