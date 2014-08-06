@@ -29,7 +29,7 @@ env:
    #   via the "travis encrypt" command using the project repo's public key
    - secure: "g+trlSaW1QHjYPVN1gGFVBpIi3FHpmZ0u80GXsc70iyrZPxHm6cpep2/us4CVWYtKCBCkAdx0jdYVjSp3cUj1xWlP5KF3pSqy3ZaGPEPW8mKrrjtCLdQ+XpZKxKd+YtFL35LKchRzXNxa9ai+Z8egD5y/SX7m6UgiP/y4NB8m48="
    # Don't run coverity on CLang
-   - coverity_scan_run_condition='"$TRAVIS_OS_NAME" = linux -a "$CC" = g++'
+   - coverity_scan_run_condition='"$TRAVIS_OS_NAME" = linux -a "$CC" = gcc'
    # Use test mode if you are fiddling with this config to avoid hitting quota
    - coverity_scan_script_test_mode=false
 
