@@ -48,7 +48,7 @@ attachsql_connect_t *attachsql_connect_create(const char *host, in_port_t port, 
     }
     ascore_con_destroy(con->core_con);
     attachsql_connect_destroy(con);
-    con= NULL;
+    return NULL;
   }
 
   ascore_con_set_option(con->core_con, ASCORE_CON_OPTION_POLLING, true);
@@ -233,12 +233,5 @@ attachsql_error_st *attachsql_connect(attachsql_connect_t *con)
       break;
   }
 
-  if (error != NULL)
-  {
-    return error;
-  }
-  else
-  {
-    return NULL;
-  }
+  return NULL;
 }

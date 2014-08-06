@@ -207,15 +207,16 @@ ascore_con_status_t ascore_connect(ascon_st *con)
 {
   int ret;
 
+  if (con == NULL)
+  {
+    return ASCORE_CON_STATUS_PARAMETER_ERROR;
+  }
+
   con->uv_objects.hints.ai_family = PF_INET;
   con->uv_objects.hints.ai_socktype = SOCK_STREAM;
   con->uv_objects.hints.ai_protocol = IPPROTO_TCP;
   con->uv_objects.hints.ai_flags = 0;
 
-  if (con == NULL)
-  {
-    return ASCORE_CON_STATUS_PARAMETER_ERROR;
-  }
   if (con->status != ASCORE_CON_STATUS_NOT_CONNECTED)
   {
     return con->status;
@@ -349,6 +350,7 @@ void ascore_packet_read_handshake(ascon_st *con)
   // Server version (null-terminated string)
   buffer->buffer_read_ptr++;
   strncpy(con->server_version, buffer->buffer_read_ptr, ASCORE_MAX_SERVER_VERSION_LEN);
+  con->server_version[ASCORE_MAX_SERVER_VERSION_LEN - 1]= '\0';
   buffer->buffer_read_ptr+= strlen(con->server_version) + 1;
 
   // Thread ID
@@ -476,7 +478,7 @@ asret_t scramble_password(ascon_st *con, unsigned char *buffer)
   unsigned char stage2[SHA1_DIGEST_LENGTH];
   uint8_t it;
 
-  if (con->scramble_buffer == NULL)
+  if (con->scramble_buffer[0] == '\0')
   {
     asdebug("No scramble supplied from server");
     return ASRET_NO_SCRAMBLE;
