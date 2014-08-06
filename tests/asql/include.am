@@ -23,8 +23,3 @@ endif
 check_PROGRAMS+= t/asql/query
 noinst_PROGRAMS+= t/asql/query
 
-gdb-version: t/asql/version
-	@$(GDB_COMMAND) t/asql/version
-
-gdb-query: t/asql/query
-	@$(GDB_COMMAND) t/asql/query

@@ -6,11 +6,31 @@ libAttachSQL is designed to be compiled with GCC or CLang on a modern Linux dist
 Prerequisites
 -------------
 
-libAttachSQL requires the following to be installed:
+libAttachSQL requires *libuv 0.10* to be installed.  In Fedora this is installed using:
 
- * libuv 0.10
+.. code-block:: bash
 
-On a Mac we recommend using `Homebrew <http://brew.sh/>`_ to install these.
+   sudo yum install libuv-devel
+
+On a Mac we recommend using `Homebrew <http://brew.sh/>`_ to install this:
+
+.. code-block:: bash
+
+   brew install libuv
+
+Ubuntu 12.04 does not have libuv in its repositories so LinuxJedi created a PPA for this dependency (simply a backport from 14.04) which is used for the Travis CI tests.  It can be found at: `<https://launchpad.net/~linuxjedi/+archive/ubuntu/ppa>`_.  To install it simply do:
+
+.. code-block:: bash
+
+   sudo apt-add-repository ppa:linuxjedi/ppa
+   sudo apt-get update
+   sudo apt-get install libuv-dev
+
+More current versions of Ubuntu have libuv and it can be installed using:
+
+.. code-block:: bash
+
+   sudo apt-get install libuv-dev
 
 Building
 --------
@@ -73,18 +93,27 @@ The test suite can still be executed by using `wine <http://www.winehq.org/>`_:
 
 #. Setup wine to find the MinGW dlls as follows:
 
-   #. Run wine as follows to create the required wine home directory::
+   #. Run wineconsole as follows to create the required wine home directory (and exit it afterwards)::
 
-         wine
+         wineconsole
 
    #. Open the ``~/.wine/system.reg`` file for editing
    #. Find the section called ``[System\\CurrentControlSet\\Control\\Session Manager\\Environment]``
-   #. Under this find the ``PATH`` setting and add the path to MinGW's ``bin`` directory using the ``Z:`` drive.  For Fedora 18 64bit this makes the entry::
+   #. Under this find the ``PATH`` setting and add the path to MinGW's ``bin`` directory using the ``Z:`` drive.  For Fedora 20 64bit this makes the entry::
 
-         "PATH"=str(2):"C:\\windows\\system32;C:\\windows;C:\\windows\\system32\\wbem;Z:\\usr\\x68_64-w64-mingw32\\sys-root\\mingw\\bin"
+         "PATH"=str(2):"C:\\windows\\system32;C:\\windows;C:\\windows\\system32\\wbem;Z:\\usr\\x86_64-w64-mingw32\\sys-root\\mingw\\bin"
 
 #. Run the test suite as follows::
 
       LOG_COMPILER=wine make check
 
+Building RPMs
+-------------
+
+The build system for libAttachSQL has the capability to build RPMs.  To build RPMs simply do the following:
+
+.. code-block:: bash
+
+   ./bootstrap.sh
+   make dist-rpm
 

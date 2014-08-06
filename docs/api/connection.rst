@@ -1,6 +1,9 @@
 Connection Functions
 ====================
 
+attachsql_connect_create()
+--------------------------
+
 .. c:function:: attachsql_connect_t *attachsql_connect_create(const char *host, in_port_t port, const char *user, const char *pass, const char *schema, attachsql_error_st **error)
 
    Creates a connection object with the requested parameters.  If port ``0`` is given then the library will assume a Unix Domain Socket (UDS) connection is required unless explicitly specified.
@@ -18,6 +21,9 @@ Connection Functions
 
    .. versionadded:: 0.1.0
 
+attachsql_connect_destroy()
+---------------------------
+
 .. c:function:: void attachsql_connect_destroy(attachsql_connect_t *con)
 
    Disconnects from the MySQL server (if connected), frees allocated memory associated with the connection object and frees the connection object.
@@ -25,6 +31,9 @@ Connection Functions
    :param con: The connection object
 
    .. versionadded:: 0.1.0
+
+attachsql_connect()
+-------------------
 
 .. c:function:: attachsql_error_st *attachsql_connect(attachsql_connect_t *con)
 
@@ -34,6 +43,9 @@ Connection Functions
    :returns: An error struct or NULL if there is no error
 
    .. versionadded:: 0.1.0
+
+attachsql_connect_set_callback()
+--------------------------------
 
 .. c:function:: void attachsql_connect_set_callback(attachsql_connect_t *con, attachsql_callback_fn *function, void *context)
 
@@ -48,6 +60,9 @@ Connection Functions
 
    .. versionadded:: 0.1.0
 
+attachsql_connect_get_server_version()
+--------------------------------------
+
 .. c:function:: const char *attachsql_connect_get_server_version(attachsql_connect_t *con)
 
    Gets the version sting of the MySQL server libAttachSQL is connected to.
@@ -56,6 +71,9 @@ Connection Functions
    :returns: The version string or :c:type:`NULL` if not connected
 
    .. versionadded:: 0.1.0
+
+attachsql_connect_poll()
+------------------------
 
 .. c:function:: attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_error_st **error)
 
