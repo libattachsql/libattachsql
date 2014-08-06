@@ -294,7 +294,7 @@ void ascore_packet_read_column(ascon_st *con)
   // Schema
   str_len= ascore_unpack_length(buffer->buffer_read_ptr, &bytes, NULL);
   buffer->buffer_read_ptr+= bytes;
-  if (str_len > ASCORE_MAX_SCHEMA_SIZE)
+  if (str_len >= ASCORE_MAX_SCHEMA_SIZE)
   {
     str_read= ASCORE_MAX_SCHEMA_SIZE - 1;
   }
@@ -309,7 +309,7 @@ void ascore_packet_read_column(ascon_st *con)
   // Table
   str_len= ascore_unpack_length(buffer->buffer_read_ptr, &bytes, NULL);
   buffer->buffer_read_ptr+= bytes;
-  if (str_len > ASCORE_MAX_TABLE_SIZE)
+  if (str_len >= ASCORE_MAX_TABLE_SIZE)
   {
     str_read= ASCORE_MAX_TABLE_SIZE -1;
   }
@@ -324,7 +324,7 @@ void ascore_packet_read_column(ascon_st *con)
   // Origin table
   str_len= ascore_unpack_length(buffer->buffer_read_ptr, &bytes, NULL);
   buffer->buffer_read_ptr+= bytes;
-  if (str_len > ASCORE_MAX_TABLE_SIZE)
+  if (str_len >= ASCORE_MAX_TABLE_SIZE)
   {
     str_read= ASCORE_MAX_TABLE_SIZE -1;
   }
@@ -339,7 +339,7 @@ void ascore_packet_read_column(ascon_st *con)
   // Column
   str_len= ascore_unpack_length(buffer->buffer_read_ptr, &bytes, NULL);
   buffer->buffer_read_ptr+= bytes;
-  if (str_len > ASCORE_MAX_COLUMN_SIZE)
+  if (str_len >= ASCORE_MAX_COLUMN_SIZE)
   {
     str_read= ASCORE_MAX_COLUMN_SIZE -1;
   }
@@ -354,7 +354,7 @@ void ascore_packet_read_column(ascon_st *con)
   // Origin column
   str_len= ascore_unpack_length(buffer->buffer_read_ptr, &bytes, NULL);
   buffer->buffer_read_ptr+= bytes;
-  if (str_len > ASCORE_MAX_COLUMN_SIZE)
+  if (str_len >= ASCORE_MAX_COLUMN_SIZE)
   {
     str_read= ASCORE_MAX_COLUMN_SIZE -1;
   }
