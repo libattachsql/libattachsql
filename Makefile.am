@@ -27,7 +27,6 @@ dist_man_MANS=
 #includes additional rules from aminclude.am
 @INC_AMINCLUDE@
 DISTCLEANFILES+= aminclude.am
-CLEANFILES+= $(dist_bin_SCRIPTS)
 
 EXTRA_DIST+= README.rst
 EXTRA_DIST+= LICENSE
