@@ -1,6 +1,9 @@
 Query Functions
 ===============
 
+attachsql_query()
+-----------------
+
 .. c:function:: attachsql_error_st *attachsql_query(attachsql_connect_t *con, size_t length, const char *statement, uint16_t parameter_count, attachsql_query_parameter_st *parameters)
 
    Asyncronusly sends a query to the MySQL server.  The query will not be sent until :c:func:`attachsql_connect_poll` is called.  The call to :c:func:`attachsql_connect_poll` should be repeated until an error has returned or ``ATTACHSQL_RETURN_ROW_READY``.
@@ -19,6 +22,9 @@ Query Functions
 
    .. versionadded:: 0.1.0
 
+attachsql_query_close()
+-----------------------
+
 .. c:function:: void attachsql_query_close(attachsql_connect_t *con)
 
    Closes a query on a connection
@@ -26,6 +32,9 @@ Query Functions
    :param con: The connection object the query is on
 
    .. versionadded:: 0.1.0
+
+attachsql_query_column_count()
+------------------------------
 
 .. c:function:: uint16_t attachsql_query_column_count(attachsql_connect_t *con)
 
@@ -36,6 +45,9 @@ Query Functions
 
    .. versionadded:: 0.1.0
 
+attachsql_query_column_get()
+----------------------------
+
 .. c:function:: attachsql_query_column_st *attachsql_query_column_get(attachsql_connect_t *con, uint16_t column)
 
    Gets column information for a specified column from a given query
@@ -45,6 +57,9 @@ Query Functions
    :returns: The column data or :c:type:`NULL` if there is no such column
 
    .. versionadded:: 0.1.0
+
+attachsql_query_row_get()
+-------------------------
 
 .. c:function:: attachsql_query_row_st *attachsql_query_row_get(attachsql_connect_t *con, attachsql_error_st **error)
 
@@ -59,6 +74,9 @@ Query Functions
 
    .. versionadded:: 0.1.0
 
+attachsql_query_row_next()
+--------------------------
+
 .. c:function:: void attachsql_query_row_next(attachsql_connect_t *con)
 
    Start retrieving the next row in a query.  This will return immediately and calls to :c:func:`attachsql_connect_poll` will retrieve the row until ``ATTACHSQL_RETURN_ROW_READY`` is returned.  This should not be used for the first row, but every subsequent row.
@@ -70,6 +88,9 @@ Query Functions
 
    .. versionadded:: 0.1.0
 
+attachsql_connection_last_insert_id()
+-------------------------------------
+
 .. c:function:: uint64_t attachsql_connection_last_insert_id(attachsql_connect_t *con)
 
    Returns the insert ID for the previous query (if applicable).
@@ -79,6 +100,9 @@ Query Functions
 
    .. versionadded:: 0.1.0
 
+attachsql_query_affected_rows()
+-------------------------------
+
 .. c:function:: uint64_t attachsql_query_affected_rows(attachsql_connect_t *con)
 
    Returns the number of affected rows from an UPDATE query.
@@ -87,6 +111,9 @@ Query Functions
    :returns: The number of affected rows
 
    .. versionadded:: 0.1.0
+
+attachsql_query_info()
+----------------------
 
 .. c:function:: const char *attachsql_query_info(attachsql_connect_t *con)
 
