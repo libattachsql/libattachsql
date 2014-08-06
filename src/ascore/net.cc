@@ -303,7 +303,7 @@ void ascore_packet_read_column(ascon_st *con)
     str_read= str_len;
   }
   memcpy(column->schema, buffer->buffer_read_ptr, str_read);
-  column->schema[str_read + 1]= '\0';
+  column->schema[str_read]= '\0';
   buffer->buffer_read_ptr+= str_len;
 
   // Table
@@ -318,7 +318,7 @@ void ascore_packet_read_column(ascon_st *con)
     str_read= str_len;
   }
   memcpy(column->table, buffer->buffer_read_ptr, str_read);
-  column->table[str_read + 1]= '\0';
+  column->table[str_read]= '\0';
   buffer->buffer_read_ptr+= str_len;
 
   // Origin table
@@ -333,7 +333,7 @@ void ascore_packet_read_column(ascon_st *con)
     str_read= str_len;
   }
   memcpy(column->origin_table, buffer->buffer_read_ptr, str_read);
-  column->origin_table[str_read + 1]= '\0';
+  column->origin_table[str_read]= '\0';
   buffer->buffer_read_ptr+= str_len;
 
   // Column
@@ -348,7 +348,7 @@ void ascore_packet_read_column(ascon_st *con)
     str_read= str_len;
   }
   memcpy(column->column, buffer->buffer_read_ptr, str_read);
-  column->column[str_read + 1]= '\0';
+  column->column[str_read]= '\0';
   buffer->buffer_read_ptr+= str_len;
 
   // Origin column
@@ -363,7 +363,7 @@ void ascore_packet_read_column(ascon_st *con)
     str_read= str_len;
   }
   memcpy(column->origin_column, buffer->buffer_read_ptr, str_read);
-  column->origin_column[str_read + 1]= '\0';
+  column->origin_column[str_read]= '\0';
   buffer->buffer_read_ptr+= str_len;
 
   // Padding
