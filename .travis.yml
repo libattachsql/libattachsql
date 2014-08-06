@@ -8,9 +8,11 @@ before_install:
   - sudo apt-get install -y libuv-dev python-sphinx
   - mysql -uroot -e "grant all on *.* to 'test'@'localhost' identified by 'test';"
 script:
+  - if [ "$COVERITY_SCAN_BRANCH" != 1 ]
   - ./bootstrap.sh
   - make check
   - make html
+  - fi
 
 notifications:
   irc:
@@ -36,3 +38,8 @@ addons:
     build_command_prepend: "./bootstrap.sh; make clean"
     build_command:   "make -j 4"
     branch_pattern: coverity_scan
+
+matrix:
+  exclude:
+    - compiler: clang
+    - env: COVERITY_SCAN_BRANCH=1
