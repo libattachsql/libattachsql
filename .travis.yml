@@ -20,3 +20,19 @@ notifications:
     skip_join: true
     template:
       - "%{result}: %{repository_name}#%{build_number} (%{branch} - %{commit} : %{author}): %{build_url}"
+
+env:
+  global:
+   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+   #   via the "travis encrypt" command using the project repo's public key
+   - secure: "g+trlSaW1QHjYPVN1gGFVBpIi3FHpmZ0u80GXsc70iyrZPxHm6cpep2/us4CVWYtKCBCkAdx0jdYVjSp3cUj1xWlP5KF3pSqy3ZaGPEPW8mKrrjtCLdQ+XpZKxKd+YtFL35LKchRzXNxa9ai+Z8egD5y/SX7m6UgiP/y4NB8m48="
+
+addons:
+  coverity_scan:
+    project:
+      name: "libattachsql/libattachsql"
+      description: "Build submitted via Travis CI"
+    notification_email: andrew@linuxjedi.co.uk
+    build_command_prepend: "./bootstrap.sh; make clean"
+    build_command:   "make -j 4"
+    branch_pattern: coverity_scan
