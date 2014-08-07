@@ -23,3 +23,22 @@ endif
 check_PROGRAMS+= t/asql/query
 noinst_PROGRAMS+= t/asql/query
 
+t_asql_query_error_SOURCES= tests/asql/query_error.cc
+t_asql_query_error_LDADD= src/asql/libattachsql.la
+if BUILD_WIN32
+t_asql_query_error_LDADD+= -lws2_32
+t_asql_query_error_LDADD+= -lpsapi
+t_asql_query_error_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/asql/query_error
+noinst_PROGRAMS+= t/asql/query_error
+
+t_asql_connect_error_SOURCES= tests/asql/connect_error.cc
+t_asql_connect_error_LDADD= src/asql/libattachsql.la
+if BUILD_WIN32
+t_asql_connect_error_LDADD+= -lws2_32
+t_asql_connect_error_LDADD+= -lpsapi
+t_asql_connect_error_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/asql/connect_error
+noinst_PROGRAMS+= t/asql/connect_error
