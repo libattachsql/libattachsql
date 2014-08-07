@@ -36,6 +36,7 @@ int main(int argc, char *argv[])
   while(aret != ATTACHSQL_RETURN_EOF)
   {
     aret= attachsql_connect_poll(con, &error);
+    SKIP_IF_(error, "Multi-statement not supported");
     if (aret == ATTACHSQL_RETURN_ROW_READY)
     {
       row= attachsql_query_row_get(con, &error);
