@@ -109,3 +109,35 @@ ascore_command_status_t ascore_get_next_row(ascon_st *con)
   }
   return con->command_status;
 }
+
+bool ascore_command_next_result(ascon_st *con)
+{
+  if (con == NULL)
+  {
+    return false;
+  }
+  if (con->server_status & ASCORE_SERVER_STATUS_MORE_RESULTS)
+  {
+    /* Reset a bunch of internals */
+    con->result.current_column= 0;
+    con->affected_rows= 0;
+    con->insert_id= 0;
+    con->server_status= 0;
+    con->warning_count= 0;
+    con->server_errno= 0;
+    con->next_packet_type= ASCORE_PACKET_TYPE_RESPONSE;
+    uv_read_start(con->uv_objects.stream, on_alloc, ascore_read_data_cb);
+    con->command_status= ASCORE_COMMAND_STATUS_READ_RESPONSE;
+    con->status= ASCORE_CON_STATUS_BUSY;
+    if (con->options.polling)
+    {
+      uv_run(con->uv_objects.loop, UV_RUN_NOWAIT);
+    }
+    else
+    {
+      uv_run(con->uv_objects.loop, UV_RUN_DEFAULT);
+    }
+    return true;
+  }
+  return false;
+}

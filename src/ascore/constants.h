@@ -95,13 +95,15 @@ enum ascore_capabilities_t
   ASCORE_CAPABILITY_MULTI_STATEMENTS=   (1 << 16),
   ASCORE_CAPABILITY_MULTI_RESULTS=      (1 << 17),
   ASCORE_CAPABILITY_PLUGIN_AUTH=        (1 << 19),
-  ASCORE_CAPABILITY_CLIENT=            (ASCORE_CAPABILITY_LONG_PASSWORD   |
-                                        ASCORE_CAPABILITY_FOUND_ROWS      |
-                                        ASCORE_CAPABILITY_LONG_FLAG       |
-                                        ASCORE_CAPABILITY_CONNECT_WITH_DB |
-                                        ASCORE_CAPABILITY_PLUGIN_AUTH     |
-                                        ASCORE_CAPABILITY_TRANSACTIONS    |
-                                        ASCORE_CAPABILITY_PROTOCOL_41     |
+  ASCORE_CAPABILITY_CLIENT=            (ASCORE_CAPABILITY_LONG_PASSWORD    |
+                                        ASCORE_CAPABILITY_FOUND_ROWS       |
+                                        ASCORE_CAPABILITY_LONG_FLAG        |
+                                        ASCORE_CAPABILITY_CONNECT_WITH_DB  |
+                                        ASCORE_CAPABILITY_PLUGIN_AUTH      |
+                                        ASCORE_CAPABILITY_TRANSACTIONS     |
+                                        ASCORE_CAPABILITY_PROTOCOL_41      |
+                                        ASCORE_CAPABILITY_MULTI_STATEMENTS |
+                                        ASCORE_CAPABILITY_MULTI_RESULTS    |
                                         ASCORE_CAPABILITY_SERCURE_CONNECTION)
 };
 
@@ -218,6 +220,24 @@ enum ascore_column_flags_t
   ASCORE_COLUMN_FLAGS_RENAMED=           (1 << 21)
 };
 
+enum ascore_server_status_t
+{
+  ASCORE_SERVER_STATUS_NONE=                     0,
+  ASCORE_SERVER_STATUS_IN_TRANSACTION=           (1 << 0),
+  ASCORE_SERVER_STATUS_AUTOCOMMIT=               (1 << 1),
+  // (1 << 2) unusued
+  ASCORE_SERVER_STATUS_MORE_RESULTS=             (1 << 3),
+  ASCORE_SERVER_STATUS_NO_GOOD_INDEX=            (1 << 4),
+  ASCORE_SERVER_STATUS_NO_INDEX=                 (1 << 5),
+  ASCORE_SERVER_STATUS_CURSOR_EXISTS=            (1 << 6),
+  ASCORE_SERVER_STATUS_LAST_ROW_SENT=            (1 << 7),
+  ASCORE_SERVER_STATUS_DB_DROPPED=               (1 << 8),
+  ASCORE_SERVER_STATUS_NO_BACKSLASH_ESCAPES=     (1 << 9),
+  ASCORE_SERVER_STATUS_METADATA_CHANGED=         (1 << 10),
+  ASCORE_SERVER_STATUS_QUERY_WAS_SLOW=           (1 << 11),
+  ASCORE_SERVER_STATUS_PS_OUT_PARAMS=            (1 << 12),
+  ASCORE_SERVER_STATUS_IN_TRANSACTION_READ_ONLY= (1 << 13)
+};
 #ifdef __cplusplus
 }
 #endif

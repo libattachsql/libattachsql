@@ -29,6 +29,8 @@ ascore_command_status_t ascore_command_send(ascon_st *con, ascore_command_t comm
 
 ascore_command_status_t ascore_get_next_row(ascon_st *con);
 
+bool ascore_command_next_result(ascon_st *con);
+
 #ifdef __cplusplus
 }
 #endif

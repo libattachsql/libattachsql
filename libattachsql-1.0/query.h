@@ -167,6 +167,9 @@ uint64_t attachsql_query_affected_rows(attachsql_connect_t *con);
 ASQL_API
 const char *attachsql_query_info(attachsql_connect_t *con);
 
+ASQL_API
+attachsql_return_t attachsql_query_next_result(attachsql_connect_t *con);
+
 #ifdef __cplusplus
 }
 #endif

@@ -367,3 +367,17 @@ uint32_t attachsql_query_warning_count(attachsql_connect_t *con)
 
   return con->core_con->warning_count;
 }
+
+attachsql_return_t attachsql_query_next_result(attachsql_connect_t *con)
+{
+  if (con == NULL)
+  {
+    return ATTACHSQL_RETURN_ERROR;
+  }
+
+  if (ascore_command_next_result(con->core_con))
+  {
+    return ATTACHSQL_RETURN_PROCESSING;
+  }
+  return ATTACHSQL_RETURN_EOF;
+}
