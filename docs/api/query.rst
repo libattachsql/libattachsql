@@ -123,3 +123,13 @@ attachsql_query_info()
    :returns: A string of the info or :c:type:`NULL` if there is none
 
    .. versionadded:: 0.1.0
+
+attachsql_query_next_result()
+-----------------------------
+
+.. c:function:: attachsql_return_t attachsql_query_next_result(attachsql_connect_t *con)
+
+   Checks to see if there is another result waiting and starts the process to receive the result if there is.  Once this has been run :c:func:`attachsql_connect_poll` can be used to retrieve the data as normal.
+
+   :param con: The connection object the query was on
+   :returns: ``ATTACHSQL_RETURN_PROCESSING`` for more results, ``ATTACHSQL_RETURN_EOF`` for no more results.

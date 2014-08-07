@@ -52,7 +52,8 @@ attachsql_connect_t *attachsql_connect_create(const char *host, in_port_t port, 
   }
 
   ascore_con_set_option(con->core_con, ASCORE_CON_OPTION_POLLING, true);
-
+  // TODO: this one maybe should be optional?
+  ascore_con_set_option(con->core_con, ASCORE_CON_OPTION_MULTI_STATEMENTS, true);
   return con;
 }
 
