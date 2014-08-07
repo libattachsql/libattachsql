@@ -331,6 +331,10 @@ ENUMs
    +-------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------+
    | ``ATTACHSQL_ESCAPE_TYPE_INT``       | Value is an int.  The data will be converted into a character representation of the int.                                          |
    +-------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------+
-   | ``ATTACHSQL_ESCAPE_TYPE_BIGINT``    | Value is a bigint.  The data will be converted into a character represetation of the bigint.                                      |
+   | ``ATTACHSQL_ESCAPE_TYPE_BIGINT``    | Value is a bigint.  The data will be converted into a character representation of the bigint.                                     |
+   +-------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------+
+   | ``ATTACHSQL_ESCAPE_TYPE_FLOAT``     | Value is a float.  The data will be converted into a character representation of the float.                                       |
+   +-------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------+
+   | ``ATTACHSQL_ESCAPE_TYPE_DOUBLE``    | Value is a double.  The data will be converted into a character representation of the double.                                     |
    +-------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------+
 

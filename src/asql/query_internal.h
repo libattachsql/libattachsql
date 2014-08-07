@@ -17,11 +17,17 @@
 
 #pragma once
 
+#include <float.h>
 #include "src/ascore/ascore.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+// Float and Double lengths from: http://stackoverflow.com/questions/1701055/what-is-the-maximum-length-in-chars-needed-to-represent-any-double-value
+
+#define FLOAT_MAX_LEN 3 + FLT_MANT_DIG - FLT_MIN_EXP
+#define DOUBLE_MAX_LEN 3 + DBL_MANT_DIG - DBL_MIN_EXP
 
 size_t attachsql_query_escape_data(char *buffer, char *data, size_t length);
 
