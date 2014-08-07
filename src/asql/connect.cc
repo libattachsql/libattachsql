@@ -129,9 +129,9 @@ attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_er
       {
         attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_HOST_UNKNOWN, ATTACHSQL_ERROR_LEVEL_ERROR, "08000", con->core_con->errmsg);
       }
-      else if (con->core_con->errmsg[0] != '\0')
+      else if (con->core_con->server_errno != 0)
       {
-        attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_CONNECT, ATTACHSQL_ERROR_LEVEL_ERROR, "08000", con->core_con->errmsg);
+        attachsql_error_server_create(con, error);
       }
       else
       {
@@ -147,7 +147,13 @@ attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_er
       return ATTACHSQL_RETURN_PROCESSING;
       break;
     case ASCORE_CON_STATUS_IDLE:
-      if (con->core_con->command_status == ASCORE_COMMAND_STATUS_EOF)
+      if (con->core_con->server_errno != 0)
+      {
+        // Server error during query
+        attachsql_error_server_create(con, error);
+        return ATTACHSQL_RETURN_ERROR;
+      }
+      else if (con->core_con->command_status == ASCORE_COMMAND_STATUS_EOF)
       {
         if (con->callback_fn != NULL)
         {
@@ -206,9 +212,9 @@ attachsql_error_st *attachsql_connect(attachsql_connect_t *con)
       {
         attachsql_error_client_create(&error, ATTACHSQL_ERROR_CODE_HOST_UNKNOWN, ATTACHSQL_ERROR_LEVEL_ERROR, "08000", con->core_con->errmsg);
       }
-      else if (con->core_con->errmsg[0] != '\0')
+      else if (con->core_con->server_errno != 0)
       {
-        attachsql_error_client_create(&error, ATTACHSQL_ERROR_CODE_CONNECT, ATTACHSQL_ERROR_LEVEL_ERROR, "08000", con->core_con->errmsg);
+        attachsql_error_server_create(con, &error);
       }
       else
       {

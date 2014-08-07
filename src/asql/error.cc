@@ -63,3 +63,29 @@ void attachsql_error_client_create(attachsql_error_st **error, int code, attachs
   *error= new_err;
   va_end(args);
 }
+
+void attachsql_error_server_create(attachsql_connect_t *con, attachsql_error_st **error)
+{
+  attachsql_error_st *new_err= NULL;
+
+  if (con == NULL)
+  {
+    return;
+  }
+  if (error == NULL)
+  {
+    /* NULL has been passed, so error disabled */
+    return;
+  }
+  new_err= new (std::nothrow) attachsql_error_st;
+
+  if (new_err == NULL)
+  {
+    /* No good way of handling this scenario */
+    return;
+  }
+  new_err->code= con->core_con->server_errno;
+  strncpy(new_err->msg, con->core_con->server_message, ATTACHSQL_MESSAGE_SIZE);
+  memcpy(new_err->sqlstate, con->core_con->sqlstate, ATTACHSQL_SQLSTATE_SIZE);
+  *error= new_err;
+}
