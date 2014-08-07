@@ -193,7 +193,11 @@ ascore_con_status_t ascore_con_poll(ascon_st *con)
   }
   if (con->options.polling)
   {
-    uv_run(con->uv_objects.loop, UV_RUN_NOWAIT);
+    // Make sure we aren't polling for somethin already in the buffer first
+    if (not ascore_con_process_packets(con))
+    {
+      uv_run(con->uv_objects.loop, UV_RUN_NOWAIT);
+    }
   }
   else
   {
