@@ -87,6 +87,12 @@ attachsql_error_st *attachsql_query(attachsql_connect_t *con, size_t length, con
       case ATTACHSQL_ESCAPE_TYPE_BIGINT:
         out_len+= 20;
         break;
+      case ATTACHSQL_ESCAPE_TYPE_FLOAT:
+        out_len+= FLOAT_MAX_LEN;
+        break;
+      case ATTACHSQL_ESCAPE_TYPE_DOUBLE:
+        out_len+= DOUBLE_MAX_LEN;
+        break;
     }
   }
   con->query_buffer= new (std::nothrow) char[out_len];
@@ -137,6 +143,13 @@ attachsql_error_st *attachsql_query(attachsql_connect_t *con, size_t length, con
           {
             buffer_pos+= sprintf(&con->query_buffer[buffer_pos], "%" PRIu64, *(uint64_t*)parameters[param].data);
           }
+          break;
+        case ATTACHSQL_ESCAPE_TYPE_FLOAT:
+          // Significant digit length from http://msdn.microsoft.com/en-us/library/hd7199ke.aspx
+          buffer_pos+= snprintf(&con->query_buffer[buffer_pos], FLOAT_MAX_LEN, "%.7f", *(float*)parameters[param].data);
+          break;
+        case ATTACHSQL_ESCAPE_TYPE_DOUBLE:
+          buffer_pos+= snprintf(&con->query_buffer[buffer_pos], DOUBLE_MAX_LEN, "%.15f", *(double*)parameters[param].data);
           break;
       }
       param++;

@@ -26,10 +26,10 @@ int main(int argc, char *argv[])
   attachsql_connect_t *con;
   attachsql_error_st *error;
   const char *data= "SHOW PROCESSLIST";
-  const char *data2= "SELECT ? as a, '?' as b, ? as c";
+  const char *data2= "SELECT ? as a, '?' as b, ? as c, ? as d, ? as e";
   attachsql_return_t aret= ATTACHSQL_RETURN_NONE;
   attachsql_query_row_st *row;
-  attachsql_query_parameter_st param[3];
+  attachsql_query_parameter_st param[5];
   uint16_t columns, col;
 
   con= attachsql_connect_create("localhost", 3306, "test", "test", "", NULL);
@@ -53,6 +53,8 @@ int main(int argc, char *argv[])
   attachsql_query_close(con);
   const char *td= "test";
   uint32_t tn= 45768;
+  float tf= 3.14159;
+  double tlf= 3.1415926;
   param[0].type= ATTACHSQL_ESCAPE_TYPE_CHAR;
   param[0].data= (char*)td;
   param[0].length= strlen(td);
@@ -62,7 +64,11 @@ int main(int argc, char *argv[])
   param[2].type= ATTACHSQL_ESCAPE_TYPE_INT;
   param[2].data= &tn;
   param[2].is_unsigned= true;
-  error= attachsql_query(con, strlen(data2), data2, 3, param);
+  param[3].type= ATTACHSQL_ESCAPE_TYPE_FLOAT;
+  param[3].data= &tf;
+  param[4].type= ATTACHSQL_ESCAPE_TYPE_DOUBLE;
+  param[4].data= &tlf;
+  error= attachsql_query(con, strlen(data2), data2, 5, param);
   ASSERT_NULL_(error, "Error not NULL");
   aret= ATTACHSQL_RETURN_NONE;
   while(aret != ATTACHSQL_RETURN_EOF)
@@ -72,10 +78,12 @@ int main(int argc, char *argv[])
     {
       row= attachsql_query_row_get(con, &error);
       columns= attachsql_query_column_count(con);
-      ASSERT_EQ_(3, columns, "Column count unexpected");
+      ASSERT_EQ_(5, columns, "Column count unexpected");
       ASSERT_STREQL_("test", row[0].data, 4, "Bad row data");
       ASSERT_STREQL_("test", row[1].data, 4, "Bad row data");
       ASSERT_STREQL_("45768", row[2].data, 5, "Bad row data");
+      ASSERT_STREQL_("3.14159", row[3].data, 7, "Bad float data");
+      ASSERT_STREQL_("3.1415926", row[4].data, 9, "Bad double data");
       attachsql_query_row_next(con);
       printf("\n");
     }
