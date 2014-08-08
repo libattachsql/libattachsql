@@ -84,3 +84,17 @@ attachsql_connect_poll()
    :returns: The status of the connection after the poll
 
    .. versionadded:: 0.1.0
+
+attachsql_connect_set_option()
+------------------------------
+
+.. c:function:: bool attachsql_connect_set_option(attachsql_connect_t *con, attachsql_options_t option, const void *arg)
+
+   Sets various connection options.  A list of possible options are listed at :c:type:`attachsql_options_t`
+
+   :param con: The connection object to set the option on
+   :param option: The option to set
+   :param arg: The option argument (if any)
+   :returns: true on success, false on failure
+
+   .. versionadded:: 0.1.0
