@@ -42,6 +42,9 @@ attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_er
 ASQL_API
 attachsql_error_st *attachsql_connect(attachsql_connect_t *con);
 
+ASQL_API
+bool attachsql_connect_set_option(attachsql_connect_t *con, attachsql_options_t option, const void *arg);
+
 #ifdef __cplusplus
 }
 #endif

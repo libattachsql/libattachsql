@@ -51,9 +51,7 @@ attachsql_connect_t *attachsql_connect_create(const char *host, in_port_t port, 
     return NULL;
   }
 
-  ascore_con_set_option(con->core_con, ASCORE_CON_OPTION_POLLING, true);
-  // TODO: this one maybe should be optional?
-  ascore_con_set_option(con->core_con, ASCORE_CON_OPTION_MULTI_STATEMENTS, true);
+  con->core_con->options.polling= true;
   return con;
 }
 
@@ -241,4 +239,45 @@ attachsql_error_st *attachsql_connect(attachsql_connect_t *con)
   }
 
   return NULL;
+}
+
+bool attachsql_connect_set_option(attachsql_connect_t *con, attachsql_options_t option, const void *arg)
+{
+  // arg option is for later
+  (void) arg;
+  if (con == NULL)
+  {
+    return false;
+  }
+
+  switch (option)
+  {
+    case ATTACHSQL_OPTION_COMPRESS:
+      con->core_con->client_capabilities|= ASCORE_CAPABILITY_COMPRESS;
+      break;
+    case ATTACHSQL_OPTION_FOUND_ROWS:
+      con->core_con->client_capabilities|= ASCORE_CAPABILITY_FOUND_ROWS;
+      break;
+    case ATTACHSQL_OPTION_IGNORE_SIGPIPE:
+      con->core_con->client_capabilities|= ASCORE_CAPABILITY_IGNORE_SIGPIPE;
+      break;
+    case ATTACHSQL_OPTION_INTERACTIVE:
+      con->core_con->client_capabilities|= ASCORE_CAPABILITY_INTERACTIVE;
+      break;
+    case ATTACHSQL_OPTION_LOCAL_FILES:
+      con->core_con->client_capabilities|= ASCORE_CAPABILITY_LOCAL_FILES;
+      break;
+    case ATTACHSQL_OPTION_MULTI_STATEMENTS:
+      con->core_con->client_capabilities|= ASCORE_CAPABILITY_MULTI_STATEMENTS;
+      break;
+    case ATTACHSQL_OPTION_NO_SCHEMA:
+      con->core_con->client_capabilities|= ASCORE_CAPABILITY_NO_SCHEMA;
+      break;
+    case ATTACHSQL_OPTION_NONE:
+      return false;
+      break;
+    default:
+      return false;
+  }
+  return true;
 }

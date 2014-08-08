@@ -31,6 +31,7 @@ int main(int argc, char *argv[])
   uint16_t columns, col;
 
   con= attachsql_connect_create("localhost", 3306, "test", "test", "", NULL);
+  attachsql_connect_set_option(con, ATTACHSQL_OPTION_MULTI_STATEMENTS, NULL);
   error= attachsql_query(con, strlen(data), data, 0, NULL);
   SKIP_IF_(error, "Error not NULL");
   while(aret != ATTACHSQL_RETURN_EOF)

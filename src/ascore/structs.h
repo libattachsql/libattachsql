@@ -83,20 +83,10 @@ struct ascon_st
   struct options_t
   {
     bool polling;
-    bool raw_scramble;
-    bool found_rows;
-    bool interactive;
-    bool multi_statements;
-    bool auth_plugin;
     ascore_con_protocol_t protocol;
 
     options_t() :
       polling(false),
-      raw_scramble(false),
-      found_rows(false),
-      interactive(false),
-      multi_statements(false),
-      auth_plugin(false),
       protocol(ASCORE_CON_PROTOCOL_UNKNOWN)
     { }
   } options;
@@ -112,6 +102,7 @@ struct ascon_st
   unsigned char scramble_buffer[20];
   char packet_header[4];
   ascore_capabilities_t server_capabilities;
+  int client_capabilities;
   uint32_t packet_size;
   uint64_t affected_rows;
   uint64_t insert_id;
@@ -156,6 +147,7 @@ struct ascon_st
     packet_number(0),
     thread_id(0),
     server_capabilities(ASCORE_CAPABILITY_NONE),
+    client_capabilities(0),
     packet_size(0),
     affected_rows(0),
     insert_id(0),

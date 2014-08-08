@@ -338,3 +338,27 @@ ENUMs
    | ``ATTACHSQL_ESCAPE_TYPE_DOUBLE``    | Value is a double.  The data will be converted into a character representation of the double.                                     |
    +-------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------+
 
+.. c:type:: attachsql_options_t
+
+   The options for use with :c:func:`attachsql_connect_set_option`.  This is an ENUM with the following values:
+
+   +---------------------------------------+----------------------------------------------------------------------+----------+
+   | Value                                 | Description                                                          | Argument |
+   +=======================================+======================================================================+==========+
+   | ``ATTACHSQL_OPTION_COMPRESS``         | Enable protocol compression (not yet implemented)                    | Not used |
+   +---------------------------------------+----------------------------------------------------------------------+----------+
+   | ``ATTACHSQL_OPTION_FOUND_ROWS``       | Return the number of matched rows instead of number of changed rows  | Not used |
+   +---------------------------------------+----------------------------------------------------------------------+----------+
+   | ``ATTACHSQL_OPTION_IGNORE_SIGPIPE``   | Client library ignores SIGPIPE                                       | Not used |
+   +---------------------------------------+----------------------------------------------------------------------+----------+
+   | ``ATTACHSQL_OPTION_INTERACTIVE``      | Client should use interactive timeout instead of wait timeout        | Not used |
+   +---------------------------------------+----------------------------------------------------------------------+----------+
+   | ``ATTACHSQL_OPTION_LOCAL_FILES``      | Enable ``LOAD DATA LOCAL`` (not yet implemented)                     | Not used |
+   +---------------------------------------+----------------------------------------------------------------------+----------+
+   | ``ATTACHSQL_OPTION_MULTI_STATEMENTS`` | Enable multi-statement queries                                       | Not used |
+   +---------------------------------------+----------------------------------------------------------------------+----------+
+   | ``ATTACHSQL_OPTION_NO_SCHEMA``        | Disable the ``schema_name.table_name.column_name`` syntax (for ODBC) | Not used |
+   +---------------------------------------+----------------------------------------------------------------------+----------+
+
+
+

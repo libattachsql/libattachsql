@@ -102,8 +102,6 @@ enum ascore_capabilities_t
                                         ASCORE_CAPABILITY_PLUGIN_AUTH      |
                                         ASCORE_CAPABILITY_TRANSACTIONS     |
                                         ASCORE_CAPABILITY_PROTOCOL_41      |
-                                        ASCORE_CAPABILITY_MULTI_STATEMENTS |
-                                        ASCORE_CAPABILITY_MULTI_RESULTS    |
                                         ASCORE_CAPABILITY_SERCURE_CONNECTION)
 };
 
