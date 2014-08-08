@@ -56,40 +56,6 @@ ascon_st *ascore_con_create(const char *host, in_port_t port, const char *user, 
   return con;
 }
 
-void ascore_con_set_option(ascon_st *con, ascore_con_options_t option, bool value)
-{
-  switch (option)
-  {
-    case ASCORE_CON_OPTION_POLLING:
-      con->options.polling= value;
-      break;
-    case ASCORE_CON_OPTION_RAW_SCRAMBLE:
-      con->options.raw_scramble= value;
-      break;
-    case ASCORE_CON_OPTION_FOUND_ROWS:
-      con->options.found_rows= value;
-      break;
-    case ASCORE_CON_OPTION_INTERACTIVE:
-      con->options.interactive= value;
-      break;
-    case ASCORE_CON_OPTION_MULTI_STATEMENTS:
-      con->options.multi_statements= value;
-      break;
-    case ASCORE_CON_OPTION_AUTH_PLUGIN:
-      con->options.auth_plugin = value;
-      break;
-    case ASCORE_CON_OPTION_PROTOCOL_TCP:
-      con->options.protocol= ASCORE_CON_PROTOCOL_TCP;
-      break;
-    case ASCORE_CON_OPTION_PROTOCOL_UDS:
-      con->options.protocol= ASCORE_CON_PROTOCOL_UDS;
-      break;
-    default:
-      /* This will only happen if an invalid options is provided */
-      return;
-  }
-}
-
 void ascore_con_destroy(ascon_st *con)
 {
   if (con == NULL)
@@ -109,49 +75,6 @@ void ascore_con_destroy(ascon_st *con)
   }
   uv_loop_delete(con->uv_objects.loop);
   delete con;
-}
-
-bool ascore_con_get_option(ascon_st *con, ascore_con_options_t option)
-{
-  switch(option)
-  {
-    case ASCORE_CON_OPTION_POLLING:
-      return con->options.polling;
-      break;
-    // TODO: this is to do with auth plugins
-    case ASCORE_CON_OPTION_RAW_SCRAMBLE:
-      return con->options.raw_scramble;
-      break;
-    case ASCORE_CON_OPTION_FOUND_ROWS:
-      return con->options.found_rows;
-      break;
-    case ASCORE_CON_OPTION_INTERACTIVE:
-      return con->options.interactive;
-      break;
-    case ASCORE_CON_OPTION_MULTI_STATEMENTS:
-      return con->options.multi_statements;
-      break;
-    case ASCORE_CON_OPTION_AUTH_PLUGIN:
-      return con->options.auth_plugin;
-      break;
-    case ASCORE_CON_OPTION_PROTOCOL_TCP:
-      if (con->options.protocol == ASCORE_CON_PROTOCOL_TCP)
-      {
-        return true;
-      }
-      return false;
-      break;
-    case ASCORE_CON_OPTION_PROTOCOL_UDS:
-      if (con->options.protocol == ASCORE_CON_PROTOCOL_UDS)
-      {
-        return true;
-      }
-      return false;
-      break;
-    default:
-      break;
-  }
-  return false;
 }
 
 void on_resolved(uv_getaddrinfo_t *resolver, int status, struct addrinfo *res)
@@ -403,22 +326,8 @@ void ascore_handshake_response(ascon_st *con)
   buffer_ptr= (unsigned char*)con->write_buffer;
 
   capabilities= con->server_capabilities & ASCORE_CAPABILITY_CLIENT;
-  if (con->options.found_rows)
-  {
-    capabilities|= ASCORE_CAPABILITY_FOUND_ROWS;
-  }
-  if (con->options.interactive)
-  {
-    capabilities|= ASCORE_CAPABILITY_INTERACTIVE;
-  }
-  if (con->options.multi_statements)
-  {
-    capabilities|= ASCORE_CAPABILITY_MULTI_STATEMENTS;
-  }
-  if (con->options.auth_plugin)
-  {
-    capabilities|= ASCORE_CAPABILITY_PLUGIN_AUTH;
-  }
+  capabilities|= ASCORE_CAPABILITY_MULTI_RESULTS;
+  capabilities|= con->client_capabilities;
 
   ascore_pack_int4(buffer_ptr, capabilities);
   buffer_ptr+= 4;

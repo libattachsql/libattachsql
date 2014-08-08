@@ -33,10 +33,6 @@ extern "C" {
 
 ascon_st *ascore_con_create(const char *host, in_port_t port, const char *user, const char *pass, const char *schema);
 
-void ascore_con_set_option(ascon_st *con, ascore_con_options_t option, bool value);
-
-bool ascore_con_get_option(ascon_st *con, ascore_con_options_t option);
-
 ascore_con_status_t ascore_connect(ascon_st *con);
 
 ascore_con_status_t ascore_con_poll(ascon_st *con);
