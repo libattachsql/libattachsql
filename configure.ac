@@ -111,9 +111,7 @@ AX_PRINTF_STRERROR
 
 AX_PTHREAD_TIMEDJOIN_NP
 
-#AX_LIBUV(, [AC_MSG_ERROR(could not find libuv)])
 AX_CHECK_LIBRARY([LIBUV], [uv.h], [uv], [], [AC_MSG_ERROR(could not find libuv)])
-#AX_CHECK_ZLIB
 AX_CHECK_OPENSSL([ax_cv_openssl=yes
                   AC_DEFINE([HAVE_OPENSSL], [1], [Define to 1 if you have OpenSSL])
                   ], [
