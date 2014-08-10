@@ -85,7 +85,9 @@ void attachsql_error_server_create(attachsql_connect_t *con, attachsql_error_st 
     return;
   }
   new_err->code= con->core_con->server_errno;
-  strncpy(new_err->msg, con->core_con->server_message, ATTACHSQL_MESSAGE_SIZE);
-  memcpy(new_err->sqlstate, con->core_con->sqlstate, ATTACHSQL_SQLSTATE_SIZE);
+  strncpy(new_err->msg, con->core_con->server_message, ATTACHSQL_MESSAGE_SIZE - 1);
+  new_err->msg[ATTACHSQL_MESSAGE_SIZE - 1]= '\0';
+  memcpy(new_err->sqlstate, con->core_con->sqlstate, ATTACHSQL_SQLSTATE_SIZE - 1);
+  new_err->sqlstate[ATTACHSQL_SQLSTATE_SIZE - 1]= '\0';
   *error= new_err;
 }
