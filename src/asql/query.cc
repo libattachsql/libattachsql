@@ -242,8 +242,11 @@ void attachsql_query_close(attachsql_connect_t *con)
     delete[] con->row;
     con->row= NULL;
   }
-
-  con->in_query= false;
+  /* We are still in query if there are more results */
+  if (not (con->core_con->server_status bitand ASCORE_SERVER_STATUS_MORE_RESULTS))
+  {
+    con->in_query= false;
+  }
 }
 
 uint16_t attachsql_query_column_count(attachsql_connect_t *con)
