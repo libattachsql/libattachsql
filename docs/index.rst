@@ -12,6 +12,7 @@ Introduction
    introduction/whatis
    introduction/license
    introduction/compiling
+   introduction/version_history
 
 API Documentation
 -----------------
