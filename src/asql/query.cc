@@ -237,7 +237,7 @@ void attachsql_query_close(attachsql_connect_t *con)
     delete[] con->columns;
     con->columns= NULL;
   }
-  if (con->row != NULL)
+  if ((con->row != NULL) and not con->buffer_rows)
   {
     delete[] con->row;
     con->row= NULL;
@@ -247,6 +247,19 @@ void attachsql_query_close(attachsql_connect_t *con)
   {
     con->in_query= false;
   }
+
+  if (con->row_buffer_alloc_size > 0)
+  {
+    for (uint64_t row_pos= 0; row_pos < con->row_buffer_count; row_pos++)
+    {
+      delete[] con->row_buffer[row_pos];
+    }
+    free(con->row_buffer);
+  }
+  con->row_buffer_alloc_size= 0;
+  con->row_buffer_position= 0;
+  con->row_buffer_count= 0;
+  con->all_rows_buffered= false;
 }
 
 uint16_t attachsql_query_column_count(attachsql_connect_t *con)
@@ -310,6 +323,12 @@ attachsql_query_row_st *attachsql_query_row_get(attachsql_connect_t *con, attach
     return NULL;
   }
 
+  if (con->buffer_rows)
+  {
+    attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_BUFFERED_MODE, ATTACHSQL_ERROR_LEVEL_ERROR, "42000", "Cannot use function whilst buffering mode is enabled");
+    return NULL;
+  }
+
   if (con->core_con->command_status != ASCORE_COMMAND_STATUS_ROW_IN_BUFFER)
   {
     attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_NO_DATA, ATTACHSQL_ERROR_LEVEL_ERROR, "02000", "No more data to retreive");
@@ -320,6 +339,12 @@ attachsql_query_row_st *attachsql_query_row_get(attachsql_connect_t *con, attach
   if (con->row == NULL)
   {
     con->row= new (std::nothrow) attachsql_query_row_st[total_columns];
+  }
+
+  if (con->row == NULL)
+  {
+    attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_ALLOC, ATTACHSQL_ERROR_LEVEL_ERROR, "82100", "Allocation failure for row");
+    return NULL;
   }
 
   raw_row= con->core_con->result.row_data;
@@ -341,6 +366,10 @@ void attachsql_query_row_next(attachsql_connect_t *con)
     return;
   }
 
+  if (con->buffer_rows)
+  {
+    return;
+  }
   ascore_get_next_row(con->core_con);
 }
 
@@ -396,4 +425,120 @@ attachsql_return_t attachsql_query_next_result(attachsql_connect_t *con)
     return ATTACHSQL_RETURN_PROCESSING;
   }
   return ATTACHSQL_RETURN_EOF;
+}
+
+bool attachsql_query_buffer_rows(attachsql_connect_t *con, bool enable)
+{
+  if (con == NULL)
+  {
+    return false;
+  }
+
+  /* Can't switch whilst already executing a query */
+  if (con->in_query)
+  {
+    return false;
+  }
+
+  con->buffer_rows= enable;
+  return true;
+}
+
+uint64_t attachsql_query_row_count(attachsql_connect_t *con)
+{
+  if (con == NULL)
+  {
+    return 0;
+  }
+  if (not con->buffer_rows)
+  {
+    return 0;
+  }
+  if (not con->all_rows_buffered)
+  {
+    return 0;
+  }
+
+  return con->row_buffer_count;
+}
+
+attachsql_return_t attachsql_query_row_buffer(attachsql_connect_t *con, attachsql_error_st **error)
+{
+  uint16_t column;
+  uint16_t total_columns;
+  uint64_t length;
+  uint8_t bytes;
+  char *raw_row;
+  attachsql_query_row_st *row= NULL;
+
+  do
+  {
+    if (con->row_buffer_alloc_size <= con->row_buffer_count)
+    {
+      con->row_buffer_alloc_size+= ATTACHSQL_BUFFER_ROW_ALLOC_SIZE;
+      attachsql_query_row_st **realloc_buffer= (attachsql_query_row_st**)realloc(con->row_buffer, con->row_buffer_alloc_size * sizeof(attachsql_query_row_st*));
+      if (realloc_buffer == NULL)
+      {
+        attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_ALLOC, ATTACHSQL_ERROR_LEVEL_ERROR, "82100", "Allocation failure for row buffer");
+        return ATTACHSQL_RETURN_ERROR;
+      }
+      con->row_buffer= realloc_buffer;
+    }
+
+    total_columns= con->core_con->result.column_count;
+    row= new (std::nothrow) attachsql_query_row_st[total_columns];
+
+    if (row == NULL)
+    {
+      attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_ALLOC, ATTACHSQL_ERROR_LEVEL_ERROR, "82100", "Allocation failure for row");
+      return ATTACHSQL_RETURN_ERROR;
+    }
+
+    raw_row= con->core_con->result.row_data;
+    for (column= 0; column < total_columns; column++)
+    {
+      length= ascore_unpack_length(raw_row, &bytes, NULL);
+      raw_row+= bytes;
+      row[column].length= length;
+      row[column].data= raw_row;
+      raw_row+= length;
+    }
+
+    con->row_buffer[con->row_buffer_count]= row;
+    con->row_buffer_count++;
+    ascore_get_next_row(con->core_con);
+  } while (ascore_con_process_packets(con->core_con) and (con->core_con->status != ASCORE_CON_STATUS_IDLE));
+  return ATTACHSQL_RETURN_PROCESSING;
+}
+
+attachsql_query_row_st *attachsql_query_buffer_row_get(attachsql_connect_t *con)
+{
+  if (con == NULL)
+  {
+    return NULL;
+  }
+
+  if (con->row_buffer_position >= con->row_buffer_count)
+  {
+    /* All rows retrieved */
+    return NULL;
+  }
+  con->row= con->row_buffer[con->row_buffer_position];
+  con->row_buffer_position++;
+  return con->row;
+}
+
+attachsql_query_row_st *attachsql_query_row_get_offset(attachsql_connect_t *con, uint64_t row_number)
+{
+  if (con == NULL)
+  {
+    return NULL;
+  }
+
+  if (row_number >= con->row_buffer_count)
+  {
+    /* No such row */
+    return NULL;
+  }
+  return con->row_buffer[con->row_buffer_position];
 }

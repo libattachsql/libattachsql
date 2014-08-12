@@ -31,6 +31,7 @@ extern "C" {
 
 size_t attachsql_query_escape_data(char *buffer, char *data, size_t length);
 
+attachsql_return_t attachsql_query_row_buffer(attachsql_connect_t *con, attachsql_error_st **error);
 #ifdef __cplusplus
 }
 #endif

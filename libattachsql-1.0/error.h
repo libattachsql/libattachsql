@@ -85,7 +85,8 @@ enum attachsql_error_codes_t
   ATTACHSQL_ERROR_CODE_CONNECTION_ATTR=           2060,
   ATTACHSQL_ERROR_CODE_AUTH_PLUGIN=               2061,
   /* Our own errors starting at 3000 */
-  ATTACHSQL_ERROR_CODE_PARAMETER=                 3000
+  ATTACHSQL_ERROR_CODE_PARAMETER=                 3000,
+  ATTACHSQL_ERROR_CODE_BUFFERED_MODE=             3001
 };
 
 struct attachsql_error_st

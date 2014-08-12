@@ -172,6 +172,18 @@ const char *attachsql_query_info(attachsql_connect_t *con);
 ASQL_API
 attachsql_return_t attachsql_query_next_result(attachsql_connect_t *con);
 
+ASQL_API
+bool attachsql_query_buffer_rows(attachsql_connect_t *con, bool enable);
+
+ASQL_API
+uint64_t attachsql_query_row_count(attachsql_connect_t *con);
+
+ASQL_API
+attachsql_query_row_st *attachsql_query_buffer_row_get(attachsql_connect_t *con);
+
+ASQL_API
+attachsql_query_row_st *attachsql_query_row_get_offset(attachsql_connect_t *con, uint64_t row_number);
+
 #ifdef __cplusplus
 }
 #endif
