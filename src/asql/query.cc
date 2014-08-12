@@ -240,8 +240,8 @@ void attachsql_query_close(attachsql_connect_t *con)
   if ((con->row != NULL) and not con->buffer_rows)
   {
     delete[] con->row;
-    con->row= NULL;
   }
+  con->row= NULL;
   /* We are still in query if there are more results */
   if (not (con->core_con->server_status bitand ASCORE_SERVER_STATUS_MORE_RESULTS))
   {

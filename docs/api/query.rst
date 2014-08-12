@@ -68,6 +68,9 @@ attachsql_query_row_get()
    .. note::
       MySQL returns all row data for standard queries as char/binary, even the numerical data.
 
+   .. warning::
+      Do not use this function when using row buffering, it will return an error, instead use :c:func:`attachsql_query_buffer_row_get`
+
    :param con: The connection object the query is on
    :param error: A pointer to a pointer of an error struct which is created if an error occurs
    :returns: An array of row data, the number of elements in the array can be found with :c:func:`attachsql_query_column_count`
@@ -83,6 +86,9 @@ attachsql_query_row_next()
 
    .. warning::
       Row data from the previous row should be copied at this point, calling this function will erase it.
+
+   .. note::
+      This function does nothing when row buffering is enabled.
 
    :param con: The connection object the query is on
 
@@ -133,3 +139,58 @@ attachsql_query_next_result()
 
    :param con: The connection object the query was on
    :returns: ``ATTACHSQL_RETURN_PROCESSING`` for more results, ``ATTACHSQL_RETURN_EOF`` for no more results.
+
+   .. versionadded:: 0.1.0
+
+attachsql_query_buffer_rows()
+-----------------------------
+
+.. c:function:: bool attachsql_query_buffer_rows(attachsql_connect_t *con, bool enable)
+
+   Enable or disable row buffering mode
+
+   .. warning::
+      This cannot be enable whilst a query is executing and it will return ``false`` if you try this
+
+   :param con: The connection the queries will be on
+   :param enable: ``true`` to enable, ``false`` to disable
+   :returns: Whether or not the status change was successful
+
+   .. versionadded:: 0.2.0
+
+attachsql_query_row_count()
+---------------------------
+
+.. c:function:: uint64_t attachsql_query_row_count(attachsql_connect_t *con)
+
+   Returns the number of rows returned in a query when row buffering is enabled.  Will return 0 if row buffering is not enabled or the entire result set has not yet been retrieved.
+
+   :param con: The connection the query was on
+   :returns: The number of rows or 0 if not possible
+
+   .. versionadded:: 0.2.0
+
+attachsql_query_buffer_row_get()
+--------------------------------
+
+.. c:function:: attachsql_query_row_st *attachsql_query_buffer_row_get(attachsql_connect_t *con)
+
+   Retrieves a row from a buffered result set
+
+   :param con: The connection the query was on
+   :returns: An array of row data, the number of elements in the array can be found with :c:func:`attachsql_query_column_count`
+
+   .. versionadded:: 0.2.0
+
+attachsql_query_row_get_offset()
+--------------------------------
+
+.. c:function:: attachsql_query_row_get_offset(attachsql_connect_t *con, uint64_t row_number)
+
+   Retrieves a row from a buffered result set as a specified row number.  This is the row in the order they were retrieved from the MySQL server, not related to any key.
+
+   :param con: The connection the query was on
+   :param row_number: The row number to retrieve
+   :returns: An array of row data, the number of elements in the array can be found with :c:func:`attachsql_query_column_count`
+
+   .. versionadded:: 0.2.0
