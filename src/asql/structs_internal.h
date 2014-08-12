@@ -23,6 +23,8 @@
 extern "C" {
 #endif
 
+#define ATTACHSQL_BUFFER_ROW_ALLOC_SIZE 100
+
 struct attachsql_connect_t
 {
   ascon_st *core_con;
@@ -30,8 +32,14 @@ struct attachsql_connect_t
   void *callback_context;
   char *query_buffer;
   bool in_query;
+  bool buffer_rows;
   attachsql_query_column_st *columns;
   attachsql_query_row_st *row;
+  attachsql_query_row_st **row_buffer;
+  uint64_t row_buffer_alloc_size;
+  uint64_t row_buffer_count;
+  uint64_t row_buffer_position;
+  bool all_rows_buffered;
 
   attachsql_connect_t():
     core_con(NULL),
@@ -39,8 +47,14 @@ struct attachsql_connect_t
     callback_context(NULL),
     query_buffer(NULL),
     in_query(false),
+    buffer_rows(false),
     columns(NULL),
-    row(NULL)
+    row(NULL),
+    row_buffer(NULL),
+    row_buffer_alloc_size(0),
+    row_buffer_count(0),
+    row_buffer_position(0),
+    all_rows_buffered(false)
   { }
 };
 

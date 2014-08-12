@@ -18,6 +18,7 @@
 #include "config.h"
 #include "src/asql/common.h"
 #include "src/ascore/ascore.h"
+#include "src/asql/query_internal.h"
 
 attachsql_connect_t *attachsql_connect_create(const char *host, in_port_t port, const char *user, const char *pass, const char *schema, attachsql_error_st **error)
 {
@@ -158,15 +159,23 @@ attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_er
         {
           con->callback_fn(con, ATTACHSQL_EVENT_EOF, con->callback_context);
         }
+        con->all_rows_buffered= true;
         return ATTACHSQL_RETURN_EOF;
       }
       else if (con->core_con->command_status == ASCORE_COMMAND_STATUS_ROW_IN_BUFFER)
       {
-        if (con->callback_fn != NULL)
+        if (con->buffer_rows)
         {
-          con->callback_fn(con, ATTACHSQL_EVENT_ROW_READY, con->callback_context);
+          return attachsql_query_row_buffer(con, error);
         }
-        return ATTACHSQL_RETURN_ROW_READY;
+        else
+        {
+          if (con->callback_fn != NULL)
+          {
+            con->callback_fn(con, ATTACHSQL_EVENT_ROW_READY, con->callback_context);
+          }
+          return ATTACHSQL_RETURN_ROW_READY;
+        }
       }
       else if ((con->core_con->command_status == ASCORE_COMMAND_STATUS_CONNECTED) and (con->callback_fn != NULL))
       {

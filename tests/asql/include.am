@@ -23,6 +23,16 @@ endif
 check_PROGRAMS+= t/asql/query
 noinst_PROGRAMS+= t/asql/query
 
+t_asql_query_buffer_SOURCES= tests/asql/query_buffer.cc
+t_asql_query_buffer_LDADD= src/asql/libattachsql.la
+if BUILD_WIN32
+t_asql_query_buffer_LDADD+= -lws2_32
+t_asql_query_buffer_LDADD+= -lpsapi
+t_asql_query_buffer_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/asql/query_buffer
+noinst_PROGRAMS+= t/asql/query_buffer
+
 t_asql_multi_query_SOURCES= tests/asql/multi_query.cc
 t_asql_multi_query_LDADD= src/asql/libattachsql.la
 if BUILD_WIN32
