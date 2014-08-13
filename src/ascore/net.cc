@@ -84,6 +84,11 @@ bool ascore_con_process_packets(ascon_st *con)
   uint32_t packet_len;
   size_t data_size;
 
+  if (con->read_buffer == NULL)
+  {
+    return false;
+  }
+
   while (con->next_packet_type != ASCORE_PACKET_TYPE_NONE)
   {
     // Packet header is 4 bytes, if we don't have that, then we don't have enough
@@ -143,7 +148,7 @@ bool ascore_con_process_packets(ascon_st *con)
     }
   }
 
-  return true;
+  return false;
 }
 
 void ascore_packet_read_row(ascon_st *con)

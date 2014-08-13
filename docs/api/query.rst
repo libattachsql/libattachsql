@@ -6,12 +6,15 @@ attachsql_query()
 
 .. c:function:: attachsql_error_st *attachsql_query(attachsql_connect_t *con, size_t length, const char *statement, uint16_t parameter_count, attachsql_query_parameter_st *parameters)
 
-   Asyncronusly sends a query to the MySQL server.  The query will not be sent until :c:func:`attachsql_connect_poll` is called.  The call to :c:func:`attachsql_connect_poll` should be repeated until an error has returned or ``ATTACHSQL_RETURN_ROW_READY``.
+   Asyncronusly sends a query to the MySQL server.  The query will not be sent until :c:func:`attachsql_connect_poll` is called.  The call to :c:func:`attachsql_connect_poll` should be repeated until an error has returned or ``ATTACHSQL_RETURN_ROW_READY``.  When buffered results are enabled with :c:func:`attachsql_query_buffer_rows` the polling will return ``ATTACHSQL_RETURN_EOF`` when ready.
 
    Queries can use ``?`` placeholders and have those filled in using the ``parameter_count`` and ``parameters`` options.  This is so that data in queries can be escaped appropriately.  See :c:type:`attachsql_query_parameter_st` for more information.
 
    .. note::
-      If the connection object has not yet connected to MySQL a blocking connection will be made upon the first query.
+      If the connection object has not yet connected to MySQL a non-blocking connect to MySQL will be made first.
+
+   .. warning::
+      A copy of the statement parameter is only made when parameter_count > 0.  Otherwise the data the statement parameter points to needs to stay in scope until results are returned.
 
    :param con: The connection object to send the query on
    :param length: The length of the statement

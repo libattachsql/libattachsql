@@ -25,10 +25,15 @@ int main(int argc, char *argv[])
   (void) argv;
   attachsql_connect_t *con;
   attachsql_error_st *error;
+  attachsql_return_t aret= ATTACHSQL_RETURN_NONE;
   const char *data= "SHOW PROCESSLIST";
 
   con= attachsql_connect_create("localhost", 3306, "bad_user", "test", "", NULL);
   error= attachsql_query(con, strlen(data), data, 0, NULL);
+  while (aret != ATTACHSQL_RETURN_ERROR)
+  {
+    aret= attachsql_connect_poll(con, &error);
+  }
   SKIP_IF_((error->code == 2002), "Error not NULL");
   ASSERT_EQ_(1045, error->code, "Error code is wrong");
   ASSERT_STREQL_("28000", error->sqlstate, 5, "SQLSTATE is wrong");
