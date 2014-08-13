@@ -25,7 +25,7 @@
 extern "C" {
 #endif
 
-#define ASCORE_DEFAULT_BUFFER_SIZE 1024*1024*1024
+#define ASCORE_DEFAULT_BUFFER_SIZE 1024*1024
 
 struct buffer_st
 {

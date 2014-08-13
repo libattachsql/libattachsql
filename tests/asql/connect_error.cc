@@ -40,4 +40,5 @@ int main(int argc, char *argv[])
   ASSERT_STREQ_("Access denied for user 'bad_user'@'localhost' (using password: YES)", error->msg, "Message is wrong");
 
   attachsql_query_close(con);
+  attachsql_connect_destroy(con);
 }

@@ -12,6 +12,8 @@ Version 0.2.0 Alpha (Not yet released)
 * Fixed in_query flag status (`Issue #31 <https://github.com/libattachsql/libattachsql/issues/31>`_)
 * Add row buffering support (`Issue #8 <https://github.com/libattachsql/libattachsql/issues/8>`_)
 * Connect on first query is now non-blocking (`Issue #39 <https://github.com/libattachsql/libattachsql/issues/39>`_)
+* Memory alloc/free cleanups
+* Default read buffer is 1MB instead of 1GB (big oops!)
 
 Version 0.1
 -----------

@@ -92,6 +92,7 @@ attachsql_error_st *attachsql_query(attachsql_connect_t *con, size_t length, con
     }
   }
   con->query_buffer= new (std::nothrow) char[out_len];
+  con->query_buffer_alloc= true;
 
   /* Copy into buffer and replace */
   param= 0;
@@ -152,13 +153,12 @@ attachsql_error_st *attachsql_query(attachsql_connect_t *con, size_t length, con
     }
   }
 
+  con->query_buffer_length= buffer_pos;
   if (con->core_con->status == ASCORE_CON_STATUS_NOT_CONNECTED)
   {
-    con->query_buffer_length= buffer_pos;
-    con->query_buffer_alloc= true;
     return attachsql_connect(con);
   }
-  ret= ascore_command_send(con->core_con, ASCORE_COMMAND_QUERY, con->query_buffer, buffer_pos);
+  ret= ascore_command_send(con->core_con, ASCORE_COMMAND_QUERY, con->query_buffer, con->query_buffer_length);
   if (ret == ASCORE_COMMAND_STATUS_SEND_FAILED)
   {
     attachsql_error_client_create(&err, ATTACHSQL_ERROR_CODE_SERVER_GONE, ATTACHSQL_ERROR_LEVEL_ERROR, "08006", con->core_con->errmsg);
@@ -252,6 +252,7 @@ void attachsql_query_close(attachsql_connect_t *con)
     con->in_query= false;
   }
 
+  ascore_command_free(con->core_con);
   if (con->row_buffer_alloc_size > 0)
   {
     for (uint64_t row_pos= 0; row_pos < con->row_buffer_count; row_pos++)

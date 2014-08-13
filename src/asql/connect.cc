@@ -48,7 +48,6 @@ attachsql_connect_t *attachsql_connect_create(const char *host, in_port_t port, 
     {
       attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Schema too long");
     }
-    ascore_con_destroy(con->core_con);
     attachsql_connect_destroy(con);
     return NULL;
   }

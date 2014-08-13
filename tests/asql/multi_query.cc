@@ -71,4 +71,5 @@ int main(int argc, char *argv[])
   attachsql_query_close(con);
   attachsql_query_next_result(con);
   ASSERT_EQ_(ATTACHSQL_RETURN_EOF, aret, "Unexpected next query status");
+  attachsql_connect_destroy(con);
 }

@@ -57,4 +57,5 @@ int main(int argc, char *argv[])
   ASSERT_STREQL_("3D000", error->sqlstate, 5, "SQLSTATE is wrong");
   ASSERT_STREQ_("No database selected", error->msg, "Message is wrong");
   attachsql_query_close(con);
+  attachsql_connect_destroy(con);
 }

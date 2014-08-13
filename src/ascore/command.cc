@@ -141,3 +141,11 @@ bool ascore_command_next_result(ascon_st *con)
   }
   return false;
 }
+
+void ascore_command_free(ascon_st *con)
+{
+  if (con->result.columns != NULL)
+  {
+    delete[] con->result.columns;
+  }
+}
