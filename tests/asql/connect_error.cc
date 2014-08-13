@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
   (void) argv;
   attachsql_connect_t *con;
   attachsql_error_st *error;
-  attachsql_return_t aret;
+  attachsql_return_t aret= ATTACHSQL_RETURN_NONE;
   const char *data= "SHOW PROCESSLIST";
 
   con= attachsql_connect_create("localhost", 3306, "bad_user", "test", "", NULL);
