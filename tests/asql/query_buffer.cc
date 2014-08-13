@@ -50,4 +50,5 @@ int main(int argc, char *argv[])
   }
 
   attachsql_query_close(con);
+  attachsql_connect_destroy(con);
 }
