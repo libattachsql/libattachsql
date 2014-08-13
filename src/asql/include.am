@@ -4,6 +4,7 @@
 
 noinst_HEADERS+= src/asql/common.h
 noinst_HEADERS+= src/asql/error_internal.h
+noinst_HEADERS+= src/asql/connect_internal.h
 noinst_HEADERS+= src/asql/query_internal.h
 noinst_HEADERS+= src/asql/structs_internal.h
 

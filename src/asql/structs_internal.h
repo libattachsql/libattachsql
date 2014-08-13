@@ -31,6 +31,8 @@ struct attachsql_connect_t
   attachsql_callback_fn *callback_fn;
   void *callback_context;
   char *query_buffer;
+  size_t query_buffer_length;
+  bool query_buffer_alloc;
   bool in_query;
   bool buffer_rows;
   attachsql_query_column_st *columns;
@@ -46,6 +48,8 @@ struct attachsql_connect_t
     callback_fn(NULL),
     callback_context(NULL),
     query_buffer(NULL),
+    query_buffer_length(0),
+    query_buffer_alloc(false),
     in_query(false),
     buffer_rows(false),
     columns(NULL),

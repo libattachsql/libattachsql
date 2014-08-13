@@ -42,20 +42,16 @@ attachsql_error_st *attachsql_query(attachsql_connect_t *con, size_t length, con
   }
   con->in_query= true;
 
-  if (con->core_con->status == ASCORE_CON_STATUS_NOT_CONNECTED)
-  {
-    con->core_con->options.polling= false;
-    err= attachsql_connect(con);
-    con->core_con->options.polling= true;
-    if (err != NULL)
-    {
-      return err;
-    }
-  }
-
   /* No parameters so we can send now */
   if (parameter_count == 0)
   {
+    if (con->core_con->status == ASCORE_CON_STATUS_NOT_CONNECTED)
+    {
+      con->query_buffer= (char*)statement;
+      con->query_buffer_length= length;
+      con->query_buffer_alloc= false;
+      return attachsql_connect(con);
+    }
     ret= ascore_command_send(con->core_con, ASCORE_COMMAND_QUERY, (char*)statement, length);
     if (ret == ASCORE_COMMAND_STATUS_SEND_FAILED)
     {
@@ -156,6 +152,12 @@ attachsql_error_st *attachsql_query(attachsql_connect_t *con, size_t length, con
     }
   }
 
+  if (con->core_con->status == ASCORE_CON_STATUS_NOT_CONNECTED)
+  {
+    con->query_buffer_length= buffer_pos;
+    con->query_buffer_alloc= true;
+    return attachsql_connect(con);
+  }
   ret= ascore_command_send(con->core_con, ASCORE_COMMAND_QUERY, con->query_buffer, buffer_pos);
   if (ret == ASCORE_COMMAND_STATUS_SEND_FAILED)
   {
@@ -226,11 +228,13 @@ void attachsql_query_close(attachsql_connect_t *con)
     return;
   }
 
-  if (con->query_buffer != NULL)
+  if (con->query_buffer_alloc and (con->query_buffer_length != 0))
   {
     delete[] con->query_buffer;
     con->query_buffer= NULL;
   }
+  con->query_buffer_alloc= false;
+  con->query_buffer_length= 0;
 
   if (con->columns != NULL)
   {

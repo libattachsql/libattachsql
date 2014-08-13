@@ -19,6 +19,7 @@
 #include "src/asql/common.h"
 #include "src/ascore/ascore.h"
 #include "src/asql/query_internal.h"
+#include "src/asql/connect_internal.h"
 
 attachsql_connect_t *attachsql_connect_create(const char *host, in_port_t port, const char *user, const char *pass, const char *schema, attachsql_error_st **error)
 {
@@ -61,6 +62,11 @@ void attachsql_connect_destroy(attachsql_connect_t *con)
   if (con == NULL)
   {
     return;
+  }
+
+  if (con->in_query)
+  {
+    attachsql_query_close(con);
   }
 
   if (con->core_con != NULL)
@@ -177,9 +183,16 @@ attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_er
           return ATTACHSQL_RETURN_ROW_READY;
         }
       }
-      else if ((con->core_con->command_status == ASCORE_COMMAND_STATUS_CONNECTED) and (con->callback_fn != NULL))
+      else if (con->core_con->command_status == ASCORE_COMMAND_STATUS_CONNECTED)
       {
-        con->callback_fn(con, ATTACHSQL_EVENT_CONNECTED, con->callback_context);
+        if (con->callback_fn != NULL)
+        {
+          con->callback_fn(con, ATTACHSQL_EVENT_CONNECTED, con->callback_context);
+        }
+        if (con->query_buffer_length > 0)
+        {
+          return attachsql_connect_query(con, error);
+        }
       }
       return ATTACHSQL_RETURN_IDLE;
       break;
@@ -190,6 +203,18 @@ attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_er
   return ATTACHSQL_RETURN_ERROR;
 }
 
+attachsql_return_t attachsql_connect_query(attachsql_connect_t *con, attachsql_error_st **error)
+{
+  ascore_command_status_t ret;
+
+  ret= ascore_command_send(con->core_con, ASCORE_COMMAND_QUERY, con->query_buffer, con->query_buffer_length);
+  if (ret == ASCORE_COMMAND_STATUS_SEND_FAILED)
+  {
+    attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_SERVER_GONE, ATTACHSQL_ERROR_LEVEL_ERROR, "08006", con->core_con->errmsg);
+    return ATTACHSQL_RETURN_ERROR;
+  }
+  return ATTACHSQL_RETURN_PROCESSING;
+}
 
 attachsql_error_st *attachsql_connect(attachsql_connect_t *con)
 {
