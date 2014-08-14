@@ -34,6 +34,7 @@ Contributing
    contributors/coding_standards
    contributors/docs
    contributors/test_cases
+   contributors/github
    contributors/authors
 
 Reference
