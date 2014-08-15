@@ -47,3 +47,4 @@ docs/latex
 libattachsql-config
 examples/*
 !examples/*\.c
+!examples/*\.sql
