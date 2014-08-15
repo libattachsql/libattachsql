@@ -55,6 +55,8 @@ enum attachsql_column_type_t
   ATTACHSQL_COLUMN_TYPE_GEOMETRY=    0xff
 };
 
+typedef enum attachsql_column_type_t attachsql_column_type_t;
+
 enum attachsql_column_flags_t
 {
   ATTACHSQL_COLUMN_FLAGS_NONE=              0,
@@ -83,6 +85,8 @@ enum attachsql_column_flags_t
   ATTACHSQL_COLUMN_FLAGS_RENAMED=           (1 << 21)  // Undocumented in MySQL
 };
 
+typedef enum attachsql_column_flags_t attachsql_column_flags_t;
+
 enum attachsql_query_parameter_type_t
 {
   ATTACHSQL_ESCAPE_TYPE_NONE,
@@ -94,19 +98,14 @@ enum attachsql_query_parameter_type_t
   ATTACHSQL_ESCAPE_TYPE_DOUBLE
 };
 
+typedef enum attachsql_query_parameter_type_t attachsql_query_parameter_type_t;
+
 struct attachsql_query_parameter_st
 {
   attachsql_query_parameter_type_t type;
   void *data;
   size_t length;
   bool is_unsigned;
-
-  attachsql_query_parameter_st() :
-    type(ATTACHSQL_ESCAPE_TYPE_NONE),
-    data(NULL),
-    length(0),
-    is_unsigned(false)
-  { }
 };
 
 typedef struct attachsql_query_parameter_st attachsql_query_parameter_st;
@@ -133,11 +132,6 @@ struct attachsql_query_row_st
 {
   char *data;
   size_t length;
-
-  attachsql_query_row_st() :
-    data(NULL),
-    length(0)
-  { }
 };
 
 typedef struct attachsql_query_row_st attachsql_query_row_st;

@@ -45,3 +45,5 @@ test-suite.log
 version.h
 docs/latex
 libattachsql-config
+examples/*
+!examples/*\.c

@@ -24,6 +24,8 @@ API Documentation
    api/query
    api/error
    api/utility
+   api/compiling
+   api/examples
 
 Contributing
 ------------

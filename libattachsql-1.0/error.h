@@ -32,6 +32,8 @@ enum attachsql_error_level_t
   ATTACHSQL_ERROR_LEVEL_ERROR
 };
 
+typedef enum attachsql_error_level_t attachsql_error_level_t;
+
 /* Start at 2000 to line up with MySQL client */
 enum attachsql_error_codes_t
 {
@@ -89,20 +91,14 @@ enum attachsql_error_codes_t
   ATTACHSQL_ERROR_CODE_BUFFERED_MODE=             3001
 };
 
+typedef enum attachsql_error_codes_t attachsql_error_codes_t;
+
 struct attachsql_error_st
 {
   int code;
   char msg[ATTACHSQL_MESSAGE_SIZE];
   char sqlstate[ATTACHSQL_SQLSTATE_SIZE];
   attachsql_error_level_t level;
-
-  attachsql_error_st() :
-    code(0),
-    level(ATTACHSQL_ERROR_LEVEL_NOTICE)
-  {
-    msg[0]= '\0';
-    sqlstate[0]= '\0';
-  }
 };
 
 typedef struct attachsql_error_st attachsql_error_st;
