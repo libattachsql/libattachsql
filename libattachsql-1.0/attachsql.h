@@ -18,6 +18,8 @@
 #pragma once
 
 #include <stdint.h>
+#include <stddef.h>
+#include <stdbool.h>
 #include <inttypes.h>
 #ifdef _WIN32
 

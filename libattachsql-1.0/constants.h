@@ -33,6 +33,8 @@ enum attachsql_events_t
   ATTACHSQL_EVENT_ROW_READY
 };
 
+typedef enum attachsql_events_t attachsql_events_t;
+
 typedef void (attachsql_callback_fn)(attachsql_connect_t *con, attachsql_events_t events, void *context);
 
 enum attachsql_return_t
@@ -47,6 +49,8 @@ enum attachsql_return_t
   ATTACHSQL_RETURN_EOF
 };
 
+typedef enum attachsql_return_t attachsql_return_t;
+
 enum attachsql_options_t
 {
   ATTACHSQL_OPTION_NONE,
@@ -58,6 +62,8 @@ enum attachsql_options_t
   ATTACHSQL_OPTION_MULTI_STATEMENTS,
   ATTACHSQL_OPTION_NO_SCHEMA
 };
+
+typedef enum attachsql_options_t attachsql_options_t;
 
 #ifdef __cplusplus
 }

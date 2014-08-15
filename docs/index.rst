@@ -24,6 +24,8 @@ API Documentation
    api/query
    api/error
    api/utility
+   api/compiling
+   api/examples
 
 Contributing
 ------------
@@ -34,6 +36,7 @@ Contributing
    contributors/coding_standards
    contributors/docs
    contributors/test_cases
+   contributors/github
    contributors/authors
 
 Reference
