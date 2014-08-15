@@ -14,7 +14,7 @@ Version 0.2.0 Alpha (2014-08-15)
 * Connect on first query is now non-blocking (`Issue #39 <https://github.com/libattachsql/libattachsql/issues/39>`_)
 * Memory alloc/free cleanups
 * Default read buffer is 1MB instead of 1GB (big oops!)
-* Additional documentation (`Issue #44 <https://github.com/libattachsql/libattachsql/issues/44>`_ and `Issue #30 <https://github.com/libattachsql/libattachsql/issues/30>`_)
+* Additional documentation (`Issue #38 <https://github.com/libattachsql/libattachsql/issues/38>`_ and `Issue #30 <https://github.com/libattachsql/libattachsql/issues/30>`_)
 * Fixed linking libAttachSQL to C applications
 
 Version 0.1
