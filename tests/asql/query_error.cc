@@ -32,7 +32,6 @@ int main(int argc, char *argv[])
 
   con= attachsql_connect_create("localhost", 3306, "test", "test", "", NULL);
   error= attachsql_query(con, strlen(data), data, 0, NULL);
-  SKIP_IF_(error, "Error not NULL");
   while(aret != ATTACHSQL_RETURN_EOF)
   {
     aret= attachsql_connect_poll(con, &error);
@@ -52,6 +51,7 @@ int main(int argc, char *argv[])
       break;
     }
   }
+  SKIP_IF_((error->code == 2002), "No MySQL server");
   ASSERT_EQ_(ATTACHSQL_RETURN_ERROR, aret, "Query should have error'd");
   ASSERT_EQ_(1046, error->code, "Error code is wrong");
   ASSERT_STREQL_("3D000", error->sqlstate, 5, "SQLSTATE is wrong");
