@@ -1,6 +1,14 @@
 Version History
 ===============
 
+Version 0.3
+-----------
+
+Version 0.3.0 Alpha (Not yet released)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Fixed infinite loop memory eater for test run when MySQL server not present (`Issue #48 <https://github.com/libattachsql/libattachsql/issues/48>`_)
+
 Version 0.2
 -----------
 
