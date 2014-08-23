@@ -33,10 +33,17 @@ int main(int argc, char *argv[])
   con= attachsql_connect_create("localhost", 3306, "test", "test", "", NULL);
   attachsql_query_buffer_rows(con, true);
   error= attachsql_query(con, strlen(data), data, 0, NULL);
-  SKIP_IF_(error, "Error not NULL");
   while(aret != ATTACHSQL_RETURN_EOF)
   {
     aret= attachsql_connect_poll(con, &error);
+    if (error && (error->code == 2002))
+    {
+      SKIP_IF_(true, "No MYSQL server");
+    }
+    else if (error)
+    {
+      ASSERT_FALSE_(true, "Error exists: %d", error->code);
+    }
   }
   columns= attachsql_query_column_count(con);
   ASSERT_TRUE(attachsql_query_row_count(con) > 0);

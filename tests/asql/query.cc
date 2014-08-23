@@ -34,7 +34,6 @@ int main(int argc, char *argv[])
 
   con= attachsql_connect_create("localhost", 3306, "test", "test", "", NULL);
   error= attachsql_query(con, strlen(data), data, 0, NULL);
-  SKIP_IF_(error, "Error not NULL");
   while(aret != ATTACHSQL_RETURN_EOF)
   {
     aret= attachsql_connect_poll(con, &error);
@@ -48,6 +47,14 @@ int main(int argc, char *argv[])
       }
       attachsql_query_row_next(con);
       printf("\n");
+    }
+    if (error && (error->code == 2002))
+    {
+      SKIP_IF_(true, "No MYSQL server");
+    }
+    else if (error)
+    {
+      ASSERT_FALSE_(true, "Error exists: %d", error->code);
     }
   }
   attachsql_query_close(con);
