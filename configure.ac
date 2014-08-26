@@ -13,7 +13,7 @@ AC_PREREQ([2.68])
 
 # NOTE: Major version should be < 100 and minor/patch < 256 or bad things will
 # happen in src/asql/utility.cc
-AC_INIT([libattachsql],m4_esyscmd_s([tr -d '\n' < VERSION]),[andrew@linuxjedi.co.uk],[libattachsql],[https://github.com/HPATG/libattachsql])
+AC_INIT([libattachsql],m4_esyscmd_s([tr -d '\n' < VERSION]),[andrew@linuxjedi.co.uk],[libattachsql],[http://libattachsql.org])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 # Setup the compilers early on
 AC_PROG_CC([cc gcc clang])
