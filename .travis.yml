@@ -32,6 +32,7 @@ env:
    - coverity_scan_run_condition='"$CC" = gcc'
    # Use test mode if you are fiddling with this config to avoid hitting quota
    - coverity_scan_script_test_mode=false
+   - "MYSQL_SOCK=/var/run/mysqld/mysqld.sock"
 
 addons:
   coverity_scan:
