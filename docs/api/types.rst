@@ -345,7 +345,7 @@ ENUMs
    +---------------------------------------+----------------------------------------------------------------------+----------+
    | Value                                 | Description                                                          | Argument |
    +=======================================+======================================================================+==========+
-   | ``ATTACHSQL_OPTION_COMPRESS``         | Enable protocol compression (not yet implemented)                    | Not used |
+   | ``ATTACHSQL_OPTION_COMPRESS``         | Enable protocol compression (when compiled with zlib support)        | Not used |
    +---------------------------------------+----------------------------------------------------------------------+----------+
    | ``ATTACHSQL_OPTION_FOUND_ROWS``       | Return the number of matched rows instead of number of changed rows  | Not used |
    +---------------------------------------+----------------------------------------------------------------------+----------+
