@@ -39,6 +39,8 @@ void ascore_packet_read_column(ascon_st *con);
 
 void ascore_packet_read_row(ascon_st *con);
 
+void ascore_send_compressed_packet(ascon_st *con, char *data, size_t length, uint8_t command);
+
 #ifdef __cplusplus
 }
 #endif

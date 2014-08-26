@@ -239,22 +239,44 @@ uv_buf_t on_alloc(uv_handle_t *client, size_t suggested_size)
   uv_buf_t buf;
   ascon_st *con= (ascon_st*) client->loop->data;
 
-  asdebug("%zd bytes requested for read buffer", suggested_size);
+  if (not con->options.compression)
+  {
+    asdebug("%zd bytes requested for read buffer", suggested_size);
 
-  if (con->read_buffer == NULL)
-  {
-    asdebug("Creating read buffer");
-    con->read_buffer= ascore_buffer_create();
-  }
-  buffer_free= ascore_buffer_get_available(con->read_buffer);
-  if (buffer_free < suggested_size)
-  {
-    asdebug("Enlarging buffer, free: %zd, requested: %zd", buffer_free, suggested_size);
-    ascore_buffer_increase(con->read_buffer);
+    if (con->read_buffer == NULL)
+    {
+      asdebug("Creating read buffer");
+      con->read_buffer= ascore_buffer_create();
+    }
     buffer_free= ascore_buffer_get_available(con->read_buffer);
+    if (buffer_free < suggested_size)
+    {
+      asdebug("Enlarging buffer, free: %zd, requested: %zd", buffer_free, suggested_size);
+      ascore_buffer_increase(con->read_buffer);
+      buffer_free= ascore_buffer_get_available(con->read_buffer);
+    }
+    buf.base= con->read_buffer->buffer_write_ptr;
+    buf.len= buffer_free;
   }
-  buf.base= con->read_buffer->buffer_write_ptr;
-  buf.len= buffer_free;
+  else
+  {
+    asdebug("%zd bytes requested for compressed read buffer", suggested_size);
+
+    if (con->read_buffer_compress == NULL)
+    {
+      asdebug("Creating compressed read buffer");
+      con->read_buffer_compress= ascore_buffer_create();
+    }
+    buffer_free= ascore_buffer_get_available(con->read_buffer_compress);
+    if (buffer_free < suggested_size)
+    {
+      asdebug("Enlarging compress buffer, free: %zd, requested: %zd", buffer_free, suggested_size);
+      ascore_buffer_increase(con->read_buffer_compress);
+      buffer_free= ascore_buffer_get_available(con->read_buffer_compress);
+    }
+    buf.base= con->read_buffer_compress->buffer_write_ptr;
+    buf.len= buffer_free;
+  }
 
   return buf;
 }

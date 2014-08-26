@@ -37,3 +37,4 @@ src_asql_libattachsql_la_SOURCES+= src/asql/utility.cc
 src_asql_libattachsql_la_LDFLAGS+= -version-info ${LIBATTACHSQL_LIBRARY_VERSION}
 
 src_asql_libattachsql_la_LIBADD+= @LIBUV_LIB@
+src_asql_libattachsql_la_LIBADD+= @ZLIB_LIB@
