@@ -4,7 +4,7 @@ Version: @VERSION@
 Release: 1
 License: Apache2
 Group: System Environment/Libraries
-BuildRequires: libuv-devel
+BuildRequires: libuv-devel zlib-devel
 URL: https://github.com/tangentorg/ddm4
 
 Packager: Andrew Hutchings <andrew@linuxjedi.co.uk>
