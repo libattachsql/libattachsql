@@ -23,6 +23,16 @@ endif
 check_PROGRAMS+= t/asql/query
 noinst_PROGRAMS+= t/asql/query
 
+t_asql_query_compress_SOURCES= tests/asql/query_compress.cc
+t_asql_query_compress_LDADD= src/asql/libattachsql.la
+if BUILD_WIN32
+t_asql_query_compress_LDADD+= -lws2_32
+t_asql_query_compress_LDADD+= -lpsapi
+t_asql_query_compress_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/asql/query_compress
+noinst_PROGRAMS+= t/asql/query_compress
+
 t_asql_query_uds_SOURCES= tests/asql/query_uds.cc
 t_asql_query_uds_LDADD= src/asql/libattachsql.la
 if BUILD_WIN32

@@ -83,10 +83,12 @@ struct ascon_st
   struct options_t
   {
     bool polling;
+    bool compression;
     ascore_con_protocol_t protocol;
 
     options_t() :
       polling(false),
+      compression(false),
       protocol(ASCORE_CON_PROTOCOL_UNKNOWN)
     { }
   } options;
@@ -95,6 +97,7 @@ struct ascon_st
   char errmsg[ASCORE_ERROR_BUFFER_SIZE];
   asret_t local_errcode;
   buffer_st *read_buffer;
+  buffer_st *read_buffer_compress;
   char write_buffer[ASCORE_WRITE_BUFFER_SIZE];
   uint8_t packet_number;
   uint32_t thread_id;
@@ -115,6 +118,12 @@ struct ascon_st
   struct result_t result;
   ascore_command_status_t command_status;
   ascore_packet_type_t next_packet_type;
+  char *uncompressed_buffer;
+  size_t uncompressed_buffer_len;
+  char *compressed_buffer;
+  size_t compressed_buffer_len;
+  char compressed_packet_header[7];
+  uint8_t compressed_packet_number;
   struct uv_objects_t
   {
     uv_loop_t *loop;
@@ -144,6 +153,7 @@ struct ascon_st
     status(ASCORE_CON_STATUS_NOT_CONNECTED),
     local_errcode(ASRET_OK),
     read_buffer(NULL),
+    read_buffer_compress(NULL),
     packet_number(0),
     thread_id(0),
     server_capabilities(ASCORE_CAPABILITY_NONE),
@@ -156,7 +166,12 @@ struct ascon_st
     server_errno(0),
     charset(0),
     command_status(ASCORE_COMMAND_STATUS_NONE),
-    next_packet_type(ASCORE_PACKET_TYPE_NONE)
+    next_packet_type(ASCORE_PACKET_TYPE_NONE),
+    uncompressed_buffer(NULL),
+    uncompressed_buffer_len(0),
+    compressed_buffer(NULL),
+    compressed_buffer_len(0),
+    compressed_packet_number(0)
   {
     errmsg[0]= '\0';
     server_version[0]= '\0';
@@ -165,6 +180,7 @@ struct ascon_st
     server_message[0]= '\0';
     sqlstate[0]= '\0';
     write_buffer[0]= '\0';
+    compressed_packet_header[0]= '\0';
   }
 };
 

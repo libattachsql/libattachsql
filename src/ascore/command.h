@@ -25,6 +25,10 @@
 extern "C" {
 #endif
 
+#ifdef HAVE_ZLIB
+ascore_command_status_t ascore_command_send_compressed(ascon_st *con, ascore_command_t command, char *data, size_t length);
+#endif
+
 ascore_command_status_t ascore_command_send(ascon_st *con, ascore_command_t command, char *data, size_t length);
 
 ascore_command_status_t ascore_get_next_row(ascon_st *con);

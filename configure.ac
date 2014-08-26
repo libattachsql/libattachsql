@@ -13,7 +13,7 @@ AC_PREREQ([2.68])
 
 # NOTE: Major version should be < 100 and minor/patch < 256 or bad things will
 # happen in src/asql/utility.cc
-AC_INIT([libattachsql],m4_esyscmd_s([tr -d '\n' < VERSION]),[andrew@linuxjedi.co.uk],[libattachsql],[https://github.com/HPATG/libattachsql])
+AC_INIT([libattachsql],m4_esyscmd_s([tr -d '\n' < VERSION]),[andrew@linuxjedi.co.uk],[libattachsql],[http://libattachsql.org])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 # Setup the compilers early on
 AC_PROG_CC([cc gcc clang])
@@ -112,6 +112,7 @@ AX_PRINTF_STRERROR
 AX_PTHREAD_TIMEDJOIN_NP
 
 AX_CHECK_LIBRARY([LIBUV], [uv.h], [uv], [], [AC_MSG_ERROR(could not find libuv)])
+AX_CHECK_LIBRARY([ZLIB], [zlib.h], [z], [], [AC_MSG_WARN(could not find libuv)])
 AX_CHECK_OPENSSL([ax_cv_openssl=yes
                   AC_DEFINE([HAVE_OPENSSL], [1], [Define to 1 if you have OpenSSL])
                   ], [
@@ -167,8 +168,8 @@ echo "   * LDFLAGS Flags:             $LDFLAGS"
 echo "   * Assertions enabled:        $ax_enable_assert"
 echo "   * Debug enabled:             $ax_enable_debug"
 echo "   * Warnings as failure:       $ac_cv_warnings_as_errors"
-echo "   * libuv:                     $ax_cv_libuv"
-echo "   * zlib:                      $zlib_cv_zlib_h"
+echo "   * libuv:                     $ax_cv_have_LIBUV"
+echo "   * zlib:                      $ax_cv_have_ZLIB"
 echo "   * openssl:                   $ax_cv_openssl"
 echo "   * make -j:                   $enable_jobserver"
 echo "   * VCS checkout:              $ac_cv_vcs_system"

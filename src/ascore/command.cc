@@ -18,6 +18,30 @@
 #include "command.h"
 #include "net.h"
 
+#ifdef HAVE_ZLIB
+ascore_command_status_t ascore_command_send_compressed(ascon_st *con, ascore_command_t command, char *data, size_t length)
+{
+  ascore_send_compressed_packet(con, data, length, command);
+  if (con->status == ASCORE_CON_STATUS_IDLE)
+  {
+    con->next_packet_type= ASCORE_PACKET_TYPE_RESPONSE;
+    uv_read_start(con->uv_objects.stream, on_alloc, ascore_read_data_cb);
+    con->command_status= ASCORE_COMMAND_STATUS_SEND;
+    con->status= ASCORE_CON_STATUS_BUSY;
+    if (con->options.polling)
+    {
+      uv_run(con->uv_objects.loop, UV_RUN_NOWAIT);
+    }
+    else
+    {
+      uv_run(con->uv_objects.loop, UV_RUN_DEFAULT);
+    }
+    return ASCORE_COMMAND_STATUS_SEND;
+  }
+  return con->command_status;
+}
+#endif
+
 ascore_command_status_t ascore_command_send(ascon_st *con, ascore_command_t command, char *data, size_t length)
 {
   uv_buf_t send_buffer[3];
@@ -44,6 +68,13 @@ ascore_command_status_t ascore_command_send(ascon_st *con, ascore_command_t comm
   ascore_pack_int3(con->packet_header, length + 1);
   con->packet_number= 0;
   con->packet_header[3] = con->packet_number;
+
+#ifdef HAVE_ZLIB
+  if (con->client_capabilities & ASCORE_CAPABILITY_COMPRESS)
+  {
+    return ascore_command_send_compressed(con, command, data, length);
+  }
+#endif
 
   con->write_buffer[0]= command;
   send_buffer[0].base= con->packet_header;

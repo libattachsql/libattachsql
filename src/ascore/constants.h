@@ -34,6 +34,7 @@ extern "C" {
 #define ASCORE_MAX_MESSAGE_LEN 2048
 #define ASCORE_SQLSTATE_SIZE 5
 #define ASCORE_WRITE_BUFFER_SIZE 1024
+#define ASCORE_MINIMUM_COMPRESS_SIZE 50
 
 enum ascore_con_protocol_t
 {
