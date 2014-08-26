@@ -18,6 +18,7 @@
 #include "command.h"
 #include "net.h"
 
+#ifdef HAVE_ZLIB
 ascore_command_status_t ascore_command_send_compressed(ascon_st *con, ascore_command_t command, char *data, size_t length)
 {
   ascore_send_compressed_packet(con, data, length, command);
@@ -39,6 +40,7 @@ ascore_command_status_t ascore_command_send_compressed(ascon_st *con, ascore_com
   }
   return con->command_status;
 }
+#endif
 
 ascore_command_status_t ascore_command_send(ascon_st *con, ascore_command_t command, char *data, size_t length)
 {
@@ -67,10 +69,12 @@ ascore_command_status_t ascore_command_send(ascon_st *con, ascore_command_t comm
   con->packet_number= 0;
   con->packet_header[3] = con->packet_number;
 
+#ifdef HAVE_ZLIB
   if (con->client_capabilities & ASCORE_CAPABILITY_COMPRESS)
   {
     return ascore_command_send_compressed(con, command, data, length);
   }
+#endif
 
   con->write_buffer[0]= command;
   send_buffer[0].base= con->packet_header;

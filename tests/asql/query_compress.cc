@@ -33,7 +33,8 @@ int main(int argc, char *argv[])
   uint16_t columns, col;
 
   con= attachsql_connect_create("localhost", 3306, "test", "test", "", NULL);
-  attachsql_connect_set_option(con, ATTACHSQL_OPTION_COMPRESS, NULL);
+  bool compress= attachsql_connect_set_option(con, ATTACHSQL_OPTION_COMPRESS, NULL);
+  SKIP_IF_(!compress, "Not compiled with ZLib");
   error= attachsql_query(con, strlen(data), data, 0, NULL);
   while(aret != ATTACHSQL_RETURN_EOF)
   {

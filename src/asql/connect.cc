@@ -286,7 +286,11 @@ bool attachsql_connect_set_option(attachsql_connect_t *con, attachsql_options_t 
   switch (option)
   {
     case ATTACHSQL_OPTION_COMPRESS:
+#ifdef HAVE_ZLIB
       con->core_con->client_capabilities|= ASCORE_CAPABILITY_COMPRESS;
+#else
+      return false;
+#endif
       break;
     case ATTACHSQL_OPTION_FOUND_ROWS:
       con->core_con->client_capabilities|= ASCORE_CAPABILITY_FOUND_ROWS;

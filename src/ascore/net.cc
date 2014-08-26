@@ -21,7 +21,9 @@
 #include "net.h"
 #include "pack.h"
 #include "pack_macros.h"
-#include <zlib.h>
+#ifdef HAVE_ZLIB
+# include <zlib.h>
+#endif
 
 void ascore_send_data(ascon_st *con, char *data, size_t length)
 {
@@ -32,12 +34,14 @@ void ascore_send_data(ascon_st *con, char *data, size_t length)
   con->packet_number++;
   con->packet_header[3]= con->packet_number;
 
+#ifdef HAVE_ZLIB
   /* Can't use con->options.compression because at this point we haven't even connected so the flag isn't set */
   if ((con->client_capabilities & ASCORE_CAPABILITY_COMPRESS) && (con->status != ASCORE_CON_STATUS_CONNECTING))
   {
     ascore_send_compressed_packet(con, data, length, 0);
     return;
   }
+#endif
 
   send_buffer[0].base= con->packet_header;
   send_buffer[0].len= 4;
@@ -55,6 +59,7 @@ void ascore_send_data(ascon_st *con, char *data, size_t length)
   }
 }
 
+#ifdef HAVE_ZLIB
 void ascore_send_compressed_packet(ascon_st *con, char *data, size_t length, uint8_t command)
 {
   uv_buf_t send_buffer[2];
@@ -166,6 +171,7 @@ void ascore_send_compressed_packet(ascon_st *con, char *data, size_t length, uin
     con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
   }
 }
+#endif
 
 void on_write(uv_write_t *req, int status)
 {
@@ -206,6 +212,7 @@ void ascore_read_data_cb(uv_stream_t* tcp, ssize_t read_size, const uv_buf_t buf
   ascore_con_process_packets(con);
 }
 
+#ifdef HAVE_ZLIB
 bool ascore_con_decompress_read_buffer(ascon_st *con)
 {
   size_t data_size;
@@ -285,6 +292,7 @@ bool ascore_con_decompress_read_buffer(ascon_st *con)
     return true;
   }
 }
+#endif
 
 bool ascore_con_process_packets(ascon_st *con)
 {
@@ -295,6 +303,7 @@ bool ascore_con_process_packets(ascon_st *con)
   {
     return false;
   }
+#ifdef HAVE_ZLIB
   if (con->options.compression)
   {
     if (con->read_buffer_compress == NULL)
@@ -306,6 +315,7 @@ bool ascore_con_process_packets(ascon_st *con)
       return false;
     }
   }
+#endif
 
   while (con->next_packet_type != ASCORE_PACKET_TYPE_NONE)
   {
