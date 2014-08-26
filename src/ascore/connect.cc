@@ -68,6 +68,21 @@ void ascore_con_destroy(ascon_st *con)
     ascore_buffer_free(con->read_buffer);
   }
 
+  if (con->read_buffer_compress != NULL)
+  {
+    ascore_buffer_free(con->read_buffer_compress);
+  }
+
+  if (con->uncompressed_buffer != NULL)
+  {
+    free(con->uncompressed_buffer);
+  }
+
+  if (con->compressed_buffer != NULL)
+  {
+    free(con->compressed_buffer);
+  }
+
   if (con->uv_objects.stream != NULL)
   {
     uv_close((uv_handle_t*)con->uv_objects.stream, NULL);
