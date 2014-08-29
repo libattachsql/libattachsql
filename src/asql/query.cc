@@ -357,7 +357,7 @@ attachsql_query_row_st *attachsql_query_row_get(attachsql_connect_t *con, attach
   {
     length= ascore_unpack_length(raw_row, &bytes, NULL);
     raw_row+= bytes;
-    con->row[column].length= length;
+    con->row[column].length= (size_t)length;
     con->row[column].data= raw_row;
     raw_row+= length;
   }
@@ -481,7 +481,7 @@ attachsql_return_t attachsql_query_row_buffer(attachsql_connect_t *con, attachsq
     if (con->row_buffer_alloc_size <= con->row_buffer_count)
     {
       con->row_buffer_alloc_size+= ATTACHSQL_BUFFER_ROW_ALLOC_SIZE;
-      attachsql_query_row_st **realloc_buffer= (attachsql_query_row_st**)realloc(con->row_buffer, con->row_buffer_alloc_size * sizeof(attachsql_query_row_st*));
+      attachsql_query_row_st **realloc_buffer= (attachsql_query_row_st**)realloc(con->row_buffer, (size_t) (con->row_buffer_alloc_size * sizeof(attachsql_query_row_st*)));
       if (realloc_buffer == NULL)
       {
         attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_ALLOC, ATTACHSQL_ERROR_LEVEL_ERROR, "82100", "Allocation failure for row buffer");
@@ -504,7 +504,7 @@ attachsql_return_t attachsql_query_row_buffer(attachsql_connect_t *con, attachsq
     {
       length= ascore_unpack_length(raw_row, &bytes, NULL);
       raw_row+= bytes;
-      row[column].length= length;
+      row[column].length= (size_t)length;
       row[column].data= raw_row;
       raw_row+= length;
     }
