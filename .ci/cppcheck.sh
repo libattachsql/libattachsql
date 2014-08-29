@@ -1,4 +1,4 @@
-sudo apt-get install -y cppcheck
+sudo apt-get install -y cppcheck libuv-dev
 
 autoreconf -fi
 ./configure --enable-debug
