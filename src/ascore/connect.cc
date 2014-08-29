@@ -358,7 +358,6 @@ void ascore_handshake_response(ascon_st *con)
 {
   unsigned char *buffer_ptr;
   uint32_t capabilities;
-  asret_t ret;
 
   buffer_ptr= (unsigned char*)con->write_buffer;
 
@@ -391,6 +390,7 @@ void ascore_handshake_response(ascon_st *con)
   // TODO: add support for password plugins
   if (con->pass[0] != '\0')
   {
+    asret_t ret;
     buffer_ptr[0]= SHA1_DIGEST_LENGTH; // probably should use char packing?
     buffer_ptr++;
     ret= scramble_password(con, (unsigned char*)buffer_ptr);

@@ -164,6 +164,9 @@ ASQL_API
 const char *attachsql_query_info(attachsql_connect_t *con);
 
 ASQL_API
+uint32_t attachsql_query_warning_count(attachsql_connect_t *con);
+
+ASQL_API
 attachsql_return_t attachsql_query_next_result(attachsql_connect_t *con);
 
 ASQL_API

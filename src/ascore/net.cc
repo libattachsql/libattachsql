@@ -65,7 +65,6 @@ void ascore_send_compressed_packet(ascon_st *con, char *data, size_t length, uin
   uv_buf_t send_buffer[2];
   char *realloc_buffer;
   size_t required_uncompressed;
-  size_t required_compressed;
   size_t new_size;
   size_t compressed_length;
 
@@ -107,6 +106,7 @@ void ascore_send_compressed_packet(ascon_st *con, char *data, size_t length, uin
 
   if (length > ASCORE_MINIMUM_COMPRESS_SIZE)
   {
+    size_t required_compressed;
     /* compress the packet */
     asdebug("Compressing packet");
     required_compressed= (size_t)compressBound((uLong) required_uncompressed);

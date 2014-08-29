@@ -247,7 +247,7 @@ void attachsql_query_close(attachsql_connect_t *con)
   }
   con->row= NULL;
   /* We are still in query if there are more results */
-  if (not (con->core_con->server_status bitand ASCORE_SERVER_STATUS_MORE_RESULTS))
+  if (not (con->core_con->server_status & ASCORE_SERVER_STATUS_MORE_RESULTS))
   {
     con->in_query= false;
   }

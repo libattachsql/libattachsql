@@ -173,6 +173,7 @@ struct ascon_st
     compressed_buffer_len(0),
     compressed_packet_number(0)
   {
+    str_port[0]= '\0';
     errmsg[0]= '\0';
     server_version[0]= '\0';
     scramble_buffer[0]= '\0';
