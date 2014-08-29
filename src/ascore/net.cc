@@ -553,7 +553,7 @@ void ascore_packet_read_column(ascon_st *con)
   }
   else
   {
-    str_read= str_len;
+    str_read= (size_t)str_len;
   }
   memcpy(column->table, buffer->buffer_read_ptr, str_read);
   column->table[str_read]= '\0';
@@ -568,7 +568,7 @@ void ascore_packet_read_column(ascon_st *con)
   }
   else
   {
-    str_read= str_len;
+    str_read= (size_t)str_len;
   }
   memcpy(column->origin_table, buffer->buffer_read_ptr, str_read);
   column->origin_table[str_read]= '\0';
@@ -583,7 +583,7 @@ void ascore_packet_read_column(ascon_st *con)
   }
   else
   {
-    str_read= str_len;
+    str_read= (size_t)str_len;
   }
   memcpy(column->column, buffer->buffer_read_ptr, str_read);
   column->column[str_read]= '\0';
@@ -598,7 +598,7 @@ void ascore_packet_read_column(ascon_st *con)
   }
   else
   {
-    str_read= str_len;
+    str_read= (size_t)str_len;
   }
   memcpy(column->origin_column, buffer->buffer_read_ptr, str_read);
   column->origin_column[str_read]= '\0';
@@ -639,7 +639,7 @@ void ascore_packet_read_column(ascon_st *con)
   }
   else
   {
-    str_read= str_len;
+    str_read= (size_t)str_len;
   }
   memcpy(column->default_value, buffer->buffer_read_ptr, str_read);
   column->default_size= str_read;
