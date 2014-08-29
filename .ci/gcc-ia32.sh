@@ -4,6 +4,8 @@ sudo apt-get install -y gcc-multilib g++-multilib
 
 export CFLAGS="-m32"
 export CXXFLAGS="-m32"
+export LDFLAGS="-m32"
+export CPPFLAGS="-m32"
 autoreconf -fi
 ./configure --enable-debug
 make check

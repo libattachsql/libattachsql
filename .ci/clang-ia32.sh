@@ -6,6 +6,8 @@ export CC="clang"
 export CXX="clang++"
 export CFLAGS="-m32"
 export CXXFLAGS="-m32"
+export CPPFLAGS="-m32"
+export LDFLAGS="-m32"
 autoreconf -fi
 ./configure --enable-debug
 make check
