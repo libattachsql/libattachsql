@@ -1,18 +1,14 @@
 language: cpp
 
-compiler:
-  - gcc
-  - clang
-
 before_install:
   - sudo apt-add-repository ppa:linuxjedi/ppa -y
   - sudo apt-get update -qq
-  - sudo apt-get install -y libuv-dev python-sphinx
   - mysql -uroot -e "grant all on *.* to 'test'@'localhost' identified by 'test';"
 script:
-  - if [ "$COVERITY_SCAN_BRANCH" != 1 ]; then ./bootstrap.sh; fi
-  - if [ "$COVERITY_SCAN_BRANCH" != 1 ]; then make check; fi
-  - if [ "$COVERITY_SCAN_BRANCH" != 1 ]; then make html; fi
+  - ./bootstrap.sh
+  - make check
+  - make html
+  - sudo -E su ${USER} -c "sh -e \"${CI_SCRIPTS}/${CI_TARGET}.sh\""
 
 notifications:
   irc:
@@ -25,23 +21,13 @@ notifications:
 
 env:
   global:
-   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
-   #   via the "travis encrypt" command using the project repo's public key
-   - secure: "g+trlSaW1QHjYPVN1gGFVBpIi3FHpmZ0u80GXsc70iyrZPxHm6cpep2/us4CVWYtKCBCkAdx0jdYVjSp3cUj1xWlP5KF3pSqy3ZaGPEPW8mKrrjtCLdQ+XpZKxKd+YtFL35LKchRzXNxa9ai+Z8egD5y/SX7m6UgiP/y4NB8m48="
-   # Don't run coverity on CLang
-   - coverity_scan_run_condition='"$CC" = gcc'
-   # Use test mode if you are fiddling with this config to avoid hitting quota
-   - coverity_scan_script_test_mode=false
+   - PROJECT_ROOT="$(pwd)"
+   - CI_SCRIPTS="$PROJECT_ROOT/.ci"
    - "MYSQL_SOCK=/var/run/mysqld/mysqld.sock"
-
-addons:
-  coverity_scan:
-    build_script_url: https://raw.githubusercontent.com/$TRAVIS_REPO_SLUG/$TRAVIS_BRANCH/.travis-coverity-scan-build.sh
-    project:
-      name: "libattachsql/libattachsql"
-      description: "Build submitted via Travis CI"
-    notification_email: andrew@linuxjedi.co.uk
-    build_command_prepend: "./bootstrap.sh; make clean"
-    build_command:   "make -j 4"
-    branch_pattern: coverity_scan
-
+  matrix:
+   - CI_TARGET=gcc
+   - CI_TARGET=gcc-ia32
+   - CI_TARGET=clang
+   - CI_TARGET=clang-ia32
+   - CI_TARGET=clang-3.4
+   - CI_TARGET=docs
