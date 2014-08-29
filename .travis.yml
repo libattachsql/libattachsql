@@ -28,4 +28,5 @@ env:
    - CI_TARGET=clang-ia32
    - CI_TARGET=clang-3.4
    - CI_TARGET=valgrind
+   - CI_TARGET=cppcheck
    - CI_TARGET=docs
