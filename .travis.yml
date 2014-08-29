@@ -5,9 +5,6 @@ before_install:
   - sudo apt-get update -qq
   - mysql -uroot -e "grant all on *.* to 'test'@'localhost' identified by 'test';"
 script:
-  - ./bootstrap.sh
-  - make check
-  - make html
   - sudo -E su ${USER} -c "sh -e \"${CI_SCRIPTS}/${CI_TARGET}.sh\""
 
 notifications:

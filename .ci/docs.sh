@@ -1,5 +1,4 @@
-sudo apt-get install -y python-sphinx
+sudo apt-get install -y python-sphinx libuv-dev
 
-cd ..
 ./bootstrap.sh
 make html
