@@ -518,7 +518,8 @@ void ascore_packet_read_column(ascon_st *con)
 {
   asdebug("Column packet callback");
   uint8_t bytes;
-  uint64_t str_len, str_read;
+  uint64_t str_len;
+  size_t str_read;
   buffer_st *buffer= con->read_buffer;
   column_t *column;
 
@@ -537,7 +538,7 @@ void ascore_packet_read_column(ascon_st *con)
   }
   else
   {
-    str_read= str_len;
+    str_read= (size_t)str_len;
   }
   memcpy(column->schema, buffer->buffer_read_ptr, str_read);
   column->schema[str_read]= '\0';

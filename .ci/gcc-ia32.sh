@@ -4,5 +4,6 @@ sudo apt-get install -y gcc-multilib g++-multilib
 
 export CFLAGS="-m32"
 export CXXFLAGS="-m32"
-./bootstrap.sh
+autoreconf -fi
+./configure --enable-debug
 make check

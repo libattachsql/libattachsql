@@ -6,5 +6,6 @@ export CC="clang"
 export CXX="clang++"
 export CFLAGS="-m32"
 export CXXFLAGS="-m32"
-./bootstrap.sh
+autoreconf -fi
+./configure --enable-debug
 make check
