@@ -88,7 +88,9 @@ enum attachsql_error_codes_t
   ATTACHSQL_ERROR_CODE_AUTH_PLUGIN=               2061,
   /* Our own errors starting at 3000 */
   ATTACHSQL_ERROR_CODE_PARAMETER=                 3000,
-  ATTACHSQL_ERROR_CODE_BUFFERED_MODE=             3001
+  ATTACHSQL_ERROR_CODE_BUFFERED_MODE=             3001,
+  ATTACHSQL_ERROR_CODE_NO_SSL=                    3002,
+  ATTACHSQL_ERROR_CODE_SSL=                       3003
 };
 
 typedef enum attachsql_error_codes_t attachsql_error_codes_t;

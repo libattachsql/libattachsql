@@ -32,6 +32,10 @@ typedef uint16_t in_port_t;
 
 #include <uv.h>
 
+#ifdef HAVE_OPENSSL
+# include <openssl/ssl.h>
+#endif
+
 #ifdef __cplusplus
 #include <cstddef>
 extern "C" {
@@ -129,7 +133,6 @@ struct ascon_st
     uv_loop_t *loop;
     struct addrinfo hints;
     uv_getaddrinfo_t resolver;
-    uv_write_t write_req;
     uv_connect_t connect_req;
     uv_stream_t *stream;
     union socket_t
@@ -143,6 +146,39 @@ struct ascon_st
       stream(NULL)
     { }
   } uv_objects;
+#ifdef HAVE_OPENSSL
+  struct ssl_t
+  {
+    SSL *ssl;
+    SSL_CTX *context;
+    bool no_verify;
+    bool enabled; // set to true after first handshake to signify send/receive should be encrypted.
+    bool handshake_done;
+    BIO* read_bio;
+    BIO* write_bio;
+    char ssl_read_buffer[1024*16];
+    char ssl_write_buffer[1024*16];
+    buffer_st *write_buffer;
+    char* bio_buffer;
+    size_t bio_buffer_size;
+
+    ssl_t() :
+      ssl(NULL),
+      context(NULL),
+      no_verify(false),
+      enabled(false),
+      handshake_done(false),
+      read_bio(NULL),
+      write_bio(NULL),
+      write_buffer(NULL),
+      bio_buffer(NULL),
+      bio_buffer_size(0)
+    {
+      ssl_read_buffer[0]= '\0';
+      ssl_write_buffer[0]= '\0';
+    }
+  } ssl;
+#endif
 
   ascon_st() :
     host(NULL),
