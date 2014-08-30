@@ -87,12 +87,32 @@ ascore_command_status_t ascore_command_send(ascon_st *con, ascore_command_t comm
     send_buffer[2].len= length;
     asdebug("Sending %zd bytes with command to server", length);
     asdebug_hex(data, length);
-    ret= uv_write(&con->uv_objects.write_req, con->uv_objects.stream, send_buffer, 3, on_write);
+#ifdef HAVE_OPENSSL
+    if (con->ssl.handshake_done)
+    {
+      ret= ascore_ssl_buffer_write(con, send_buffer, 3);
+    }
+    else
+#endif
+    {
+      uv_write_t *req= new (std::nothrow) uv_write_t;
+      ret= uv_write(req, con->uv_objects.stream, send_buffer, 3, on_write);
+    }
   }
   else
   {
     asdebug("Sending command with no data");
-    ret= uv_write(&con->uv_objects.write_req, con->uv_objects.stream, send_buffer, 2, on_write);
+#ifdef HAVE_OPENSSL
+    if (con->ssl.handshake_done)
+    {
+      ret= ascore_ssl_buffer_write(con, send_buffer, 2);
+    }
+    else
+#endif
+    {
+      uv_write_t *req= new (std::nothrow) uv_write_t;
+      ret= uv_write(req, con->uv_objects.stream, send_buffer, 2, on_write);
+    }
   }
   if (ret != 0)
   {

@@ -38,3 +38,8 @@ uint8_t attachsql_get_library_version_patch(void)
 {
   return (uint8_t)(LIBATTACHSQL_VERSION_HEX & 0x00000fff);
 }
+
+void attachsql_library_init(void)
+{
+  ascore_library_init();
+}

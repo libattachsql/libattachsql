@@ -25,9 +25,149 @@
 # include <zlib.h>
 #endif
 
+#ifdef HAVE_OPENSSL
+# include <openssl/ssl.h>
+# include <openssl/err.h>
+#endif
+
+#ifdef HAVE_OPENSSL
+void ascore_ssl_run(ascon_st *con)
+{
+  int r;
+
+  if (not SSL_is_init_finished(con->ssl.ssl))
+  {
+    asdebug("SSL handshake in progress");
+    r= SSL_connect(con->ssl.ssl);
+    if (r < 0)
+    {
+      ascore_ssl_handle_error(con, r);
+    }
+    ascore_ssl_data_check(con);
+  }
+  else
+  {
+    asdebug("Attempting SSL buffer read");
+    r= SSL_read(con->ssl.ssl, con->ssl.ssl_read_buffer, sizeof(con->ssl.ssl_read_buffer));
+    if (r < 0)
+    {
+      ascore_ssl_handle_error(con, r);
+    }
+    asdebug("Read %d encrypted bytes", r);
+    ascore_ssl_data_check(con);
+  }
+}
+
+void ascore_ssl_data_check(ascon_st *con)
+{
+  int bytes_read= 0;
+  uv_buf_t send_buffer[1];
+
+  if (con->ssl.write_buffer)
+  {
+    size_t write_buffer_len= ascore_buffer_unread_data(con->ssl.write_buffer);
+    if (write_buffer_len > 0)
+    {
+      int r= SSL_write(con->ssl.ssl, con->ssl.write_buffer->buffer_read_ptr, write_buffer_len);
+      if (r < 0)
+      {
+        int error= SSL_get_error(con->ssl.ssl, r);
+        if (error != SSL_ERROR_WANT_READ)
+        {
+          con->local_errcode= ASRET_NET_WRITE_ERROR;
+          int ssl_err= SSL_get_error(con->ssl.ssl, r);
+          asdebug("SSL write fail: %d: %s", ssl_err, ERR_error_string(ssl_err, NULL));
+          con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
+          con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
+        }
+      }
+      else
+      {
+        asdebug("%d bytes written to SSL", r);
+        con->ssl.write_buffer->buffer_read_ptr+= r;
+      }
+    }
+  }
+
+  while((bytes_read= BIO_read(con->ssl.write_bio, con->ssl.ssl_write_buffer, sizeof(con->ssl.ssl_write_buffer))) > 0)
+  {
+    asdebug("%d bytes sent from SSL to net", bytes_read);
+    send_buffer[0].base= con->ssl.ssl_write_buffer;
+    send_buffer[0].len= bytes_read;
+    uv_write_t *req= new (std::nothrow) uv_write_t;
+    if (uv_write(req, con->uv_objects.stream, send_buffer, 1, on_write) != 0)
+    {
+      con->local_errcode= ASRET_NET_WRITE_ERROR;
+      asdebug("Write fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
+      con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
+      con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
+    }
+  }
+}
+
+void ascore_ssl_handle_error(ascon_st *con, int result)
+{
+  int error= SSL_get_error(con->ssl.ssl, result);
+  if (error == SSL_ERROR_WANT_READ)
+  {
+    ascore_ssl_data_check(con);
+  }
+  else
+  {
+    con->local_errcode= ASRET_NET_SSL_ERROR;
+    asdebug("SSL fail: %d", error);
+    con->status= ASCORE_CON_STATUS_SSL_ERROR;
+    con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
+    con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
+  }
+}
+
+int ascore_ssl_buffer_write(ascon_st *con, uv_buf_t *buf, int buf_len)
+{
+  size_t required_size= 0;
+  size_t buffer_free= 0;
+  int current_buf;
+  for (current_buf= 0; current_buf < buf_len; current_buf++)
+  {
+    required_size+= buf[current_buf].len;
+  }
+  if (con->ssl.write_buffer == NULL)
+  {
+    asdebug("Creating SSL write buffer");
+    con->ssl.write_buffer= ascore_buffer_create();
+  }
+  buffer_free= ascore_buffer_get_available(con->ssl.write_buffer);
+  if (buffer_free < required_size)
+  {
+    asdebug("Enlarging SSL write buffer");
+    ascore_buffer_increase(con->ssl.write_buffer);
+    buffer_free= ascore_buffer_get_available(con->ssl.write_buffer);
+  }
+  for (current_buf= 0; current_buf < buf_len; current_buf++)
+  {
+    memcpy(con->ssl.write_buffer->buffer_write_ptr, buf[current_buf].base, buf[current_buf].len);
+    ascore_buffer_move_write_ptr(con->ssl.write_buffer, buf[current_buf].len);
+  }
+  ascore_ssl_run(con);
+  return 0;
+}
+
+#endif
+
 void ascore_send_data(ascon_st *con, char *data, size_t length)
 {
   uv_buf_t send_buffer[2];
+
+  if (con->ssl.enabled and not con->ssl.handshake_done)
+  {
+    con->ssl.read_bio= BIO_new(BIO_s_mem());
+    con->ssl.write_bio= BIO_new(BIO_s_mem());
+    SSL_set_bio(con->ssl.ssl, con->ssl.read_bio, con->ssl.write_bio);
+    SSL_set_connect_state(con->ssl.ssl);
+    SSL_do_handshake(con->ssl.ssl);
+    ascore_ssl_run(con);
+    con->ssl.handshake_done= true;
+  }
 
   asdebug("Sending %zd bytes to server", length);
   ascore_pack_int3(con->packet_header, length);
@@ -50,12 +190,24 @@ void ascore_send_data(ascon_st *con, char *data, size_t length)
   asdebug_hex(data, length);
   con->command_status= ASCORE_COMMAND_STATUS_READ_RESPONSE;
 
-  if (uv_write(&con->uv_objects.write_req, con->uv_objects.stream, send_buffer, 2, on_write) != 0)
+  int r;
+#ifdef HAVE_OPENSSL
+  if (con->ssl.handshake_done)
   {
-    con->local_errcode= ASRET_NET_WRITE_ERROR;
-    asdebug("Write fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
-    con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
-    con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
+    r= ascore_ssl_buffer_write(con, send_buffer, 2);
+  }
+  else
+#endif
+  {
+    uv_write_t *req= new (std::nothrow) uv_write_t;
+    r= uv_write(req, con->uv_objects.stream, send_buffer, 2, on_write);
+  }
+  if (r != 0)
+  {
+      con->local_errcode= ASRET_NET_WRITE_ERROR;
+      asdebug("Write fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
+      con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
+      con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
   }
 }
 
@@ -163,7 +315,8 @@ void ascore_send_compressed_packet(ascon_st *con, char *data, size_t length, uin
   asdebug_hex(data, length);
   con->command_status= ASCORE_COMMAND_STATUS_READ_RESPONSE;
 
-  if (uv_write(&con->uv_objects.write_req, con->uv_objects.stream, send_buffer, 2, on_write) != 0)
+  uv_write_t *req= new (std::nothrow) uv_write_t;
+  if (uv_write(req, con->uv_objects.stream, send_buffer, 2, on_write) != 0)
   {
     con->local_errcode= ASRET_NET_WRITE_ERROR;
     asdebug("Write fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
@@ -185,12 +338,43 @@ void on_write(uv_write_t *req, int status)
     con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
     con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
   }
+  delete req;
 }
 
 void ascore_read_data_cb(uv_stream_t* tcp, ssize_t read_size, const uv_buf_t buf)
 {
   (void) buf;
   struct ascon_st *con= (struct ascon_st*)tcp->loop->data;
+
+#ifdef HAVE_OPENSSL
+  if (con->ssl.handshake_done)
+  {
+    asdebug("Got encrypted data, %zd bytes", read_size);
+    BIO_write(con->ssl.read_bio, buf.base, read_size);
+    buffer_st *buffer= NULL;
+    if (con->options.compression)
+    {
+      buffer= con->read_buffer_compress;
+    }
+    else
+    {
+      buffer= con->read_buffer;
+    }
+    size_t available_buffer= ascore_buffer_get_available(buffer);
+    int r= SSL_read(con->ssl.ssl, buffer->buffer_write_ptr, available_buffer);
+    if (r < 0)
+    {
+      ascore_ssl_handle_error(con, r);
+    }
+    else if (r > 0)
+    {
+      asdebug("Got unencrypted data, %d bytes", r);
+      ascore_buffer_move_write_ptr(buffer, r);
+    }
+    ascore_con_process_packets(con);
+    return;
+  }
+#endif
 
   if (read_size < 0)
   {
@@ -323,7 +507,7 @@ bool ascore_con_process_packets(ascon_st *con)
     data_size= ascore_buffer_unread_data(con->read_buffer);
     if (data_size < 4)
     {
-      asdebug("Read less than 4 bytes, waiting for more");
+      asdebug("Read less than 4 bytes (%zu bytes), waiting for more", data_size);
       return false;
     }
 
@@ -362,6 +546,9 @@ bool ascore_con_process_packets(ascon_st *con)
         return true;
       case ASCORE_PACKET_TYPE_HANDSHAKE:
         ascore_packet_read_handshake(con);
+        break;
+      case ASCORE_PACKET_TYPE_HANDSHAKE_SSL:
+        ascore_handshake_response(con);
         break;
       case ASCORE_PACKET_TYPE_RESPONSE:
         ascore_packet_read_response(con);

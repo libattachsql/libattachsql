@@ -51,6 +51,14 @@ asret_t scramble_password(ascon_st *con, unsigned char *buffer);
 
 void ascore_handshake_response(ascon_st *con);
 
+void ascore_library_init(void);
+
+#ifdef HAVE_OPENSSL
+bool ascore_con_set_ssl(ascon_st *con, const char *key, const char *cert, const char *ca, const char *capath, const char *cipher, bool verify);
+
+int ascore_ssl_buffer_write(ascon_st *con, uv_buf_t *buf, int buf_len);
+#endif
+
 #ifdef __cplusplus
 }
 #endif
