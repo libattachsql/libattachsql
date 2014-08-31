@@ -12,6 +12,6 @@
    # Only seems to affect Ubuntu 12.04
    openssl_bug
    Memcheck:Cond
-   fun:memcpy
    fun:ASN1_STRING_set
+   fun:ASN1_mbstring_ncopy
 }
