@@ -86,6 +86,25 @@ void ascore_con_destroy(ascon_st *con)
     free(con->compressed_buffer);
   }
 
+#ifdef HAVE_OPENSSL
+  if (con->ssl.bio_buffer != NULL)
+  {
+    free(con->ssl.bio_buffer);
+  }
+  if (con->ssl.write_buffer != NULL)
+  {
+    ascore_buffer_free(con->ssl.write_buffer);
+  }
+  /* This frees BIOs as well */
+  if (con->ssl.ssl != NULL)
+  {
+    SSL_free(con->ssl.ssl);
+  }
+  if (con->ssl.context != NULL)
+  {
+    SSL_CTX_free(con->ssl.context);
+  }
+#endif
   if (con->uv_objects.stream != NULL)
   {
     uv_close((uv_handle_t*)con->uv_objects.stream, NULL);
@@ -407,10 +426,12 @@ void ascore_handshake_response(ascon_st *con)
   capabilities|= ASCORE_CAPABILITY_MULTI_RESULTS;
   capabilities|= con->client_capabilities;
 
+#ifdef HAVE_OPENSSL
   if (con->ssl.ssl != NULL)
   {
     capabilities |= ASCORE_CAPABILITY_SSL;
   }
+#endif
 
   ascore_pack_int4(buffer_ptr, capabilities);
   buffer_ptr+= 4;
@@ -427,6 +448,7 @@ void ascore_handshake_response(ascon_st *con)
   memset(buffer_ptr, 0, 23);
   buffer_ptr+= 23;
 
+#ifdef HAVE_OPENSSL
   if ((con->ssl.ssl != NULL) and (con->next_packet_type != ASCORE_PACKET_TYPE_HANDSHAKE_SSL))
   {
     /* for SSL we do a short handshake ending here in plain text,
@@ -448,6 +470,7 @@ void ascore_handshake_response(ascon_st *con)
      */
     con->ssl.enabled= true;
   }
+#endif
 
   // User name
   memcpy(buffer_ptr, con->user, strlen(con->user));

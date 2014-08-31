@@ -13,6 +13,10 @@ Version 0.3.0 Alpha (Not yet released)
 * Additional documentation (`Issue #44 <https://github.com/libattachsql/libattachsql/issues/44>`_)
 * Fixed case where multiple network writes could overwrite each other
 * Add optional SSL support using OpenSSL (`Issue #10 <https://github.com/libattachsql/libattachsql/issues/10>`_)
+* Fix valgrind reported problems (`Issue #55 <https://github.com/libattachsql/libattachsql/issues/55>`_)
+* Fix cppcheck reported problems
+* Fix 32bit CLang compiling
+* Overhaul Travis configuration to test many more things
 
 Version 0.2
 -----------

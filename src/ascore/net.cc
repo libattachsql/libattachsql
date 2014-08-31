@@ -74,11 +74,13 @@ void ascore_ssl_data_check(ascon_st *con)
         int error= SSL_get_error(con->ssl.ssl, r);
         if (error != SSL_ERROR_WANT_READ)
         {
-          con->local_errcode= ASRET_NET_WRITE_ERROR;
-          int ssl_err= SSL_get_error(con->ssl.ssl, r);
-          asdebug("SSL write fail: %d: %s", ssl_err, ERR_error_string(ssl_err, NULL));
+          con->local_errcode= ASRET_NET_SSL_ERROR;
+          asdebug("SSL write fail: %d", error);
           con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
           con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
+          con->status= ASCORE_CON_STATUS_SSL_ERROR;
+          snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE - 1, "SSL write fail: %s", ERR_reason_error_string(ERR_get_error()));
+          con->errmsg[ASCORE_ERROR_BUFFER_SIZE - 1]= '\0';
         }
       }
       else
@@ -115,10 +117,13 @@ void ascore_ssl_handle_error(ascon_st *con, int result)
   else
   {
     con->local_errcode= ASRET_NET_SSL_ERROR;
-    asdebug("SSL fail: %d", error);
+    int errcode= ERR_get_error();
+    asdebug("SSL fail: %d, %s", error, ERR_error_string(errcode, NULL));
     con->status= ASCORE_CON_STATUS_SSL_ERROR;
     con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
     con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
+    snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE - 1, "SSL read/write fail: %s", ERR_reason_error_string(errcode));
+    con->errmsg[ASCORE_ERROR_BUFFER_SIZE - 1]= '\0';
   }
 }
 
@@ -158,6 +163,7 @@ void ascore_send_data(ascon_st *con, char *data, size_t length)
 {
   uv_buf_t send_buffer[2];
 
+#ifdef HAVE_OPENSSL
   if (con->ssl.enabled and not con->ssl.handshake_done)
   {
     con->ssl.read_bio= BIO_new(BIO_s_mem());
@@ -168,6 +174,7 @@ void ascore_send_data(ascon_st *con, char *data, size_t length)
     ascore_ssl_run(con);
     con->ssl.handshake_done= true;
   }
+#endif
 
   asdebug("Sending %zd bytes to server", length);
   ascore_pack_int3(con->packet_header, length);

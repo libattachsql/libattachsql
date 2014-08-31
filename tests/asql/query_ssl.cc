@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     }
     else if (error)
     {
-      ASSERT_FALSE_(true, "Error exists: %d", error->code);
+      ASSERT_FALSE_(true, "Error exists: %d, %s", error->code, error->msg);
     }
   }
   attachsql_query_close(con);

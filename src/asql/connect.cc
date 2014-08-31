@@ -152,7 +152,8 @@ attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_er
       return ATTACHSQL_RETURN_PROCESSING;
       break;
     case ASCORE_CON_STATUS_SSL_ERROR:
-      attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_SSL, ATTACHSQL_ERROR_LEVEL_ERROR, "08000", "SSL encrypt/decrypt error");
+      attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_SSL, ATTACHSQL_ERROR_LEVEL_ERROR, "08000", con->core_con->errmsg);
+      return ATTACHSQL_RETURN_ERROR;
       break;
     case ASCORE_CON_STATUS_IDLE:
       if (con->core_con->server_errno != 0)
@@ -273,7 +274,7 @@ attachsql_error_st *attachsql_connect(attachsql_connect_t *con)
       return NULL;
       break;
     case ASCORE_CON_STATUS_SSL_ERROR:
-      attachsql_error_client_create(&error, ATTACHSQL_ERROR_CODE_SSL, ATTACHSQL_ERROR_LEVEL_ERROR, "08000", "SSL encrypt/decrypt error");
+      attachsql_error_client_create(&error, ATTACHSQL_ERROR_CODE_SSL, ATTACHSQL_ERROR_LEVEL_ERROR, "08000", con->core_con->errmsg);
       return error;
       break;
 
