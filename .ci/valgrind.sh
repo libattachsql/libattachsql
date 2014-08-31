@@ -1,4 +1,4 @@
-sudo apt-get install -y libuv-dev zlib1g-dev valgrind
+sudo apt-get install -y libuv-dev zlib1g-dev valgrind libssl-dev
 
 autoreconf -fi
 ./configure --enable-debug
