@@ -79,7 +79,14 @@ If your commit fixes an issue you can add the following (for issue #93)::
 
    Fixes libattachsql/libattachsql#93
 
-Once all your commits are done you are now ready to push up to GitHub:
+Once all your commits are done a quick rebase may be needed to make sure your changes will merge OK with what is in master:
+
+.. code-block:: bash
+
+   git fetch upstream
+   git rebase upstream/master
+
+This will give futher instructions as to what is needed to complete the rebase.  You should now be ready to push up to GitHub:
 
 .. code-block:: bash
 

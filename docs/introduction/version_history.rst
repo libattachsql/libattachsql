@@ -10,7 +10,7 @@ Version 0.3.0 Alpha (Not yet released)
 * Fixed infinite loop memory eater for test run when MySQL server not present (`Issue #48 <https://github.com/libattachsql/libattachsql/issues/48>`_)
 * Add UDS test case (`Issue #46 <https://github.com/libattachsql/libattachsql/issues/46>`_).  Note, the ``MYSQL_SOCK`` env variable needs to be set to use it.
 * Add protocol compression support (`Issue #9 <https://github.com/libattachsql/libattachsql/issues/9>`_)
-* Additional documentation (`Issue #44 <https://github.com/libattachsql/libattachsql/issues/44>`_)
+* Additional documentation (`Issue #44 <https://github.com/libattachsql/libattachsql/issues/44>`_, `Issue #58 <https://github.com/libattachsql/libattachsql/issues/58>`_ and `Issue #59 <https://github.com/libattachsql/libattachsql/issues/59>`_)
 * Fixed case where multiple network writes could overwrite each other
 * Add optional SSL support using OpenSSL (`Issue #10 <https://github.com/libattachsql/libattachsql/issues/10>`_)
 * Fix valgrind reported problems (`Issue #55 <https://github.com/libattachsql/libattachsql/issues/55>`_)

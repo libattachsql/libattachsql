@@ -121,6 +121,18 @@ attachsql_query_affected_rows()
 
    .. versionadded:: 0.1.0
 
+attachsql_query_warning_count()
+-------------------------------
+
+.. c:function:: uint32_t attachsql_query_warning_count(attachsql_connect_t *con)
+
+   Returns the number of warnings for a query.
+
+   :param con: The connection object the query was on
+   :returns: The number of warnings for the query result
+
+   .. versionadded:: 0.1.0
+
 attachsql_query_info()
 ----------------------
 
