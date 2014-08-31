@@ -1,4 +1,4 @@
-sudo apt-get install -y libuv-dev zlib1g-dev clang
+sudo apt-get install -y libuv-dev zlib1g-dev clang libssl-dev
 
 CC="clang"
 CXX="clang++"

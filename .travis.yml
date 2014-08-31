@@ -4,6 +4,9 @@ before_install:
   - sudo apt-add-repository ppa:linuxjedi/ppa -y
   - sudo apt-get update -qq
   - mysql -uroot -e "grant all on *.* to 'test'@'localhost' identified by 'test';"
+  - sudo cp $(pwd)/.ci/ssl.cnf /etc/mysql/conf.d/
+  - sudo cp $(pwd)/tests/ssl/ca-cert.pem $(pwd)/tests/ssl/server-cert.pem $(pwd)/tests/ssl/server-key.pem /etc/mysql/
+  - sudo service mysql restart
 script:
   - sudo -E su ${USER} -c "sh -e \"${CI_SCRIPTS}/${CI_TARGET}.sh\""
 

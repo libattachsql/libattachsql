@@ -45,6 +45,9 @@ attachsql_error_st *attachsql_connect(attachsql_connect_t *con);
 ASQL_API
 bool attachsql_connect_set_option(attachsql_connect_t *con, attachsql_options_t option, const void *arg);
 
+ASQL_API
+attachsql_error_st *attachsql_connect_set_ssl(attachsql_connect_t *con, const char *key, const char *cert, const char *ca, const char *capath, const char *cipher, bool verify);
+
 #ifdef __cplusplus
 }
 #endif

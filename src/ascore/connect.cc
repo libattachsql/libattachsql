@@ -22,6 +22,9 @@
 #include "net.h"
 #include <errno.h>
 #include <string.h>
+#ifdef HAVE_OPENSSL
+# include <openssl/ssl.h>
+#endif
 
 ascon_st *ascore_con_create(const char *host, in_port_t port, const char *user, const char *pass, const char *schema)
 {
@@ -83,6 +86,25 @@ void ascore_con_destroy(ascon_st *con)
     free(con->compressed_buffer);
   }
 
+#ifdef HAVE_OPENSSL
+  if (con->ssl.bio_buffer != NULL)
+  {
+    free(con->ssl.bio_buffer);
+  }
+  if (con->ssl.write_buffer != NULL)
+  {
+    ascore_buffer_free(con->ssl.write_buffer);
+  }
+  /* This frees BIOs as well */
+  if (con->ssl.ssl != NULL)
+  {
+    SSL_free(con->ssl.ssl);
+  }
+  if (con->ssl.context != NULL)
+  {
+    SSL_CTX_free(con->ssl.context);
+  }
+#endif
   if (con->uv_objects.stream != NULL)
   {
     uv_close((uv_handle_t*)con->uv_objects.stream, NULL);
@@ -125,12 +147,18 @@ ascore_con_status_t ascore_con_poll(ascon_st *con)
     return ASCORE_CON_STATUS_PARAMETER_ERROR;
   }
 
-  if ((con->status == ASCORE_CON_STATUS_NOT_CONNECTED) or (con->status == ASCORE_CON_STATUS_CONNECT_FAILED) or (con->status == ASCORE_CON_STATUS_IDLE))
+  if ((con->status == ASCORE_CON_STATUS_NOT_CONNECTED) or (con->status == ASCORE_CON_STATUS_CONNECT_FAILED) or (con->status == ASCORE_CON_STATUS_IDLE) or (con->status == ASCORE_CON_STATUS_SSL_ERROR))
   {
     return con->status;
   }
   if (con->options.polling)
   {
+#ifdef HAVE_OPENSSL
+    if (con->ssl.handshake_done)
+    {
+      ascore_ssl_run(con);
+    }
+#endif
     // Make sure we aren't polling for somethin already in the buffer first
     if (not ascore_con_process_packets(con))
     {
@@ -254,6 +282,26 @@ uv_buf_t on_alloc(uv_handle_t *client, size_t suggested_size)
   uv_buf_t buf;
   ascon_st *con= (ascon_st*) client->loop->data;
 
+#ifdef HAVE_OPENSSL
+  if (con->ssl.handshake_done && (con->ssl.bio_buffer_size < suggested_size))
+  {
+    asdebug("Increasing SSL read buffer to %zd", suggested_size);
+    char *realloc_buffer= (char*)realloc(con->ssl.bio_buffer, suggested_size);
+    if (realloc_buffer)
+    {
+      con->ssl.bio_buffer= realloc_buffer;
+      con->ssl.bio_buffer_size= suggested_size;
+    }
+    else
+    {
+      con->local_errcode= ASRET_OUT_OF_MEMORY_ERROR;
+      asdebug("SSL buffer realloc failure");
+      con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
+      con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
+    }
+  }
+#endif
+
   if (not con->options.compression)
   {
     asdebug("%zd bytes requested for read buffer", suggested_size);
@@ -292,6 +340,14 @@ uv_buf_t on_alloc(uv_handle_t *client, size_t suggested_size)
     buf.base= con->read_buffer_compress->buffer_write_ptr;
     buf.len= buffer_free;
   }
+
+#ifdef HAVE_OPENSSL
+  if (con->ssl.handshake_done)
+  {
+    buf.base= con->ssl.bio_buffer;
+    buf.len= con->ssl.bio_buffer_size;
+  }
+#endif
 
   return buf;
 }
@@ -359,11 +415,23 @@ void ascore_handshake_response(ascon_st *con)
   unsigned char *buffer_ptr;
   uint32_t capabilities;
 
+  asdebug("Sending handshake response");
   buffer_ptr= (unsigned char*)con->write_buffer;
+  if (con->next_packet_type != ASCORE_PACKET_TYPE_HANDSHAKE_SSL)
+  {
+    uv_read_start(con->uv_objects.stream, on_alloc, ascore_read_data_cb);
+  }
 
   capabilities= con->server_capabilities & ASCORE_CAPABILITY_CLIENT;
   capabilities|= ASCORE_CAPABILITY_MULTI_RESULTS;
   capabilities|= con->client_capabilities;
+
+#ifdef HAVE_OPENSSL
+  if (con->ssl.ssl != NULL)
+  {
+    capabilities |= ASCORE_CAPABILITY_SSL;
+  }
+#endif
 
   ascore_pack_int4(buffer_ptr, capabilities);
   buffer_ptr+= 4;
@@ -379,6 +447,30 @@ void ascore_handshake_response(ascon_st *con)
   // 0x00 padding for 23 bytes
   memset(buffer_ptr, 0, 23);
   buffer_ptr+= 23;
+
+#ifdef HAVE_OPENSSL
+  if ((con->ssl.ssl != NULL) and (con->next_packet_type != ASCORE_PACKET_TYPE_HANDSHAKE_SSL))
+  {
+    /* for SSL we do a short handshake ending here in plain text,
+     * no user/password sent.
+     * The enablement of the SSL capability tells the server that OpenSSL
+     * handshake happens next followed by a full MySQL handshake packet with
+     * user/pass encrypted
+     */
+    ascore_send_data(con, con->write_buffer, (size_t)(buffer_ptr - (unsigned char*)con->write_buffer));
+    con->next_packet_type= ASCORE_PACKET_TYPE_HANDSHAKE_SSL;
+    ascore_handshake_response(con);
+    return;
+  }
+
+  if ((con->ssl.ssl != NULL) and (con->next_packet_type == ASCORE_PACKET_TYPE_HANDSHAKE_SSL))
+  {
+    /* second entry into handshake for SSL, this response and all other send /
+     * receives should be encrypted from now on
+     */
+    con->ssl.enabled= true;
+  }
+#endif
 
   // User name
   memcpy(buffer_ptr, con->user, strlen(con->user));
@@ -417,8 +509,6 @@ void ascore_handshake_response(ascon_st *con)
   buffer_ptr++;
   ascore_send_data(con, con->write_buffer, (size_t)(buffer_ptr - (unsigned char*)con->write_buffer));
   con->next_packet_type= ASCORE_PACKET_TYPE_RESPONSE;
-
-  uv_read_start(con->uv_objects.stream, on_alloc, ascore_read_data_cb);
 }
 
 asret_t scramble_password(ascon_st *con, unsigned char *buffer)
@@ -457,3 +547,73 @@ asret_t scramble_password(ascon_st *con, unsigned char *buffer)
   return ASRET_OK;
 }
 
+void ascore_library_init(void)
+{
+#ifdef HAVE_OPENSSL
+  SSL_load_error_strings();
+  SSL_library_init();
+#endif
+}
+
+#ifdef HAVE_OPENSSL
+bool ascore_con_set_ssl(ascon_st *con, const char *key, const char *cert, const char *ca, const char *capath, const char *cipher, bool verify)
+{
+  con->ssl.context= SSL_CTX_new(TLSv1_client_method());
+
+  if (cipher != NULL)
+  {
+    if (SSL_CTX_set_cipher_list(con->ssl.context, cipher) != 1)
+    {
+      strncpy(con->errmsg, "Error setting SSL cipher list", ASCORE_ERROR_BUFFER_SIZE - 1);
+      con->errmsg[ASCORE_ERROR_BUFFER_SIZE - 1]= '\0';
+      return false;
+    }
+  }
+
+  if (SSL_CTX_load_verify_locations(con->ssl.context, ca, capath) != 1)
+  {
+    strncpy(con->errmsg, "Error loading the SSL certificate authority file", ASCORE_ERROR_BUFFER_SIZE -1);
+    con->errmsg[ASCORE_ERROR_BUFFER_SIZE - 1]= '\0';
+    return false;
+  }
+
+  if (cert != NULL)
+  {
+    if (SSL_CTX_use_certificate_file(con->ssl.context, cert, SSL_FILETYPE_PEM) != 1)
+    {
+      strncpy(con->errmsg, "Error loading the SSL certificate file", ASCORE_ERROR_BUFFER_SIZE - 1);
+      con->errmsg[ASCORE_ERROR_BUFFER_SIZE - 1]= '\0';
+      return false;
+    }
+
+    if (key == NULL)
+    {
+      key= cert;
+    }
+
+    if (SSL_CTX_use_PrivateKey_file(con->ssl.context, key, SSL_FILETYPE_PEM) != 1)
+    {
+      strncpy(con->errmsg, "Cannot load the SSL key file", ASCORE_ERROR_BUFFER_SIZE - 1);
+      con->errmsg[ASCORE_ERROR_BUFFER_SIZE - 1]= '\0';
+      return false;
+    }
+
+    if (SSL_CTX_check_private_key(con->ssl.context) != 1)
+    {
+      strncpy(con->errmsg, "Error validating the SSL private key", ASCORE_ERROR_BUFFER_SIZE - 1);
+      con->errmsg[ASCORE_ERROR_BUFFER_SIZE - 1]= '\0';
+      return false;
+    }
+  }
+
+  if (verify)
+  {
+    SSL_CTX_set_verify(con->ssl.context, SSL_VERIFY_PEER, NULL);
+  }
+  con->ssl.ssl= SSL_new(con->ssl.context);
+  /* force client handshake mode to allow SSL_write before handshake complete */
+  SSL_set_connect_state(con->ssl.ssl);
+
+  return true;
+}
+#endif

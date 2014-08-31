@@ -151,6 +151,10 @@ attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_er
     case ASCORE_CON_STATUS_BUSY:
       return ATTACHSQL_RETURN_PROCESSING;
       break;
+    case ASCORE_CON_STATUS_SSL_ERROR:
+      attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_SSL, ATTACHSQL_ERROR_LEVEL_ERROR, "08000", con->core_con->errmsg);
+      return ATTACHSQL_RETURN_ERROR;
+      break;
     case ASCORE_CON_STATUS_IDLE:
       if (con->core_con->server_errno != 0)
       {
@@ -269,6 +273,11 @@ attachsql_error_st *attachsql_connect(attachsql_connect_t *con)
       }
       return NULL;
       break;
+    case ASCORE_CON_STATUS_SSL_ERROR:
+      attachsql_error_client_create(&error, ATTACHSQL_ERROR_CODE_SSL, ATTACHSQL_ERROR_LEVEL_ERROR, "08000", con->core_con->errmsg);
+      return error;
+      break;
+
   }
 
   return NULL;
@@ -310,6 +319,13 @@ bool attachsql_connect_set_option(attachsql_connect_t *con, attachsql_options_t 
     case ATTACHSQL_OPTION_NO_SCHEMA:
       con->core_con->client_capabilities|= ASCORE_CAPABILITY_NO_SCHEMA;
       break;
+    case ATTACHSQL_OPTION_SSL_NO_VERIFY:
+#ifdef HAVE_OPENSSL
+      con->core_con->ssl.no_verify= true;
+#else
+      return false;
+#endif
+      break;
     case ATTACHSQL_OPTION_NONE:
       return false;
       break;
@@ -318,3 +334,38 @@ bool attachsql_connect_set_option(attachsql_connect_t *con, attachsql_options_t 
   }
   return true;
 }
+
+#ifdef HAVE_OPENSSL
+attachsql_error_st *attachsql_connect_set_ssl(attachsql_connect_t *con, const char *key, const char *cert, const char *ca, const char *capath, const char *cipher, bool verify)
+{
+  attachsql_error_st *err= NULL;
+
+  if (con == NULL)
+  {
+    attachsql_error_client_create(&err, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Connection parameter not valid");
+    return err;
+  }
+
+  if (not ascore_con_set_ssl(con->core_con, key, cert, ca, capath, cipher, verify))
+  {
+    attachsql_error_client_create(&err, ATTACHSQL_ERROR_CODE_SSL, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", con->core_con->errmsg);
+    return err;
+  }
+  return NULL;
+}
+#else
+attachsql_error_st *attachsql_connect_set_ssl(attachsql_connect_t *con, const char *key, const char *cert, const char *ca, const char *capath, const char *cipher, bool verify)
+{
+  (void) con;
+  (void) key;
+  (void) cert;
+  (void) ca;
+  (void) capath;
+  (void) cipher;
+  (void) verify;
+  attachsql_error_st *err= NULL;
+
+  attachsql_error_client_create(&err, ATTACHSQL_ERROR_CODE_NO_SSL, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "SSL support has not been compiled in");
+  return err;
+}
+#endif

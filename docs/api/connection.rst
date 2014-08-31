@@ -98,3 +98,23 @@ attachsql_connect_set_option()
    :returns: true on success, false on failure
 
    .. versionadded:: 0.1.0
+
+attachsql_connect_set_ssl()
+---------------------------
+
+.. c:function:: attachsql_error_st *attachsql_connect_set_ssl(attachsql_connect_t *con, const char *key, const char *cert, const char *ca, const char *capath, const char *cipher, bool verify)
+
+   Configures SSL for the MySQL connection.  Should be used before any connection is established.
+
+   .. warning::
+      The :c:func:`attachsql_library_init` function must have been called before this function
+
+   :param con: The connection to enable SSL on
+   :param key: The certificate key file
+   :param cert: The certificate file
+   :param ca: The certificate authority file
+   :param capath: The path to multiple certificate authority files
+   :param cipher: The optional list of ciphers to use, see `OpenSSL's cipher examples <https://www.openssl.org/docs/apps/ciphers.html#EXAMPLES>`_ for how to use this
+   :returns: An error object if an error occurs, `NULL` on success
+
+   .. versionadded:: 0.3.0
