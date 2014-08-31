@@ -21,6 +21,8 @@ attachsql_get_library_version_major()
 
    :returns: The major version number
 
+   .. versionadded:: 0.1.0
+
 attachsql_get_library_version_minor()
 -------------------------------------
 
@@ -30,6 +32,8 @@ attachsql_get_library_version_minor()
 
    :returns: The minor version number
 
+   .. versionadded:: 0.1.0
+
 attachsql_get_library_version_patch()
 -------------------------------------
 
@@ -38,3 +42,17 @@ attachsql_get_library_version_patch()
    Returns the integer of the patch level for the library
 
    :returns: The patch level
+
+   .. versionadded:: 0.1.0
+
+attachsql_library_init()
+------------------------
+
+.. c:function:: void attachsql_library_init(void)
+
+   Sets up the libAttachSQL library, currently only required for SSL connections.
+
+   .. note::
+      Should only be called once at the start of an application, before any other libAttachSQL function.
+
+   .. versionadded:: 0.3.0
