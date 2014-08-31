@@ -68,7 +68,7 @@ void ascore_ssl_data_check(ascon_st *con)
     size_t write_buffer_len= ascore_buffer_unread_data(con->ssl.write_buffer);
     if (write_buffer_len > 0)
     {
-      int r= SSL_write(con->ssl.ssl, con->ssl.write_buffer->buffer_read_ptr, write_buffer_len);
+      int r= SSL_write(con->ssl.ssl, con->ssl.write_buffer->buffer_read_ptr, (int)write_buffer_len);
       if (r < 0)
       {
         int error= SSL_get_error(con->ssl.ssl, r);
@@ -117,7 +117,7 @@ void ascore_ssl_handle_error(ascon_st *con, int result)
   else
   {
     con->local_errcode= ASRET_NET_SSL_ERROR;
-    int errcode= ERR_get_error();
+    unsigned long errcode= ERR_get_error();
     asdebug("SSL fail: %d, %s", error, ERR_error_string(errcode, NULL));
     con->status= ASCORE_CON_STATUS_SSL_ERROR;
     con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
@@ -357,7 +357,7 @@ void ascore_read_data_cb(uv_stream_t* tcp, ssize_t read_size, const uv_buf_t buf
   if (con->ssl.handshake_done)
   {
     asdebug("Got encrypted data, %zd bytes", read_size);
-    BIO_write(con->ssl.read_bio, buf.base, read_size);
+    BIO_write(con->ssl.read_bio, buf.base, (int)read_size);
     buffer_st *buffer= NULL;
     if (con->options.compression)
     {
@@ -368,7 +368,7 @@ void ascore_read_data_cb(uv_stream_t* tcp, ssize_t read_size, const uv_buf_t buf
       buffer= con->read_buffer;
     }
     size_t available_buffer= ascore_buffer_get_available(buffer);
-    int r= SSL_read(con->ssl.ssl, buffer->buffer_write_ptr, available_buffer);
+    int r= SSL_read(con->ssl.ssl, buffer->buffer_write_ptr, (int)available_buffer);
     if (r < 0)
     {
       ascore_ssl_handle_error(con, r);

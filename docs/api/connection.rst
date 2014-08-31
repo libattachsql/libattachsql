@@ -107,7 +107,7 @@ attachsql_connect_set_ssl()
    Configures SSL for the MySQL connection.  Should be used before any connection is established.
 
    .. warning::
-      :c:func:`attachsql_library_init` must be called before this function
+      The :c:func:`attachsql_library_init` function must have been called before this function
 
    :param con: The connection to enable SSL on
    :param key: The certificate key file
