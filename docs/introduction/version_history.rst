@@ -4,8 +4,8 @@ Version History
 Version 0.3
 -----------
 
-Version 0.3.0 Alpha (Not yet released)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Version 0.3.0 Alpha (2014-09-01)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * Fixed infinite loop memory eater for test run when MySQL server not present (`Issue #48 <https://github.com/libattachsql/libattachsql/issues/48>`_)
 * Add UDS test case (`Issue #46 <https://github.com/libattachsql/libattachsql/issues/46>`_).  Note, the ``MYSQL_SOCK`` env variable needs to be set to use it.
