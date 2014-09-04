@@ -51,7 +51,7 @@
 # -Wdeclaration-after-statement is counter to C99
 # _APPEND_COMPILE_FLAGS_ERROR([-pedantic])
 
-#serial 15
+#serial 16
 
 AC_DEFUN([_SET_SANITIZE_FLAGS],
          [AS_IF([test "x$MINGW" != xyes],[
@@ -136,7 +136,6 @@ AC_DEFUN([_HARDEN_CC_COMPILER_FLAGS],
            #_APPEND_COMPILE_FLAGS_ERROR([-H])
            _APPEND_COMPILE_FLAGS_ERROR([-g])
            _APPEND_COMPILE_FLAGS_ERROR([-g3])
-           _APPEND_COMPILE_FLAGS_ERROR([-fmudflapth])
            _APPEND_COMPILE_FLAGS_ERROR([-fno-eliminate-unused-debug-types])
            _APPEND_COMPILE_FLAGS_ERROR([-fno-omit-frame-pointer])
            ],[
@@ -211,7 +210,6 @@ AC_DEFUN([_HARDEN_CC_COMPILER_FLAGS],
           _APPEND_COMPILE_FLAGS_ERROR([-Wunused-local-typedefs])
           _APPEND_COMPILE_FLAGS_ERROR([-Wwrite-strings])
           _APPEND_COMPILE_FLAGS_ERROR([-fwrapv])
-          _APPEND_COMPILE_FLAGS_ERROR([-fmudflapt])
           _APPEND_COMPILE_FLAGS_ERROR([-pipe])
           AS_IF([test "x$MINGW" = xyes],
               [],
@@ -248,7 +246,6 @@ AC_DEFUN([_HARDEN_CXX_COMPILER_FLAGS],
            #_APPEND_COMPILE_FLAGS_ERROR([-H])
            _APPEND_COMPILE_FLAGS_ERROR([-g])
            _APPEND_COMPILE_FLAGS_ERROR([-g3])
-           _APPEND_COMPILE_FLAGS_ERROR([-fmudflapth])
            _APPEND_COMPILE_FLAGS_ERROR([-fno-inline])
            _APPEND_COMPILE_FLAGS_ERROR([-fno-eliminate-unused-debug-types])
            _APPEND_COMPILE_FLAGS_ERROR([-fno-omit-frame-pointer])
@@ -319,7 +316,6 @@ AC_DEFUN([_HARDEN_CXX_COMPILER_FLAGS],
           _APPEND_COMPILE_FLAGS_ERROR([-Wwrite-strings])
           _APPEND_COMPILE_FLAGS_ERROR([-Wformat-security])
           _APPEND_COMPILE_FLAGS_ERROR([-fwrapv])
-          _APPEND_COMPILE_FLAGS_ERROR([-fmudflapt])
           _APPEND_COMPILE_FLAGS_ERROR([-pipe])
           AS_IF([test "x$MINGW" = xyes],
                 [],
