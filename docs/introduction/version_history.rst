@@ -1,6 +1,15 @@
 Version History
 ===============
 
+Version 0.4
+-----------
+
+Version 0.4.0 Beta (Not yet released)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Fixed compiler flag for GCC 4.9 (`Issue #65 <https://github.com/libattachsql/libattachsql/issues/65>`_)
+* Fix docs building under Python 3.x
+
 Version 0.3
 -----------
 
