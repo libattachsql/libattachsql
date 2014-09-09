@@ -6,7 +6,7 @@ libAttachSQL is designed to be compiled with GCC or CLang on a modern Linux dist
 Prerequisites
 -------------
 
-libAttachSQL requires *libuv 0.10* to be installed.  In Fedora this is installed using:
+libAttachSQL requires *libuv 0.10* to be installed.  For RedHat 6.x this is in the EPEL repositories so make sure those are enabled first.  In RedHat/Fedora this is installed using:
 
 .. code-block:: bash
 
@@ -31,6 +31,21 @@ More current versions of Ubuntu have libuv and it can be installed using:
 .. code-block:: bash
 
    sudo apt-get install libuv-dev
+
+Optional Libraries
+------------------
+
+You can optionally install zlib and OpenSSL development libraries to get compression and encryption protocol functions.  If these aren't installed then libAttachSQL will compile without these functions.  In RedHat/Fedora:
+
+.. code-block:: bash
+
+   sudo yum install zlib-devel openssl-devel
+
+And Ubuntu:
+
+.. code-block:: bash
+
+   sudo apt-get install zlib1g-dev libssl-dev
 
 Building
 --------
