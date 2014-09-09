@@ -7,9 +7,14 @@
 # Use and distribution licensed under the BSD license.  See
 # the COPYING file in this directory for full text.
 
+# These two needed for RHEL/CentOS 6
+m4_ifndef([m4_esyscmd_s], [m4_define([m4_chomp_all],[m4_format([[%.*s]], m4_bregexp(m4_translit([[$1]],[/],[/]),[/*$]), [$1])])] [m4_define([m4_esyscmd_s], [m4_chomp_all(m4_esyscmd([$1]))])])
+
+m4_ifndef([AS_VAR_COPY], [m4_define([AS_VAR_COPY], [AS_LITERAL_IF([$1[]$2], [$1=$$2],[eval $1=\$$2])])])
+
 AC_COPYRIGHT([2014 Hewlett-Packard Development Company, L.P.])
 #AC_REVISION([m4_esyscmd_s([git describe --always])])
-AC_PREREQ([2.68])
+AC_PREREQ([2.63])
 
 # NOTE: Major version should be < 100 and minor/patch < 256 or bad things will
 # happen in src/asql/utility.cc

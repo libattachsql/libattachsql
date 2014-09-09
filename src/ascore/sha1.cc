@@ -25,11 +25,6 @@
 #include "common.h"
 #include "sha1.h"
 
-#ifndef __clang__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunsafe-loop-optimizations"
-#endif
-
 #define rol(value, bits) (((value) << (bits)) | ((value) >> (32 - (bits))))
 
 /*
@@ -134,9 +129,9 @@ SHA1Init(SHA1_CTX *context)
 void
 SHA1Update(SHA1_CTX *context, const uint8_t *data, size_t len)
 {
-	size_t i, j;
+	uint32_t i, j;
 
-	j = (size_t)((context->count >> 3) & 63);
+	j = ((context->count >> 3) & 63);
 	context->count += (len << 3);
 	if ((j + len) > 63) {
 		(void)memcpy(&context->buffer[j], data, (i = 64-j));
@@ -185,6 +180,3 @@ SHA1Final(uint8_t digest[SHA1_DIGEST_LENGTH], SHA1_CTX *context)
 	}
 }
 
-#ifndef __clang__
-#pragma GCC diagnostic pop
-#endif
