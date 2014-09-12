@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
     }
     if (error && (error->code == 2002))
     {
-      SKIP_IF_(true, "No MYSQL server");
+      SKIP_IF_(true, "No MYSQL server, or MySQL doesn't support SSL");
     }
     else if (error)
     {
