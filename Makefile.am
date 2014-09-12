@@ -22,7 +22,6 @@ EXTRA_SCRIPTS =
 BUILT_SOURCES=
 EXTRA_DIST=
 CONFIGURE_DEPENDENCIES=
-dist_man_MANS=
 
 #includes additional rules from aminclude.am
 @INC_AMINCLUDE@
@@ -43,7 +42,6 @@ include libattachsql-1.0/include.am
 include tests/include.am
 include rpm/include.mk
 include docs/include.am
-include man/include.am
 include yatl/include.am
 
 dist_bin_SCRIPTS+= @GENERIC_CONFIG@
