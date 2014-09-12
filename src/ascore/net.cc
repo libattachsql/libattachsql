@@ -231,7 +231,7 @@ void ascore_send_compressed_packet(ascon_st *con, char *data, size_t length, uin
   required_uncompressed= length + 4;  // Data plus packet header
   if (command)
   {
-    required_uncompressed++;
+    required_uncompressed+= 1 + con->write_buffer_extra;
     con->compressed_packet_number= 0;
   }
   if (con->uncompressed_buffer_len < required_uncompressed)
@@ -256,7 +256,12 @@ void ascore_send_compressed_packet(ascon_st *con, char *data, size_t length, uin
   if (command)
   {
     con->uncompressed_buffer[4]= (char)command;
-    memcpy(&con->uncompressed_buffer[5], data, length);
+    if (con->write_buffer_extra)
+    {
+      memcpy(&con->uncompressed_buffer[5], &con->write_buffer[1], con->write_buffer_extra);
+    }
+    memcpy(&con->uncompressed_buffer[5 + con->write_buffer_extra], data, length);
+    con->write_buffer_extra= 0;
   }
   else
   {
@@ -560,6 +565,15 @@ bool ascore_con_process_packets(ascon_st *con)
       case ASCORE_PACKET_TYPE_RESPONSE:
         ascore_packet_read_response(con);
         break;
+      case ASCORE_PACKET_TYPE_PREPARE_RESPONSE:
+        ascore_packet_read_prepare_response(con);
+        break;
+      case ASCORE_PACKET_TYPE_PREPARE_PARAMETER:
+        ascore_packet_read_prepare_parameter(con);
+        break;
+      case ASCORE_PACKET_TYPE_PREPARE_COLUMN:
+        ascore_packet_read_prepare_column(con);
+        break;
       case ASCORE_PACKET_TYPE_COLUMN:
         ascore_packet_read_column(con);
         break;
@@ -567,10 +581,20 @@ bool ascore_con_process_packets(ascon_st *con)
         ascore_packet_read_row(con);
         return true;
         break;
+      case ASCORE_PACKET_TYPE_STMT_ROW:
+        ascore_packet_stmt_read_row(con);
+        return true;
+        break;
     }
   }
 
   return false;
+}
+
+void ascore_packet_stmt_read_row(ascon_st *con)
+{
+  /* TODO: stuff */
+  (void) con;
 }
 
 void ascore_packet_read_row(ascon_st *con)
@@ -598,6 +622,66 @@ void ascore_packet_read_end(ascon_st *con)
 
   uv_read_stop(con->uv_objects.stream);
   ascore_buffer_packet_read_end(con->read_buffer);
+}
+
+void ascore_packet_read_prepare_response(ascon_st *con)
+{
+  asdebug("Prepare response packet");
+  uint32_t data_read= 0;
+  buffer_st *buffer= con->read_buffer;
+
+  if (buffer->buffer_read_ptr[0] != 0x00)
+  {
+    /* Stmt error packets are the same as normal ones */
+    ascore_packet_read_response(con);
+  }
+  else
+  {
+    asdebug("Got PREPARE_OK packet");
+    buffer->buffer_read_ptr++;
+    data_read++;
+    con->stmt->id= ascore_unpack_int4(buffer->buffer_read_ptr);
+    buffer->buffer_read_ptr+= 4;
+    data_read+= 4;
+    con->stmt->column_count= ascore_unpack_int2(buffer->buffer_read_ptr);
+    buffer->buffer_read_ptr+= 2;
+    data_read+= 2;
+    con->stmt->param_count= ascore_unpack_int2(buffer->buffer_read_ptr);
+    /* one byte filler */
+    buffer->buffer_read_ptr+= 3;
+    data_read+= 3;
+    con->warning_count= ascore_unpack_int2(buffer->buffer_read_ptr);
+    buffer->buffer_read_ptr+= 2;
+    data_read+= 2;
+    if (con->stmt->param_count)
+    {
+      con->stmt->params= new (std::nothrow) column_t[con->stmt->param_count];
+    }
+    if (con->stmt->column_count)
+    {
+      con->stmt->columns= new (std::nothrow) column_t[con->stmt->column_count];
+    }
+    if (con->stmt->param_count > 0)
+    {
+      con->next_packet_type= ASCORE_PACKET_TYPE_PREPARE_PARAMETER;
+      con->command_status= ASCORE_COMMAND_STATUS_READ_STMT_PARAM;
+    }
+    else if (con->stmt->column_count > 0)
+    {
+      con->next_packet_type= ASCORE_PACKET_TYPE_PREPARE_COLUMN;
+      con->command_status= ASCORE_COMMAND_STATUS_READ_STMT_COLUMN;
+    }
+    else
+    {
+      con->command_status= ASCORE_COMMAND_STATUS_NONE;
+      con->status= ASCORE_CON_STATUS_IDLE;
+      con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
+      ascore_packet_read_end(con);
+    }
+    buffer->buffer_read_ptr+= (con->packet_size - data_read);
+    con->stmt->state= ASCORE_STMT_STATE_PREPARED;
+    ascore_packet_read_end(con);
+  }
 }
 
 void ascore_packet_read_response(ascon_st *con)
@@ -687,6 +771,22 @@ void ascore_packet_read_response(ascon_st *con)
       con->next_packet_type= ASCORE_PACKET_TYPE_ROW;
       ascore_buffer_packet_read_end(con->read_buffer);
     }
+    else if (con->command_status == ASCORE_COMMAND_STATUS_READ_STMT_PARAM)
+    {
+      if (con->stmt->column_count > 0)
+      {
+        con->command_status= ASCORE_COMMAND_STATUS_READ_STMT_COLUMN;
+        con->next_packet_type= ASCORE_PACKET_TYPE_PREPARE_COLUMN;
+        ascore_buffer_packet_read_end(con->read_buffer);
+      }
+      else
+      {
+        con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
+        con->command_status= ASCORE_COMMAND_STATUS_EOF;
+        con->status= ASCORE_CON_STATUS_IDLE;
+        ascore_packet_read_end(con);
+      }
+    }
     else
     {
       con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
@@ -708,14 +808,54 @@ void ascore_packet_read_response(ascon_st *con)
   }
 }
 
+void ascore_packet_read_prepare_parameter(ascon_st *con)
+{
+  asdebug("Prepare parameter packet read");
+  column_t *column;
+
+  column= &con->stmt->params[con->stmt->current_param];
+  ascore_packet_get_column(con, column);
+  con->stmt->current_param++;
+  if (con->stmt->current_param == con->stmt->param_count)
+  {
+    con->next_packet_type= ASCORE_PACKET_TYPE_RESPONSE;
+  }
+}
+
+void ascore_packet_read_prepare_column(ascon_st *con)
+{
+  asdebug("Prepare column packet callback");
+  column_t *column;
+  column= &con->stmt->columns[con->stmt->current_column];
+  ascore_packet_get_column(con, column);
+  con->stmt->current_column++;
+  if (con->stmt->current_column == con->stmt->column_count)
+  {
+    con->next_packet_type= ASCORE_PACKET_TYPE_RESPONSE;
+  }
+}
+
 void ascore_packet_read_column(ascon_st *con)
 {
   asdebug("Column packet callback");
+  column_t *column;
+
+  column= &con->result.columns[con->result.current_column];
+  ascore_packet_get_column(con, column);
+  con->result.current_column++;
+  if (con->result.current_column == con->result.column_count)
+  {
+    con->next_packet_type= ASCORE_PACKET_TYPE_RESPONSE;
+  }
+}
+
+
+void ascore_packet_get_column(ascon_st *con, column_t *column)
+{
   uint8_t bytes;
   uint64_t str_len;
   size_t str_read;
   buffer_st *buffer= con->read_buffer;
-  column_t *column;
 
   column= &con->result.columns[con->result.current_column];
   // Skip catalog since no MySQL version actually uses this yet
@@ -839,10 +979,5 @@ void ascore_packet_read_column(ascon_st *con)
   column->default_size= str_read;
   buffer->buffer_read_ptr+= str_len;
   asdebug("Got column %s.%s.%s", column->schema, column->table, column->column);
-  con->result.current_column++;
-  if (con->result.current_column == con->result.column_count)
-  {
-    con->next_packet_type= ASCORE_PACKET_TYPE_RESPONSE;
-  }
   ascore_buffer_packet_read_end(con->read_buffer);
 }

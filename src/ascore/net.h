@@ -35,7 +35,17 @@ void ascore_packet_read_end(ascon_st *con);
 
 void ascore_packet_read_response(ascon_st *con);
 
+void ascore_packet_read_prepare_response(ascon_st *con);
+
+void ascore_packet_read_prepare_parameter(ascon_st *con);
+
+void ascore_packet_read_prepare_column(ascon_st *con);
+
+void ascore_packet_get_column(ascon_st *con, column_t *column);
+
 void ascore_packet_read_column(ascon_st *con);
+
+void ascore_packet_stmt_read_row(ascon_st *con);
 
 void ascore_packet_read_row(ascon_st *con);
 
