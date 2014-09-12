@@ -429,6 +429,16 @@ void ascore_handshake_response(ascon_st *con)
 #ifdef HAVE_OPENSSL
   if (con->ssl.ssl != NULL)
   {
+    if (not (con->server_capabilities & ASCORE_CAPABILITY_SSL))
+    {
+      asdebug("SSL disabled on server");
+      con->local_errcode= ASRET_NET_SSL_ERROR;
+      snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "SSL auth not supported enabled on server");
+      con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
+      con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
+      con->status= ASCORE_CON_STATUS_CONNECT_FAILED;
+      return;
+    }
     capabilities |= ASCORE_CAPABILITY_SSL;
   }
 #endif
