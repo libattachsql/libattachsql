@@ -2,7 +2,7 @@
  * Copyright 2014 Hewlett-Packard Development Company, L.P.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License. You may obtain 
+ * not use this file except in compliance with the License. You may obtain
  * a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
@@ -17,31 +17,19 @@
 
 #pragma once
 
-#include <stdint.h>
-#include <string.h>
-#include "constants.h"
-#include "structs.h"
+#include "config.h"
+#include "common.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-enum ascore_pack_status_t
-{
-  ASCORE_PACK_OK,
-  ASCORE_PACK_INVALID_ARGUMENT,
-  ASCORE_PACK_NULL
-};
+ascore_stmt_st *ascore_stmt_prepare(ascon_st *con, size_t length, const char *statement);
 
-uint64_t ascore_unpack_length(char *buffer, uint8_t *bytes, ascore_pack_status_t *status);
+bool ascore_stmt_execute(ascore_stmt_st *stmt);
 
-char *ascore_pack_data(char *buffer, size_t length, char *data);
+bool ascore_stmt_check_buffer_size(ascore_stmt_st *stmt, size_t required);
 
-char *ascore_pack_length(char *buffer, size_t length);
-
-char *ascore_pack_datetime(char *buffer, ascore_datetime_st *datetime, bool date_only);
-
-char *ascore_pack_time(char *buffer, ascore_datetime_st *datetime);
 
 #ifdef __cplusplus
 }

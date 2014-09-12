@@ -19,6 +19,7 @@
 
 #include <sys/types.h>
 #include <stdint.h>
+#include "return.h"
 
 #ifdef __cplusplus
 #include <cstddef>

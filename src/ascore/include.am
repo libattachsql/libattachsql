@@ -15,4 +15,4 @@ noinst_HEADERS+= src/ascore/pack_macros.h
 noinst_HEADERS+= src/ascore/return.h
 noinst_HEADERS+= src/ascore/sha1.h
 noinst_HEADERS+= src/ascore/structs.h
-
+noinst_HEADERS+= src/ascore/statement.h
