@@ -11,6 +11,7 @@ Version 0.4.0 Beta (Not yet released)
 * Fix docs building under Python 3.x
 * Documentation fixes
 * Fixed compiling in RedHat/CentOS 6.x
+* Fixed parallel building
 
 Version 0.3
 -----------
