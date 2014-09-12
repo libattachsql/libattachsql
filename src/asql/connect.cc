@@ -140,7 +140,14 @@ attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_er
       }
       else
       {
-        attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_CONNECT, ATTACHSQL_ERROR_LEVEL_ERROR, "08000", "Unknown connection failure");
+        if (con->core_con->errmsg[0] != '\0')
+        {
+          attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_CONNECT, ATTACHSQL_ERROR_LEVEL_ERROR, "08000", con->core_con->errmsg);
+        }
+        else
+        {
+          attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_CONNECT, ATTACHSQL_ERROR_LEVEL_ERROR, "08000", "Unknown connection failure");
+        }
       }
       if (con->callback_fn != NULL)
       {
