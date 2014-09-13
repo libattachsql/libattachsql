@@ -36,7 +36,7 @@ libAttachSQL uses Travis CI for testing of every pull request prior to merge and
 
 The test configuration can be found in ``.travis.yml``.  It is setup to build using GCC and CLang on Ubuntu 12.04 hosts.  From there it will run the test suite and attempt to build HTML docs in nitpick mode with warnings set to errors.
 
-Messages from the build system can be found on the `#libAttachSQL Freenode channle <irc://chat.freenode.net/libAttachSQL>`_.
+Messages from the build system can be found on the `#libAttachSQL Freenode channel <irc://chat.freenode.net/libAttachSQL>`_.
 
 Modifying the Build System
 --------------------------

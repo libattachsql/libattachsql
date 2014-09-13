@@ -63,6 +63,8 @@ Aternatively on most systems you can use the following commands, this is especia
    make
    make install
 
+The build system will automatically detect how many processor cores you have (physicaly and virtual) and set the ``--jobs`` options of make accordingly.
+
 Building for Windows
 --------------------
 

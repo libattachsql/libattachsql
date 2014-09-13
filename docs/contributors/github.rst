@@ -84,9 +84,22 @@ Once all your commits are done a quick rebase may be needed to make sure your ch
 .. code-block:: bash
 
    git fetch upstream
-   git rebase upstream/master
+   git rebase -i upstream/master
 
-This will give futher instructions as to what is needed to complete the rebase.  You should now be ready to push up to GitHub:
+This should bring up a commit-style message in the editor with *pick* as the first word.  Save this and the rebase will complete.  If the rebase tells you there is a conflict you will need to locate the problem using ``git diff``, fix it and do:
+
+.. code-block:: bash
+
+   git add <filename>
+   git rebase --continue
+
+If things look like they are going wrong you can undo the rebase using the following and can get in touch with us on the `#libAttachSQL Freenode channel <irc://chat.freenode.net/libAttachSQL>`_:
+
+.. code-block:: bash
+
+   git rebase --abort
+
+You should now be ready to push up to GitHub:
 
 .. code-block:: bash
 
@@ -99,4 +112,4 @@ Travis CI will automatically test your branch and report back on the pull reques
 Help
 ----
 
-If you get stuck at any point feel free to reach out to us on Freenode IRC channel #libAttachSQL or file an issue on Github.
+If you get stuck at any point feel free to reach out to us on the `#libAttachSQL Freenode channel <irc://chat.freenode.net/libAttachSQL>`_ or file an issue on Github.
