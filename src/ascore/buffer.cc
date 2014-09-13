@@ -82,6 +82,17 @@ asret_t ascore_buffer_increase(buffer_st *buffer)
   }
   else
   {
+    size_t buffer_write_size= buffer->buffer_write_ptr - buffer->buffer;
+    size_t buffer_read_size= buffer->buffer_read_ptr - buffer->buffer;
+    size_t packet_end_size;
+    if (buffer->packet_end_ptr != NULL)
+    {
+      packet_end_size= buffer->packet_end_ptr - buffer->buffer;
+    }
+    else
+    {
+      packet_end_size= 0;
+    }
     size_t new_size= buffer->buffer_size * 2;
     char *realloc_buffer= (char*)realloc(buffer->buffer, new_size);
     if (realloc_buffer == NULL)
@@ -90,6 +101,10 @@ asret_t ascore_buffer_increase(buffer_st *buffer)
     }
     buffer->buffer_size= new_size;
     buffer->buffer= realloc_buffer;
+    /* Move pointers because buffer may have moved in RAM */
+    buffer->buffer_write_ptr= realloc_buffer + buffer_write_size;
+    buffer->buffer_read_ptr= realloc_buffer + buffer_read_size;
+    buffer->packet_end_ptr= realloc_buffer + packet_end_size;
   }
 
   return ASRET_OK;
