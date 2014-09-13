@@ -13,6 +13,7 @@ Version 0.4.0 Beta (Not yet released)
 * Fixed compiling in RedHat/CentOS 6.x
 * Fixed parallel building
 * Fixed SSL connect with no server support (`Issue #68 <https://github.com/libattachsql/libattachsql/issues/68>`_)
+* Fixed possible buffer pointer breakage (`Issue #67 <https://github.com/libattachsql/libattachsql/issues/67>`_)
 
 Version 0.3
 -----------
