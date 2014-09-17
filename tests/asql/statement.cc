@@ -27,25 +27,25 @@ int main(int argc, char *argv[])
   attachsql_error_st *error= NULL;
   const char *data= "SHOW PROCESSLIST";
   attachsql_return_t aret= ATTACHSQL_RETURN_NONE;
-  attachsql_query_row_st *row;
-  uint16_t columns, col;
+  uint16_t columns;
 
   con= attachsql_connect_create("localhost", 3306, "test", "test", "", NULL);
   error= attachsql_statement_prepare(con, strlen(data), data);
   ASSERT_FALSE_(error, "Statement creation error");
+  while(aret != ATTACHSQL_RETURN_IDLE)
+  {
+    aret= attachsql_connect_poll(con, &error);
+  }
+
+  error= attachsql_statement_execute(con);
   while(aret != ATTACHSQL_RETURN_EOF)
   {
     aret= attachsql_connect_poll(con, &error);
     if (aret == ATTACHSQL_RETURN_ROW_READY)
     {
-      row= attachsql_query_row_get(con, &error);
       columns= attachsql_query_column_count(con);
-      for (col=0; col < columns; col++)
-      {
-        printf("Column: %d, Length: %zu, Data: %.*s ", col, row[col].length, (int)row[col].length, row[col].data);
-      }
-      attachsql_query_row_next(con);
-      printf("\n");
+      printf("Got %d columns\n", columns);
+      break;
     }
     if (error && (error->code == 2002))
     {
