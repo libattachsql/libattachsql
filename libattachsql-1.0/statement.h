@@ -17,16 +17,23 @@
 
 #pragma once
 
-#include <stdint.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/* These two need to go first, in this order */
-#include "src/ascore/constants.h"
-#include "src/ascore/structs.h"
-#include "src/ascore/return.h"
-#include "src/ascore/pack_macros.h"
-#include "src/ascore/pack.h"
-#include "src/ascore/net.h"
-#include "src/ascore/connect.h"
-#include "src/ascore/command.h"
-#include "src/ascore/buffer.h"
-#include "src/ascore/statement.h"
+ASQL_API
+attachsql_error_st *attachsql_statement_prepare(attachsql_connect_t *con, size_t length, const char *statement);
+
+ASQL_API
+attachsql_error_st *attachsql_statement_execute(attachsql_connect_t *con);
+
+ASQL_API
+attachsql_error_st *attachsql_statement_reset(attachsql_connect_t *con);
+
+ASQL_API
+attachsql_error_st *attachsql_statement_send_long_data(attachsql_connect_t *con, uint16_t param, size_t length, char *data);
+
+#ifdef __cplusplus
+}
+#endif
+

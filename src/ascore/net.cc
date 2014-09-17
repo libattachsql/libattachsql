@@ -577,24 +577,15 @@ bool ascore_con_process_packets(ascon_st *con)
       case ASCORE_PACKET_TYPE_COLUMN:
         ascore_packet_read_column(con);
         break;
+      case ASCORE_PACKET_TYPE_STMT_ROW:
       case ASCORE_PACKET_TYPE_ROW:
         ascore_packet_read_row(con);
-        return true;
-        break;
-      case ASCORE_PACKET_TYPE_STMT_ROW:
-        ascore_packet_stmt_read_row(con);
         return true;
         break;
     }
   }
 
   return false;
-}
-
-void ascore_packet_stmt_read_row(ascon_st *con)
-{
-  /* TODO: stuff */
-  (void) con;
 }
 
 void ascore_packet_read_row(ascon_st *con)

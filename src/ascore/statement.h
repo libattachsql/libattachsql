@@ -30,6 +30,13 @@ bool ascore_stmt_execute(ascore_stmt_st *stmt);
 
 bool ascore_stmt_check_buffer_size(ascore_stmt_st *stmt, size_t required);
 
+ascore_command_status_t ascore_stmt_fetch(ascore_stmt_st *stmt);
+
+void ascore_stmt_destroy(ascore_stmt_st *stmt);
+
+ascore_command_status_t ascore_stmt_reset(ascore_stmt_st *stmt);
+
+ascore_command_status_t ascore_stmt_send_long_data(ascore_stmt_st *stmt, uint16_t param, size_t length, char *data);
 
 #ifdef __cplusplus
 }
