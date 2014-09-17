@@ -40,8 +40,6 @@ attachsql_error_st *attachsql_statement_prepare(attachsql_connect_t *con, size_t
   return error;
 }
 
-
-
 attachsql_error_st *attachsql_statement_execute(attachsql_connect_t *con)
 {
   attachsql_error_st *error;
