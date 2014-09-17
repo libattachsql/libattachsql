@@ -17,16 +17,13 @@
 
 #pragma once
 
-#include <stdint.h>
+#include "src/ascore/ascore.h"
 
-/* These two need to go first, in this order */
-#include "src/ascore/constants.h"
-#include "src/ascore/structs.h"
-#include "src/ascore/return.h"
-#include "src/ascore/pack_macros.h"
-#include "src/ascore/pack.h"
-#include "src/ascore/net.h"
-#include "src/ascore/connect.h"
-#include "src/ascore/command.h"
-#include "src/ascore/buffer.h"
-#include "src/ascore/statement.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifdef __cplusplus
+}
+#endif
+

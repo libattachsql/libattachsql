@@ -33,6 +33,7 @@ struct attachsql_connect_t
   char *query_buffer;
   size_t query_buffer_length;
   bool query_buffer_alloc;
+  bool query_buffer_statement;
   bool in_query;
   bool buffer_rows;
   attachsql_query_column_st *columns;
@@ -42,6 +43,7 @@ struct attachsql_connect_t
   uint64_t row_buffer_count;
   uint64_t row_buffer_position;
   bool all_rows_buffered;
+  ascore_stmt_st *stmt;
 
   attachsql_connect_t():
     core_con(NULL),
@@ -50,6 +52,7 @@ struct attachsql_connect_t
     query_buffer(NULL),
     query_buffer_length(0),
     query_buffer_alloc(false),
+    query_buffer_statement(false),
     in_query(false),
     buffer_rows(false),
     columns(NULL),
@@ -58,7 +61,8 @@ struct attachsql_connect_t
     row_buffer_alloc_size(0),
     row_buffer_count(0),
     row_buffer_position(0),
-    all_rows_buffered(false)
+    all_rows_buffered(false),
+    stmt(NULL)
   { }
 };
 

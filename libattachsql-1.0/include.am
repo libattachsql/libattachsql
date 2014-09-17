@@ -8,4 +8,5 @@ nobase_include_HEADERS+= libattachsql-1.0/constants.h
 nobase_include_HEADERS+= libattachsql-1.0/error.h
 nobase_include_HEADERS+= libattachsql-1.0/query.h
 nobase_include_HEADERS+= libattachsql-1.0/utility.h
+nobase_include_HEADERS+= libattachsql-1.0/statement.h
 nobase_include_HEADERS+= libattachsql-1.0/visibility.h
