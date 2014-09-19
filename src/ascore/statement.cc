@@ -56,7 +56,7 @@ bool ascore_stmt_execute(ascore_stmt_st *stmt)
   ascore_pack_int4(buffer_pos, stmt->id);
   buffer_pos+= 4;
   /* cursor flags */
-  buffer_pos[0]= ASCORE_STMT_CURSOR_READ_ONLY;
+  buffer_pos[0]= ASCORE_STMT_CURSOR_NONE;
   buffer_pos++;
   /* iteration count (always 1) */
   ascore_pack_int4(buffer_pos, 1);

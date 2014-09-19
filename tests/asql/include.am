@@ -93,7 +93,6 @@ endif
 check_PROGRAMS+= t/asql/connect_error
 noinst_PROGRAMS+= t/asql/connect_error
 
-
 t_asql_statement_SOURCES= tests/asql/statement.cc
 t_asql_statement_LDADD= src/asql/libattachsql.la
 if BUILD_WIN32
@@ -103,3 +102,13 @@ t_asql_statement_LDADD+= -liphlpapi
 endif
 check_PROGRAMS+= t/asql/statement
 noinst_PROGRAMS+= t/asql/statement
+
+t_asql_statement_param_SOURCES= tests/asql/statement_param.cc
+t_asql_statement_param_LDADD= src/asql/libattachsql.la
+if BUILD_WIN32
+t_asql_statement_param_LDADD+= -lws2_32
+t_asql_statement_param_LDADD+= -lpsapi
+t_asql_statement_param_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/asql/statement_param
+noinst_PROGRAMS+= t/asql/statement_param
