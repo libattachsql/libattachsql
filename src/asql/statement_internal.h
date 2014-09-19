@@ -23,6 +23,8 @@
 extern "C" {
 #endif
 
+attachsql_error_st *attachsql_statement_set_param(attachsql_connect_t *con, ascore_column_type_t type, uint16_t param, size_t length, const void *value, bool is_unsigned);
+
 #ifdef __cplusplus
 }
 #endif

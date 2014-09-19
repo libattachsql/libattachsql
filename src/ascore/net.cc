@@ -647,6 +647,7 @@ void ascore_packet_read_prepare_response(ascon_st *con)
     if (con->stmt->param_count)
     {
       con->stmt->params= new (std::nothrow) column_t[con->stmt->param_count];
+      con->stmt->param_data= new (std::nothrow) ascore_stmt_param_st[con->stmt->param_count];
     }
     if (con->stmt->column_count)
     {
@@ -664,7 +665,7 @@ void ascore_packet_read_prepare_response(ascon_st *con)
     }
     else
     {
-      con->command_status= ASCORE_COMMAND_STATUS_NONE;
+      con->command_status= ASCORE_COMMAND_STATUS_EOF;
       con->status= ASCORE_CON_STATUS_IDLE;
       con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
       ascore_packet_read_end(con);
@@ -848,7 +849,6 @@ void ascore_packet_get_column(ascon_st *con, column_t *column)
   size_t str_read;
   buffer_st *buffer= con->read_buffer;
 
-  column= &con->result.columns[con->result.current_column];
   // Skip catalog since no MySQL version actually uses this yet
   str_len= ascore_unpack_length(buffer->buffer_read_ptr, &bytes, NULL);
   buffer->buffer_read_ptr+= bytes;
@@ -865,7 +865,10 @@ void ascore_packet_get_column(ascon_st *con, column_t *column)
   {
     str_read= (size_t)str_len;
   }
-  memcpy(column->schema, buffer->buffer_read_ptr, str_read);
+  if (str_read > 0)
+  {
+    memcpy(column->schema, buffer->buffer_read_ptr, str_read);
+  }
   column->schema[str_read]= '\0';
   buffer->buffer_read_ptr+= str_len;
 
@@ -880,7 +883,10 @@ void ascore_packet_get_column(ascon_st *con, column_t *column)
   {
     str_read= (size_t)str_len;
   }
-  memcpy(column->table, buffer->buffer_read_ptr, str_read);
+  if (str_read > 0)
+  {
+    memcpy(column->table, buffer->buffer_read_ptr, str_read);
+  }
   column->table[str_read]= '\0';
   buffer->buffer_read_ptr+= str_len;
 
@@ -895,7 +901,10 @@ void ascore_packet_get_column(ascon_st *con, column_t *column)
   {
     str_read= (size_t)str_len;
   }
-  memcpy(column->origin_table, buffer->buffer_read_ptr, str_read);
+  if (str_read > 0)
+  {
+    memcpy(column->origin_table, buffer->buffer_read_ptr, str_read);
+  }
   column->origin_table[str_read]= '\0';
   buffer->buffer_read_ptr+= str_len;
 
@@ -910,7 +919,10 @@ void ascore_packet_get_column(ascon_st *con, column_t *column)
   {
     str_read= (size_t)str_len;
   }
-  memcpy(column->column, buffer->buffer_read_ptr, str_read);
+  if (str_read > 0)
+  {
+    memcpy(column->column, buffer->buffer_read_ptr, str_read);
+  }
   column->column[str_read]= '\0';
   buffer->buffer_read_ptr+= str_len;
 
@@ -925,7 +937,10 @@ void ascore_packet_get_column(ascon_st *con, column_t *column)
   {
     str_read= (size_t)str_len;
   }
-  memcpy(column->origin_column, buffer->buffer_read_ptr, str_read);
+  if (str_read > 0)
+  {
+    memcpy(column->origin_column, buffer->buffer_read_ptr, str_read);
+  }
   column->origin_column[str_read]= '\0';
   buffer->buffer_read_ptr+= str_len;
 
@@ -966,7 +981,10 @@ void ascore_packet_get_column(ascon_st *con, column_t *column)
   {
     str_read= (size_t)str_len;
   }
-  memcpy(column->default_value, buffer->buffer_read_ptr, str_read);
+  if (str_read > 0)
+  {
+    memcpy(column->default_value, buffer->buffer_read_ptr, str_read);
+  }
   column->default_size= str_read;
   buffer->buffer_read_ptr+= str_len;
   asdebug("Got column %s.%s.%s", column->schema, column->table, column->column);

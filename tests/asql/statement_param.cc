@@ -25,7 +25,8 @@ int main(int argc, char *argv[])
   (void) argv;
   attachsql_connect_t *con;
   attachsql_error_st *error= NULL;
-  const char *data= "SHOW PROCESSLIST";
+  const char *data= "SELECT ? as a, ? as b";
+  const char *data2= "hello world";
   attachsql_return_t aret= ATTACHSQL_RETURN_NONE;
   uint16_t columns;
 
@@ -36,7 +37,8 @@ int main(int argc, char *argv[])
   {
     aret= attachsql_connect_poll(con, &error);
   }
-
+  attachsql_statement_set_string(con, 0, 11, data2);
+  attachsql_statement_set_int(con, 1, 123456);
   error= attachsql_statement_execute(con);
   aret= ATTACHSQL_RETURN_NONE;
   while(aret != ATTACHSQL_RETURN_EOF)
