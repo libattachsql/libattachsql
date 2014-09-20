@@ -69,6 +69,9 @@ attachsql_error_st *attachsql_statement_set_datetime(attachsql_connect_t *con, u
 ASQL_API
 attachsql_error_st *attachsql_statement_set_time(attachsql_connect_t *con, uint16_t param, uint8_t hour, uint8_t minute, uint8_t second, uint32_t microsecond, bool is_negative);
 
+ASQL_API
+attachsql_error_st *attachsql_statement_row_get(attachsql_connect_t *con);
+
 #ifdef __cplusplus
 }
 #endif

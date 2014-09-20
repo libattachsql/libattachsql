@@ -25,6 +25,19 @@ extern "C" {
 
 #define ATTACHSQL_BUFFER_ROW_ALLOC_SIZE 100
 
+struct attachsql_stmt_row_st
+{
+  char *data;
+  size_t length;
+  ascore_column_type_t type;
+
+  attachsql_stmt_row_st() :
+    data(NULL),
+    length(0),
+    type(ASCORE_COLUMN_TYPE_NULL)
+  { }
+};
+
 struct attachsql_connect_t
 {
   ascon_st *core_con;
@@ -44,6 +57,9 @@ struct attachsql_connect_t
   uint64_t row_buffer_position;
   bool all_rows_buffered;
   ascore_stmt_st *stmt;
+  attachsql_stmt_row_st *stmt_row;
+  char *stmt_null_bitmap;
+  uint16_t stmt_null_bitmap_length;
 
   attachsql_connect_t():
     core_con(NULL),
@@ -62,7 +78,10 @@ struct attachsql_connect_t
     row_buffer_count(0),
     row_buffer_position(0),
     all_rows_buffered(false),
-    stmt(NULL)
+    stmt(NULL),
+    stmt_row(NULL),
+    stmt_null_bitmap(NULL),
+    stmt_null_bitmap_length(0)
   { }
 };
 

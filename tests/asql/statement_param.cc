@@ -47,6 +47,7 @@ int main(int argc, char *argv[])
     if (aret == ATTACHSQL_RETURN_ROW_READY)
     {
       columns= attachsql_query_column_count(con);
+      error= attachsql_statement_row_get(con);
       printf("Got %d columns\n", columns);
       attachsql_query_row_next(con);
     }
