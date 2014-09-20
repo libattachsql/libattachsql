@@ -299,3 +299,100 @@ attachsql_error_st *attachsql_statement_set_param(attachsql_connect_t *con, asco
 
   return NULL;
 }
+
+attachsql_error_st *attachsql_statement_row_get(attachsql_connect_t *con)
+{
+  attachsql_error_st *error;
+  char *raw_row;
+  uint16_t column;
+  uint16_t total_columns;
+  uint8_t bytes;
+  uint64_t length;
+
+  if (con == NULL)
+  {
+    attachsql_error_client_create(&error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Connection parameter not valid");
+    return error;
+  }
+
+  total_columns= con->core_con->result.column_count;
+  if (con->stmt_row == NULL)
+  {
+    con->stmt_row= new (std::nothrow) attachsql_stmt_row_st[total_columns];
+  }
+
+  if (con->stmt_row == NULL)
+  {
+    attachsql_error_client_create(&error, ATTACHSQL_ERROR_CODE_ALLOC, ATTACHSQL_ERROR_LEVEL_ERROR, "82100", "Allocation failure for row");
+    return error;
+  }
+
+  raw_row= con->core_con->result.row_data;
+  con->stmt_null_bitmap_length= (total_columns+2)/8;
+  con->stmt_null_bitmap= raw_row;
+  raw_row+= con->stmt_null_bitmap_length;
+
+  for (column= 0; column < total_columns; column++)
+  {
+    ascore_column_type_t type= con->core_con->result.columns[column].type;
+    switch(type)
+    {
+      case ASCORE_COLUMN_TYPE_STRING:
+      case ASCORE_COLUMN_TYPE_VARCHAR:
+      case ASCORE_COLUMN_TYPE_VARSTRING:
+      case ASCORE_COLUMN_TYPE_ENUM:
+      case ASCORE_COLUMN_TYPE_SET:
+      case ASCORE_COLUMN_TYPE_LONG_BLOB:
+      case ASCORE_COLUMN_TYPE_MEDIUM_BLOB:
+      case ASCORE_COLUMN_TYPE_TINY_BLOB:
+      case ASCORE_COLUMN_TYPE_BLOB:
+      case ASCORE_COLUMN_TYPE_GEOMETRY:
+      case ASCORE_COLUMN_TYPE_BIT:
+      case ASCORE_COLUMN_TYPE_DECIMAL:
+      case ASCORE_COLUMN_TYPE_NEWDECIMAL:
+        length= ascore_unpack_length(raw_row, &bytes, NULL);
+        raw_row+= bytes;
+        break;
+      case ASCORE_COLUMN_TYPE_DATE:
+      case ASCORE_COLUMN_TYPE_DATETIME:
+      case ASCORE_COLUMN_TYPE_TIMESTAMP:
+      case ASCORE_COLUMN_TYPE_TIME:
+        length= raw_row[0];
+        raw_row++;
+        break;
+      case ASCORE_COLUMN_TYPE_LONGLONG:
+      case ASCORE_COLUMN_TYPE_DOUBLE:
+        length= 8;
+        break;
+      case ASCORE_COLUMN_TYPE_LONG:
+      case ASCORE_COLUMN_TYPE_INT24:
+      case ASCORE_COLUMN_TYPE_FLOAT:
+        length= 4;
+        break;
+      case ASCORE_COLUMN_TYPE_SHORT:
+      case ASCORE_COLUMN_TYPE_YEAR:
+        length= 2;
+        break;
+      case ASCORE_COLUMN_TYPE_TINY:
+        length= 1;
+        break;
+      case ASCORE_COLUMN_TYPE_NULL:
+        /* in NULL bitmask only */
+        length= 0;
+        break;
+      case ASCORE_COLUMN_TYPE_NEWDATE:
+      case ASCORE_COLUMN_TYPE_TIMESTAMP2:
+      case ASCORE_COLUMN_TYPE_DATETIME2:
+      case ASCORE_COLUMN_TYPE_TIME2:
+      default:
+        /* According to MySQL protocol specs, this shouldn't happen */
+        attachsql_error_client_create(&error, ATTACHSQL_ERROR_CODE_UNKNOWN, ATTACHSQL_ERROR_LEVEL_ERROR, "60000", "Bad data in statement result");
+        return error;
+    }
+    con->stmt_row[column].data= raw_row;
+    con->stmt_row[column].length= (size_t)length;
+    con->stmt_row[column].type= type;
+    raw_row+= length;
+  }
+  return NULL;
+}

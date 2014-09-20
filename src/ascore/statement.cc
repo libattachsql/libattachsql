@@ -302,3 +302,5 @@ ascore_command_status_t ascore_stmt_send_long_data(ascore_stmt_st *stmt, uint16_
 
   return ascore_command_send(stmt->con, ASCORE_COMMAND_STMT_SEND_LONG_DATA, data, length);
 }
+
+

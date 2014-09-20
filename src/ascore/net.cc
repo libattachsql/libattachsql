@@ -956,7 +956,9 @@ void ascore_packet_get_column(ascon_st *con, column_t *column)
   buffer->buffer_read_ptr+= 4;
 
   // Type
-  column->type= (ascore_column_type_t)buffer->buffer_read_ptr[0];
+  /* direct char -> enum seems to cause signed -> unsigned conversion issues */
+  uint8_t type= (uint8_t)buffer->buffer_read_ptr[0];
+  column->type= (ascore_column_type_t)type;
   buffer->buffer_read_ptr++;
 
   // Flags
