@@ -24,6 +24,7 @@ extern "C" {
 #endif
 
 #define ATTACHSQL_BUFFER_ROW_ALLOC_SIZE 100
+#define ATTACHSQL_STMT_CHAR_BUFFER_SIZE 40
 
 struct attachsql_stmt_row_st
 {
@@ -60,6 +61,7 @@ struct attachsql_connect_t
   attachsql_stmt_row_st *stmt_row;
   char *stmt_null_bitmap;
   uint16_t stmt_null_bitmap_length;
+  char stmt_tmp_buffer[ATTACHSQL_STMT_CHAR_BUFFER_SIZE];
 
   attachsql_connect_t():
     core_con(NULL),
@@ -82,7 +84,9 @@ struct attachsql_connect_t
     stmt_row(NULL),
     stmt_null_bitmap(NULL),
     stmt_null_bitmap_length(0)
-  { }
+  {
+    stmt_tmp_buffer[0]= '\0';
+  }
 };
 
 #ifdef __cplusplus

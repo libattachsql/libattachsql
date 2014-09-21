@@ -49,6 +49,14 @@ int main(int argc, char *argv[])
       columns= attachsql_query_column_count(con);
       error= attachsql_statement_row_get(con);
       printf("Got %d columns\n", columns);
+      size_t len;
+      char *col_data= attachsql_statement_get_char(con, 0, &len, &error);
+      printf("Column 0: %.*s\n", (int)len, col_data);
+      printf("Column 1: %d\n", attachsql_statement_get_int(con, 1, &error));
+      ASSERT_EQ_(123456, attachsql_statement_get_int(con, 1, &error), "Column 1 result match fail");
+      ASSERT_STREQL_("hello world", col_data, len, "Column 0 result match fail");
+      col_data= attachsql_statement_get_char(con, 1, &len, &error);
+      ASSERT_STREQL_("123456", col_data, len, "Column 0 str conversion fail");
       attachsql_query_row_next(con);
     }
     if (error && (error->code == 2002))
