@@ -43,6 +43,10 @@ char *ascore_pack_datetime(char *buffer, ascore_datetime_st *datetime, bool date
 
 char *ascore_pack_time(char *buffer, ascore_datetime_st *datetime);
 
+void ascore_unpack_time(char *buffer, size_t length, ascore_datetime_st *datetime);
+
+void ascore_unpack_datetime(char *buffer, size_t length, ascore_datetime_st *datetime);
+
 #ifdef __cplusplus
 }
 #endif

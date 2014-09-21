@@ -158,6 +158,43 @@ char *ascore_pack_datetime(char *buffer, ascore_datetime_st *datetime, bool date
   return (buffer + length + 1);
 }
 
+void ascore_unpack_datetime(char *buffer, size_t length, ascore_datetime_st *datetime)
+{
+  if (length)
+  {
+    datetime->is_negative= false;
+    datetime->year= ascore_unpack_int2(buffer);
+    datetime->month= buffer[2];
+    datetime->day= buffer[3];
+    if (length > 4)
+    {
+      datetime->hour= buffer[4];
+      datetime->minute= buffer[5];
+      datetime->second= buffer[6];
+      if (length > 7)
+      {
+        datetime->microsecond= ascore_unpack_int4(&buffer[7]);
+      }
+    }
+  }
+}
+
+void ascore_unpack_time(char *buffer, size_t length, ascore_datetime_st *datetime)
+{
+  if (length)
+  {
+    datetime->is_negative= buffer[0];
+    datetime->day= ascore_unpack_int4(&buffer[1]);
+    datetime->hour= buffer[5];
+    datetime->minute= buffer[6];
+    datetime->second= buffer[7];
+    if (length > 8)
+    {
+      datetime->microsecond= ascore_unpack_int4(&buffer[8]);
+    }
+  }
+}
+
 char *ascore_pack_time(char *buffer, ascore_datetime_st *time)
 {
   uint8_t length= 0;

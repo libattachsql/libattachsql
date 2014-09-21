@@ -72,6 +72,27 @@ attachsql_error_st *attachsql_statement_set_time(attachsql_connect_t *con, uint1
 ASQL_API
 attachsql_error_st *attachsql_statement_row_get(attachsql_connect_t *con);
 
+ASQL_API
+int32_t attachsql_statement_get_int(attachsql_connect_t *con, uint16_t column, attachsql_error_st **error);
+
+ASQL_API
+uint32_t attachsql_statement_get_int_unsigned(attachsql_connect_t *con, uint16_t column, attachsql_error_st **error);
+
+ASQL_API
+int64_t attachsql_statement_get_bigint(attachsql_connect_t *con, uint16_t column, attachsql_error_st **error);
+
+ASQL_API
+uint64_t attachsql_statement_get_bigint_unsigned(attachsql_connect_t *con, uint16_t column, attachsql_error_st **error);
+
+ASQL_API
+double attachsql_statement_get_double(attachsql_connect_t *con, uint16_t column, attachsql_error_st **error);
+
+ASQL_API
+float attachsql_statement_get_float(attachsql_connect_t *con, uint16_t column, attachsql_error_st **error);
+
+ASQL_API
+char *attachsql_statement_get_char(attachsql_connect_t *con, uint16_t column, size_t *length, attachsql_error_st **error);
+
 #ifdef __cplusplus
 }
 #endif
