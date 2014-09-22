@@ -5,8 +5,7 @@ libattachsql
             :target: https://travis-ci.org/libattachsql/libattachsql
 
 .. |waffle| image:: https://badge.waffle.io/libattachsql/libattachsql.svg?label=TODO&title=TODO
-             :target: https://waffle.io/libattachsql/libattachsql
-              :alt: 'Stories in TODO'
+            :target: https://waffle.io/libattachsql/libattachsql
 
 .. |docs| image:: https://readthedocs.org/projects/libattachsql/badge/?version=latest
           :target: http://docs.libattachsql.org/
