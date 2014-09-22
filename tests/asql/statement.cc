@@ -58,5 +58,6 @@ int main(int argc, char *argv[])
       ASSERT_FALSE_(true, "Error exists: %d", error->code);
     }
   }
+  attachsql_statement_close(con);
   attachsql_connect_destroy(con);
 }
