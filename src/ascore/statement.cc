@@ -208,11 +208,11 @@ bool ascore_stmt_execute(ascore_stmt_st *stmt)
 
 bool ascore_stmt_check_buffer_size(ascore_stmt_st *stmt, size_t required)
 {
-  size_t new_size= 0;
   char *realloc_buffer= NULL;
 
   if (stmt->exec_buffer_length < required)
   {
+    size_t new_size= 0;
     if (stmt->exec_buffer_length == 0)
     {
       new_size= ASCORE_STMT_EXEC_DEFAULT_SIZE;
@@ -281,6 +281,7 @@ void ascore_stmt_destroy(ascore_stmt_st *stmt)
 
   stmt->con->stmt= NULL;
   stmt->con->write_buffer_extra= 4;
+  ascore_command_free(stmt->con);
   ascore_pack_int4(&stmt->con->write_buffer[1], stmt->id);
   ascore_command_send(stmt->con, ASCORE_COMMAND_STMT_CLOSE, NULL, 0);
   delete stmt;

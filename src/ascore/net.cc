@@ -618,7 +618,6 @@ void ascore_packet_read_end(ascon_st *con)
 void ascore_packet_read_prepare_response(ascon_st *con)
 {
   asdebug("Prepare response packet");
-  uint32_t data_read= 0;
   buffer_st *buffer= con->read_buffer;
 
   if (buffer->buffer_read_ptr[0] != 0x00)
@@ -628,6 +627,7 @@ void ascore_packet_read_prepare_response(ascon_st *con)
   }
   else
   {
+    uint32_t data_read= 0;
     asdebug("Got PREPARE_OK packet");
     buffer->buffer_read_ptr++;
     data_read++;

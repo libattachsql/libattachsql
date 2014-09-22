@@ -306,7 +306,7 @@ attachsql_error_st *attachsql_statement_row_get(attachsql_connect_t *con)
   char *raw_row;
   uint16_t column;
   uint16_t total_columns;
-  uint8_t bytes;
+  uint8_t bytes= 0;
   uint64_t length;
 
   if (con == NULL)

@@ -51,6 +51,14 @@ Builtin Types
 
    A 64-bit signed integer as defined in the standard header ``stdint.h``
 
+.. c:type:: float
+
+   An IEEE 754 single-precision binary floating-point format
+
+.. c:type:: double
+
+   An IEEE 754 double-precision binary floating-point format
+
 Structs
 -------
 

@@ -105,7 +105,7 @@ char *ascore_pack_length(char *buffer, size_t length)
   {
     buffer[0]= 0xfe;
     buffer++;
-    ascore_pack_int8(buffer, length);
+    ascore_pack_int8(buffer, (uint64_t)length);
     buffer+= 8;
   }
 
