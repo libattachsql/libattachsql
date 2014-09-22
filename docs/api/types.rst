@@ -39,9 +39,17 @@ Builtin Types
 
    A 32-bit unsigned integer as defined in the standard header ``stdint.h``
 
+.. c:type:: int32_t
+
+   A 32-bit signed integer as defined in the standard header ``stdint.h``
+
 .. c:type:: uint64_t
 
    A 64-bit unsigned integer as defined in the standard header ``stdint.h``
+
+.. c:type:: int64_t
+
+   A 64-bit signed integer as defined in the standard header ``stdint.h``
 
 Structs
 -------
