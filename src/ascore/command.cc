@@ -24,7 +24,14 @@ ascore_command_status_t ascore_command_send_compressed(ascon_st *con, ascore_com
   ascore_send_compressed_packet(con, data, length, command);
   if (con->status == ASCORE_CON_STATUS_IDLE)
   {
-    con->next_packet_type= ASCORE_PACKET_TYPE_RESPONSE;
+    if (command == ASCORE_COMMAND_STMT_PREPARE)
+    {
+      con->next_packet_type= ASCORE_PACKET_TYPE_PREPARE_RESPONSE;
+    }
+    else
+    {
+      con->next_packet_type= ASCORE_PACKET_TYPE_RESPONSE;
+    }
     uv_read_start(con->uv_objects.stream, on_alloc, ascore_read_data_cb);
     con->command_status= ASCORE_COMMAND_STATUS_SEND;
     con->status= ASCORE_CON_STATUS_BUSY;
@@ -80,7 +87,8 @@ ascore_command_status_t ascore_command_send(ascon_st *con, ascore_command_t comm
   send_buffer[0].base= con->packet_header;
   send_buffer[0].len= 4;
   send_buffer[1].base= con->write_buffer;
-  send_buffer[1].len= 1;
+  send_buffer[1].len= 1 + con->write_buffer_extra;
+  con->write_buffer_extra= 0;
   if (length > 0)
   {
     send_buffer[2].base= data;
@@ -125,8 +133,22 @@ ascore_command_status_t ascore_command_send(ascon_st *con, ascore_command_t comm
     return con->command_status;
   }
 
-  con->next_packet_type= ASCORE_PACKET_TYPE_RESPONSE;
-  uv_read_start(con->uv_objects.stream, on_alloc, ascore_read_data_cb);
+  if (command == ASCORE_COMMAND_STMT_PREPARE)
+  {
+    con->next_packet_type= ASCORE_PACKET_TYPE_PREPARE_RESPONSE;
+  }
+  else if (command == ASCORE_COMMAND_STMT_RESET)
+  {
+    con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
+  }
+  else
+  {
+    con->next_packet_type= ASCORE_PACKET_TYPE_RESPONSE;
+  }
+  if (command != ASCORE_COMMAND_STMT_RESET)
+  {
+    uv_read_start(con->uv_objects.stream, on_alloc, ascore_read_data_cb);
+  }
   con->command_status= ASCORE_COMMAND_STATUS_SEND;
   con->status= ASCORE_CON_STATUS_BUSY;
   if (con->options.polling)

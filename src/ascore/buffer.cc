@@ -132,7 +132,7 @@ void ascore_buffer_packet_read_end(buffer_st *buffer)
     buffer->buffer_read_ptr= buffer->buffer;
     buffer->buffer_write_ptr= buffer->buffer;
     buffer->buffer_used= 0;
-    buffer->packet_end_ptr= NULL;
+    buffer->packet_end_ptr= buffer->buffer;
   }
   else
   {

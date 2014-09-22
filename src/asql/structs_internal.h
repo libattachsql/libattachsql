@@ -24,6 +24,20 @@ extern "C" {
 #endif
 
 #define ATTACHSQL_BUFFER_ROW_ALLOC_SIZE 100
+#define ATTACHSQL_STMT_CHAR_BUFFER_SIZE 40
+
+struct attachsql_stmt_row_st
+{
+  char *data;
+  size_t length;
+  ascore_column_type_t type;
+
+  attachsql_stmt_row_st() :
+    data(NULL),
+    length(0),
+    type(ASCORE_COLUMN_TYPE_NULL)
+  { }
+};
 
 struct attachsql_connect_t
 {
@@ -33,6 +47,7 @@ struct attachsql_connect_t
   char *query_buffer;
   size_t query_buffer_length;
   bool query_buffer_alloc;
+  bool query_buffer_statement;
   bool in_query;
   bool buffer_rows;
   attachsql_query_column_st *columns;
@@ -42,6 +57,11 @@ struct attachsql_connect_t
   uint64_t row_buffer_count;
   uint64_t row_buffer_position;
   bool all_rows_buffered;
+  ascore_stmt_st *stmt;
+  attachsql_stmt_row_st *stmt_row;
+  char *stmt_null_bitmap;
+  uint16_t stmt_null_bitmap_length;
+  char stmt_tmp_buffer[ATTACHSQL_STMT_CHAR_BUFFER_SIZE];
 
   attachsql_connect_t():
     core_con(NULL),
@@ -50,6 +70,7 @@ struct attachsql_connect_t
     query_buffer(NULL),
     query_buffer_length(0),
     query_buffer_alloc(false),
+    query_buffer_statement(false),
     in_query(false),
     buffer_rows(false),
     columns(NULL),
@@ -58,8 +79,14 @@ struct attachsql_connect_t
     row_buffer_alloc_size(0),
     row_buffer_count(0),
     row_buffer_position(0),
-    all_rows_buffered(false)
-  { }
+    all_rows_buffered(false),
+    stmt(NULL),
+    stmt_row(NULL),
+    stmt_null_bitmap(NULL),
+    stmt_null_bitmap_length(0)
+  {
+    stmt_tmp_buffer[0]= '\0';
+  }
 };
 
 #ifdef __cplusplus

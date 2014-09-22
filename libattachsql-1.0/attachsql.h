@@ -36,4 +36,5 @@ typedef uint16_t in_port_t;
 
 #include <libattachsql-1.0/connect.h>
 #include <libattachsql-1.0/query.h>
+#include <libattachsql-1.0/statement.h>
 #include <libattachsql-1.0/utility.h>

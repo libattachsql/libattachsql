@@ -14,6 +14,9 @@ Version 0.4.0 Beta (Not yet released)
 * Fixed parallel building
 * Fixed SSL connect with no server support (`Issue #68 <https://github.com/libattachsql/libattachsql/issues/68>`_)
 * Fixed possible buffer pointer breakage (`Issue #67 <https://github.com/libattachsql/libattachsql/issues/67>`_)
+* Fixed potential crash on query with empty table/schema (`Issue #75 <https://github.com/libattachsql/libattachsql/issues/75>`_)
+* Fixed double packet clear corrupts read buffer (`Issue #73 <https://github.com/libattachsql/libattachsql/issues/73>`_)
+* Added prepared statement support (`Issue #32 <https://github.com/libattachsql/libattachsql/issues/32>`_)
 
 Version 0.3
 -----------

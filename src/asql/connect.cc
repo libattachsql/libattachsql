@@ -217,7 +217,15 @@ attachsql_return_t attachsql_connect_query(attachsql_connect_t *con, attachsql_e
 {
   ascore_command_status_t ret;
 
-  ret= ascore_command_send(con->core_con, ASCORE_COMMAND_QUERY, con->query_buffer, con->query_buffer_length);
+  if (con->query_buffer_statement)
+  {
+    con->stmt= ascore_stmt_prepare(con->core_con, con->query_buffer_length, con->query_buffer);
+    ret= con->core_con->command_status;
+  }
+  else
+  {
+    ret= ascore_command_send(con->core_con, ASCORE_COMMAND_QUERY, con->query_buffer, con->query_buffer_length);
+  }
   if (ret == ASCORE_COMMAND_STATUS_SEND_FAILED)
   {
     attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_SERVER_GONE, ATTACHSQL_ERROR_LEVEL_ERROR, "08006", con->core_con->errmsg);

@@ -17,8 +17,9 @@
 
 #pragma once
 
-#include "common.h"
+#include "constants.h"
 #include "buffer.h"
+#include "return.h"
 #include <sys/types.h>
 #include <stdint.h>
 #ifdef _WIN32
@@ -40,6 +41,8 @@ typedef uint16_t in_port_t;
 #include <cstddef>
 extern "C" {
 #endif
+
+typedef struct ascon_st ascon_st;
 
 struct column_t
 {
@@ -76,6 +79,88 @@ struct result_t
   { }
 };
 
+struct ascore_datetime_st
+{
+  uint16_t year;
+  uint8_t month;
+  uint32_t day;
+  uint8_t hour;
+  uint8_t minute;
+  uint8_t second;
+  uint32_t microsecond;
+  bool is_negative;
+
+  ascore_datetime_st ():
+    year(0),
+    month(0),
+    day(0),
+    hour(0),
+    minute(0),
+    second(0),
+    microsecond(0),
+    is_negative(false)
+  { }
+};
+
+struct ascore_stmt_param_st
+{
+  ascore_column_type_t type;
+  size_t length;
+  bool is_long_data;
+  bool is_unsigned;
+  union data_t
+  {
+    uint8_t tinyint_data;
+    uint16_t smallint_data;
+    uint32_t int_data;
+    uint64_t bigint_data;
+    float float_data;
+    double double_data;
+    ascore_datetime_st *datetime_data;
+    char *string_data;
+  } data;
+
+  ascore_stmt_param_st() :
+    type(ASCORE_COLUMN_TYPE_NULL),
+    length(0),
+    is_long_data(false),
+    is_unsigned(false)
+  { }
+};
+
+struct ascore_stmt_st
+{
+  ascon_st *con;
+  uint32_t id;
+  uint16_t column_count;
+  column_t *columns;
+  uint16_t current_column;
+  uint16_t param_count;
+  column_t *params;
+  uint16_t current_param;
+  ascore_stmt_state_t state;
+  char *exec_buffer;
+  size_t exec_buffer_length;
+  ascore_stmt_param_st *param_data;
+  bool new_bind;
+
+  ascore_stmt_st():
+    con(NULL),
+    id(0),
+    column_count(0),
+    columns(NULL),
+    current_column(0),
+    param_count(0),
+    params(NULL),
+    current_param(0),
+    state(ASCORE_STMT_STATE_NONE),
+    exec_buffer(NULL),
+    exec_buffer_length(0),
+    param_data(NULL),
+    new_bind(true)
+  { }
+};
+
 struct ascon_st
 {
   const char *host;
@@ -103,6 +188,7 @@ struct ascon_st
   buffer_st *read_buffer;
   buffer_st *read_buffer_compress;
   char write_buffer[ASCORE_WRITE_BUFFER_SIZE];
+  uint8_t write_buffer_extra; /* for extra bytes in packet header due to prepared statement */
   uint8_t packet_number;
   uint32_t thread_id;
   char server_version[ASCORE_MAX_SERVER_VERSION_LEN];
@@ -179,6 +265,8 @@ struct ascon_st
     }
   } ssl;
 #endif
+  bool in_statement;
+  ascore_stmt_st *stmt;
 
   ascon_st() :
     host(NULL),
@@ -190,6 +278,7 @@ struct ascon_st
     local_errcode(ASRET_OK),
     read_buffer(NULL),
     read_buffer_compress(NULL),
+    write_buffer_extra(0),
     packet_number(0),
     thread_id(0),
     server_capabilities(ASCORE_CAPABILITY_NONE),
@@ -207,7 +296,9 @@ struct ascon_st
     uncompressed_buffer_len(0),
     compressed_buffer(NULL),
     compressed_buffer_len(0),
-    compressed_packet_number(0)
+    compressed_packet_number(0),
+    in_statement(false),
+    stmt(NULL)
   {
     str_port[0]= '\0';
     errmsg[0]= '\0';

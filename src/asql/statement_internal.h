@@ -17,16 +17,15 @@
 
 #pragma once
 
-#include <stdint.h>
+#include "src/ascore/ascore.h"
 
-/* These two need to go first, in this order */
-#include "src/ascore/constants.h"
-#include "src/ascore/structs.h"
-#include "src/ascore/return.h"
-#include "src/ascore/pack_macros.h"
-#include "src/ascore/pack.h"
-#include "src/ascore/net.h"
-#include "src/ascore/connect.h"
-#include "src/ascore/command.h"
-#include "src/ascore/buffer.h"
-#include "src/ascore/statement.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+attachsql_error_st *attachsql_statement_set_param(attachsql_connect_t *con, ascore_column_type_t type, uint16_t param, size_t length, const void *value, bool is_unsigned);
+
+#ifdef __cplusplus
+}
+#endif
+

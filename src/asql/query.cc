@@ -50,6 +50,7 @@ attachsql_error_st *attachsql_query(attachsql_connect_t *con, size_t length, con
       con->query_buffer= (char*)statement;
       con->query_buffer_length= length;
       con->query_buffer_alloc= false;
+      con->query_buffer_statement= false;
       return attachsql_connect(con);
     }
     ret= ascore_command_send(con->core_con, ASCORE_COMMAND_QUERY, (char*)statement, length);
@@ -154,6 +155,7 @@ attachsql_error_st *attachsql_query(attachsql_connect_t *con, size_t length, con
   }
 
   con->query_buffer_length= buffer_pos;
+  con->query_buffer_statement= false;
   if (con->core_con->status == ASCORE_CON_STATUS_NOT_CONNECTED)
   {
     return attachsql_connect(con);

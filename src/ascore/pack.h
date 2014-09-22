@@ -18,6 +18,9 @@
 #pragma once
 
 #include <stdint.h>
+#include <string.h>
+#include "constants.h"
+#include "structs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,6 +34,18 @@ enum ascore_pack_status_t
 };
 
 uint64_t ascore_unpack_length(char *buffer, uint8_t *bytes, ascore_pack_status_t *status);
+
+char *ascore_pack_data(char *buffer, size_t length, char *data);
+
+char *ascore_pack_length(char *buffer, size_t length);
+
+char *ascore_pack_datetime(char *buffer, ascore_datetime_st *datetime, bool date_only);
+
+char *ascore_pack_time(char *buffer, ascore_datetime_st *datetime);
+
+void ascore_unpack_time(char *buffer, size_t length, ascore_datetime_st *datetime);
+
+void ascore_unpack_datetime(char *buffer, size_t length, ascore_datetime_st *datetime);
 
 #ifdef __cplusplus
 }
