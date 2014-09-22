@@ -12,6 +12,9 @@ Version 0.4.0 Beta (Not yet released)
 * Documentation fixes
 * Fixed compiling in RedHat/CentOS 6.x
 * Fixed parallel building
+* Fixed potential crash on query with empty table/schema (`Issue #75 <https://github.com/libattachsql/libattachsql/issues/75>`_)
+* Fixed double packet clear corrupts read buffer (`Issue #73 <https://github.com/libattachsql/libattachsql/issues/73>`_)
+* Added prepared statement support (`Issue #32 <https://github.com/libattachsql/libattachsql/issues/32>`_)
 
 Version 0.3
 -----------
