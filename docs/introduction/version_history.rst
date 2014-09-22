@@ -1,6 +1,12 @@
 Version History
 ===============
 
+Version 0.5
+-----------
+
+Version 0.5.0 Beta (Not yet released)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Version 0.4
 -----------
 
