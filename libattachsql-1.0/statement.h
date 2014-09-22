@@ -93,6 +93,10 @@ float attachsql_statement_get_float(attachsql_connect_t *con, uint16_t column, a
 ASQL_API
 char *attachsql_statement_get_char(attachsql_connect_t *con, uint16_t column, size_t *length, attachsql_error_st **error);
 
+ASQL_API
+void attachsql_statement_close(attachsql_connect_t *con);
+
+
 #ifdef __cplusplus
 }
 #endif

@@ -1050,3 +1050,18 @@ char *attachsql_statement_get_char(attachsql_connect_t *con, uint16_t column, si
   return NULL;
 }
 
+void attachsql_statement_close(attachsql_connect_t *con)
+{
+  if (con == NULL)
+  {
+    return;
+  }
+
+  if (con->stmt_row != NULL)
+  {
+    delete[] con->stmt_row;
+  }
+  ascore_stmt_destroy(con->stmt);
+  con->stmt= NULL;
+}
+

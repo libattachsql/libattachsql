@@ -35,7 +35,6 @@ ascore_stmt_st *ascore_stmt_prepare(ascon_st *con, size_t length, const char *st
 
   con->stmt->con= con;
   asdebug("Sending MySQL prepare");
-  /* TODO: ascore_command_send should be const char* */
   ascore_command_send(con, ASCORE_COMMAND_STMT_PREPARE, (char*)statement, length);
   return con->stmt;
 }
@@ -258,7 +257,6 @@ ascore_command_status_t ascore_stmt_fetch(ascore_stmt_st *stmt)
   return stmt->con->command_status;
 }
 
-/* TODO: need to send a stmt close, the response from that needs to run destroy */
 void ascore_stmt_destroy(ascore_stmt_st *stmt)
 {
   if (stmt->column_count > 0)
@@ -282,12 +280,14 @@ void ascore_stmt_destroy(ascore_stmt_st *stmt)
   }
 
   stmt->con->stmt= NULL;
+  stmt->con->write_buffer_extra= 4;
+  ascore_pack_int4(&stmt->con->write_buffer[1], stmt->id);
+  ascore_command_send(stmt->con, ASCORE_COMMAND_STMT_CLOSE, NULL, 0);
   delete stmt;
 }
 
 ascore_command_status_t ascore_stmt_reset(ascore_stmt_st *stmt)
 {
-  /* TODO need to reset some internal states */
   stmt->con->write_buffer_extra= 4;
   ascore_pack_int4(&stmt->con->write_buffer[1], stmt->id);
 

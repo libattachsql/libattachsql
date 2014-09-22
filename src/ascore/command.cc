@@ -137,11 +137,18 @@ ascore_command_status_t ascore_command_send(ascon_st *con, ascore_command_t comm
   {
     con->next_packet_type= ASCORE_PACKET_TYPE_PREPARE_RESPONSE;
   }
+  else if (command == ASCORE_COMMAND_STMT_RESET)
+  {
+    con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
+  }
   else
   {
     con->next_packet_type= ASCORE_PACKET_TYPE_RESPONSE;
   }
-  uv_read_start(con->uv_objects.stream, on_alloc, ascore_read_data_cb);
+  if (command != ASCORE_COMMAND_STMT_RESET)
+  {
+    uv_read_start(con->uv_objects.stream, on_alloc, ascore_read_data_cb);
+  }
   con->command_status= ASCORE_COMMAND_STATUS_SEND;
   con->status= ASCORE_CON_STATUS_BUSY;
   if (con->options.polling)

@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
   (void) argv;
   attachsql_connect_t *con;
   attachsql_error_st *error= NULL;
-  const char *data= "SELECT ? as a, ? as b";
+  const char *data= "SELECT ? as a, ? as b, FROM_UNIXTIME(1196440219) as c";
   const char *data2= "hello world";
   attachsql_return_t aret= ATTACHSQL_RETURN_NONE;
   uint16_t columns;
@@ -57,6 +57,9 @@ int main(int argc, char *argv[])
       ASSERT_STREQL_("hello world", col_data, len, "Column 0 result match fail");
       col_data= attachsql_statement_get_char(con, 1, &len, &error);
       ASSERT_STREQL_("123456", col_data, len, "Column 0 str conversion fail");
+      col_data= attachsql_statement_get_char(con, 2, &len, &error);
+      printf("Column 2: %.*s\n", (int)len, col_data);
+      ASSERT_STREQL_("2007-11-30 16:30:19", col_data, len, "Column 2 str conversion fail");
       attachsql_query_row_next(con);
     }
     if (error && (error->code == 2002))
@@ -68,5 +71,6 @@ int main(int argc, char *argv[])
       ASSERT_FALSE_(true, "Error exists: %d", error->code);
     }
   }
+  attachsql_statement_close(con);
   attachsql_connect_destroy(con);
 }
