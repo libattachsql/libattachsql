@@ -337,6 +337,11 @@ attachsql_error_st *attachsql_statement_row_get(attachsql_connect_t *con)
   for (column= 0; column < total_columns; column++)
   {
     ascore_column_type_t type= con->core_con->result.columns[column].type;
+    /* Really complex way of saying "if this is in the NULL bitmap */
+    if (con->stmt_null_bitmap[(column+2)/8] & (1 << ((column+2) % 8)))
+    {
+      type= ASCORE_COLUMN_TYPE_NULL;
+    }
     switch(type)
     {
       case ASCORE_COLUMN_TYPE_STRING:
