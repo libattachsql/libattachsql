@@ -51,6 +51,7 @@ int main(int argc, char *argv[])
   if (error != NULL)
   {
     printf("Error occurred: %s", error->msg);
+    attachsql_error_free(error);
   }
   attachsql_query_close(con);
   attachsql_connect_destroy(con);
