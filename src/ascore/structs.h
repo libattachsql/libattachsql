@@ -171,12 +171,10 @@ struct ascon_st
   const char *schema;
   struct options_t
   {
-    bool polling;
     bool compression;
     ascore_con_protocol_t protocol;
 
     options_t() :
-      polling(false),
       compression(false),
       protocol(ASCORE_CON_PROTOCOL_UNKNOWN)
     { }

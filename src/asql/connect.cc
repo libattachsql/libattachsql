@@ -52,7 +52,6 @@ attachsql_connect_t *attachsql_connect_create(const char *host, in_port_t port, 
     return NULL;
   }
 
-  con->core_con->options.polling= true;
   return con;
 }
 
