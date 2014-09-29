@@ -4,6 +4,8 @@ Version History
 Version 0.5
 -----------
 
+* Remove unused network blocking code (`Issue #72 <https://github.com/libattachsql/libattachsql/issues/72>`_)
+
 Version 0.5.0 Beta (Not yet released)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
