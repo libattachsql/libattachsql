@@ -242,18 +242,6 @@ ascore_command_status_t ascore_stmt_fetch(ascore_stmt_st *stmt)
   stmt->con->next_packet_type= ASCORE_PACKET_TYPE_STMT_ROW;
   stmt->con->command_status= ASCORE_COMMAND_STATUS_READ_STMT_ROW;
   ascore_con_process_packets(stmt->con);
-  if (stmt->con->options.polling)
-  {
-    ascore_con_process_packets(stmt->con);
-  }
-  else
-  {
-    while (not ascore_con_process_packets(stmt->con))
-    {
-      uv_read_start(stmt->con->uv_objects.stream, on_alloc, ascore_read_data_cb);
-      uv_run(stmt->con->uv_objects.loop, UV_RUN_DEFAULT);
-    }
-  }
   return stmt->con->command_status;
 }
 
