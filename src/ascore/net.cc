@@ -714,7 +714,7 @@ void ascore_packet_read_response(ascon_st *con)
     }
     else
     {
-      con->command_status= ASCORE_COMMAND_STATUS_NONE;
+      con->command_status= ASCORE_COMMAND_STATUS_EOF;
     }
     con->status= ASCORE_CON_STATUS_IDLE;
     con->next_packet_type= ASCORE_PACKET_TYPE_NONE;

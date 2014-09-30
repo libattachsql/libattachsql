@@ -115,12 +115,26 @@ attachsql_error_st *attachsql_query(attachsql_connect_t *con, size_t length, con
         case ATTACHSQL_ESCAPE_TYPE_CHAR:
           con->query_buffer[buffer_pos] = '\'';
           buffer_pos++;
-          buffer_pos+= attachsql_query_escape_data(&con->query_buffer[buffer_pos], (char*)parameters[param].data, parameters[param].length);
+          if (con->core_con->server_status & ASCORE_SERVER_STATUS_NO_BACKSLASH_ESCAPES)
+          {
+            buffer_pos+= attachsql_query_no_backslash_escape_data(&con->query_buffer[buffer_pos], (char*)parameters[param].data, parameters[param].length);
+          }
+          else
+          {
+            buffer_pos+= attachsql_query_escape_data(&con->query_buffer[buffer_pos], (char*)parameters[param].data, parameters[param].length);
+          }
           con->query_buffer[buffer_pos] = '\'';
           buffer_pos++;
           break;
         case ATTACHSQL_ESCAPE_TYPE_CHAR_LIKE:
-          buffer_pos+= attachsql_query_escape_data(&con->query_buffer[buffer_pos], (char*)parameters[param].data, parameters[param].length);
+          if (con->core_con->server_status & ASCORE_SERVER_STATUS_NO_BACKSLASH_ESCAPES)
+          {
+            buffer_pos+= attachsql_query_no_backslash_escape_data(&con->query_buffer[buffer_pos], (char*)parameters[param].data, parameters[param].length);
+          }
+          else
+          {
+            buffer_pos+= attachsql_query_escape_data(&con->query_buffer[buffer_pos], (char*)parameters[param].data, parameters[param].length);
+          }
           break;
         case ATTACHSQL_ESCAPE_TYPE_INT:
           if (parameters[param].is_unsigned)
@@ -167,6 +181,25 @@ attachsql_error_st *attachsql_query(attachsql_connect_t *con, size_t length, con
     return err;
   }
   return NULL;
+}
+
+size_t attachsql_query_no_backslash_escape_data(char *buffer, char *data, size_t length)
+{
+  size_t buffer_pos= 0;
+  size_t pos;
+
+  for (pos= 0; pos < length; pos++)
+  {
+    if (data[pos] == '\'')
+    {
+      buffer[buffer_pos]= '\'';
+      buffer_pos++;
+    }
+    buffer[buffer_pos]= data[pos];
+    buffer_pos++;
+  }
+
+  return buffer_pos;
 }
 
 size_t attachsql_query_escape_data(char *buffer, char *data, size_t length)

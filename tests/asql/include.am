@@ -112,3 +112,13 @@ t_asql_statement_param_LDADD+= -liphlpapi
 endif
 check_PROGRAMS+= t/asql/statement_param
 noinst_PROGRAMS+= t/asql/statement_param
+
+t_asql_no_backslash_SOURCES= tests/asql/no_backslash.cc
+t_asql_no_backslash_LDADD= src/asql/libattachsql.la
+if BUILD_WIN32
+t_asql_no_backslash_LDADD+= -lws2_32
+t_asql_no_backslash_LDADD+= -lpsapi
+t_asql_no_backslash_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/asql/no_backslash
+noinst_PROGRAMS+= t/asql/no_backslash
