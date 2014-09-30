@@ -340,6 +340,9 @@ bool attachsql_connect_set_option(attachsql_connect_t *con, attachsql_options_t 
       return false;
 #endif
       break;
+    case ATTACHSQL_OPTION_SEMI_BLOCKING:
+      con->core_con->options.semi_block= true;
+      break;
     case ATTACHSQL_OPTION_NONE:
       return false;
       break;

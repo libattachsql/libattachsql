@@ -173,10 +173,12 @@ struct ascon_st
   {
     bool compression;
     ascore_con_protocol_t protocol;
+    bool semi_block;
 
     options_t() :
       compression(false),
-      protocol(ASCORE_CON_PROTOCOL_UNKNOWN)
+      protocol(ASCORE_CON_PROTOCOL_UNKNOWN),
+      semi_block(false)
     { }
   } options;
 
