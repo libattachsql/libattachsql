@@ -122,3 +122,14 @@ t_asql_no_backslash_LDADD+= -liphlpapi
 endif
 check_PROGRAMS+= t/asql/no_backslash
 noinst_PROGRAMS+= t/asql/no_backslash
+
+t_asql_query_semi_block_SOURCES= tests/asql/query_semi_block.cc
+t_asql_query_semi_block_LDADD= src/asql/libattachsql.la
+if BUILD_WIN32
+t_asql_query_semi_block_LDADD+= -lws2_32
+t_asql_query_semi_block_LDADD+= -lpsapi
+t_asql_query_semi_block_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/asql/query_semi_block
+noinst_PROGRAMS+= t/asql/query_semi_block
+

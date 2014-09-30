@@ -157,10 +157,17 @@ ascore_con_status_t ascore_con_poll(ascon_st *con)
     ascore_ssl_run(con);
   }
 #endif
-  // Make sure we aren't polling for somethin already in the buffer first
+  // Make sure we aren't polling for something already in the buffer first
   if (not ascore_con_process_packets(con))
   {
-    uv_run(con->uv_objects.loop, UV_RUN_NOWAIT);
+    if (con->options.semi_block)
+    {
+      uv_run(con->uv_objects.loop, UV_RUN_ONCE);
+    }
+    else
+    {
+      uv_run(con->uv_objects.loop, UV_RUN_NOWAIT);
+    }
   }
 
   return con->status;
@@ -217,7 +224,14 @@ ascore_con_status_t ascore_connect(ascon_st *con)
         return con->status;
       }
       con->status= ASCORE_CON_STATUS_CONNECTING;
-      uv_run(con->uv_objects.loop, UV_RUN_NOWAIT);
+      if (con->options.semi_block)
+      {
+        uv_run(con->uv_objects.loop, UV_RUN_ONCE);
+      }
+      else
+      {
+        uv_run(con->uv_objects.loop, UV_RUN_NOWAIT);
+      }
       break;
     case ASCORE_CON_PROTOCOL_UDS:
       asdebug("UDS connection");
@@ -225,7 +239,14 @@ ascore_con_status_t ascore_connect(ascon_st *con)
       con->uv_objects.connect_req.data= (void*) &con->uv_objects.socket.uds;
       con->status= ASCORE_CON_STATUS_CONNECTING;
       uv_pipe_connect(&con->uv_objects.connect_req, &con->uv_objects.socket.uds, con->host, on_connect);
-      uv_run(con->uv_objects.loop, UV_RUN_NOWAIT);
+      if (con->options.semi_block)
+      {
+        uv_run(con->uv_objects.loop, UV_RUN_ONCE);
+      }
+      else
+      {
+        uv_run(con->uv_objects.loop, UV_RUN_NOWAIT);
+      }
       break;
     case ASCORE_CON_PROTOCOL_UNKNOWN:
       asdebug("Unknown protocol, this shouldn't happen");
