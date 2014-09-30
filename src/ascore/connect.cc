@@ -184,7 +184,7 @@ ascore_con_status_t ascore_connect(ascon_st *con)
   {
     return con->status;
   }
-  con->uv_objects.loop= uv_default_loop();
+  con->uv_objects.loop= uv_loop_new();
 
   con->uv_objects.loop->data= con;
 

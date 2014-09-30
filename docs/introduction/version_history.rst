@@ -7,6 +7,9 @@ Version 0.5
 * Remove unused network blocking code (`Issue #72 <https://github.com/libattachsql/libattachsql/issues/72>`_)
 * Add support for ``NO_BACKSLASH_ESCAPES`` SQL mode (`Issue #63 <https://github.com/libattachsql/libattachsql/issues/63>`_)
 * Fix wrong return state for empty result set (`Issue #83 <https://github.com/libattachsql/libattachsql/issues/83>`_)
+* Fix crash when using multiple threads (`Issue #86 <https://github.com/libattachsql/libattachsql/issues/86>`_)
+* Fix possible double-free on :c:func`attachsql_query_close` (`Issue #85 <https://github.com/libattachsql/libattachsql/issues/85>`_)
+
 
 Version 0.5.0 Beta (Not yet released)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

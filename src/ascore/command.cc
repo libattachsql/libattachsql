@@ -188,4 +188,5 @@ void ascore_command_free(ascon_st *con)
   {
     delete[] con->result.columns;
   }
+  con->result.columns= NULL;
 }
