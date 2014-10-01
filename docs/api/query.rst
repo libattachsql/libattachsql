@@ -4,7 +4,7 @@ Query Functions
 attachsql_query()
 -----------------
 
-.. c:function:: attachsql_error_st *attachsql_query(attachsql_connect_t *con, size_t length, const char *statement, uint16_t parameter_count, attachsql_query_parameter_st *parameters)
+.. c:function:: attachsql_error_t *attachsql_query(attachsql_connect_t *con, size_t length, const char *statement, uint16_t parameter_count, attachsql_query_parameter_st *parameters)
 
    Asyncronusly sends a query to the MySQL server.  The query will not be sent until :c:func:`attachsql_connect_poll` is called.  The call to :c:func:`attachsql_connect_poll` should be repeated until an error has returned or ``ATTACHSQL_RETURN_ROW_READY``.  When buffered results are enabled with :c:func:`attachsql_query_buffer_rows` the polling will return ``ATTACHSQL_RETURN_EOF`` when ready.
 
@@ -64,7 +64,7 @@ attachsql_query_column_get()
 attachsql_query_row_get()
 -------------------------
 
-.. c:function:: attachsql_query_row_st *attachsql_query_row_get(attachsql_connect_t *con, attachsql_error_st **error)
+.. c:function:: attachsql_query_row_st *attachsql_query_row_get(attachsql_connect_t *con, attachsql_error_t **error)
 
    Retrieves row data from a query.  Should be called when :c:func:`attachsql_connect_poll` returns ``ATTACHSQL_RETURN_ROW_READY``.
 

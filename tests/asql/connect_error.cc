@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
   (void) argc;
   (void) argv;
   attachsql_connect_t *con;
-  attachsql_error_st *error;
+  attachsql_error_t *error;
   attachsql_return_t aret= ATTACHSQL_RETURN_NONE;
   const char *data= "SHOW PROCESSLIST";
 
@@ -34,10 +34,10 @@ int main(int argc, char *argv[])
   {
     aret= attachsql_connect_poll(con, &error);
   }
-  SKIP_IF_((error->code == 2002), "Error not NULL");
-  ASSERT_EQ_(1045, error->code, "Error code is wrong");
-  ASSERT_STREQL_("28000", error->sqlstate, 5, "SQLSTATE is wrong");
-  ASSERT_STREQ_("Access denied for user 'bad_user'@'localhost' (using password: YES)", error->msg, "Message is wrong");
+  SKIP_IF_((attachsql_error_code(error) == 2002), "Error not NULL");
+  ASSERT_EQ_(1045, attachsql_error_code(error), "Error code is wrong");
+  ASSERT_STREQL_("28000", attachsql_error_sqlstate(error), 5, "SQLSTATE is wrong");
+  ASSERT_STREQ_("Access denied for user 'bad_user'@'localhost' (using password: YES)", attachsql_error_message(error), "Message is wrong");
   attachsql_error_free(error);
   attachsql_query_close(con);
   attachsql_connect_destroy(con);

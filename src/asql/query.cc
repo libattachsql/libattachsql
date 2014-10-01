@@ -20,9 +20,9 @@
 #include "src/asql/query_internal.h"
 #include "src/ascore/ascore.h"
 
-attachsql_error_st *attachsql_query(attachsql_connect_t *con, size_t length, const char *statement, uint16_t parameter_count, attachsql_query_parameter_st *parameters)
+attachsql_error_t *attachsql_query(attachsql_connect_t *con, size_t length, const char *statement, uint16_t parameter_count, attachsql_query_parameter_st *parameters)
 {
-  attachsql_error_st *err= NULL;
+  attachsql_error_t *err= NULL;
   size_t pos;
   size_t buffer_pos= 0;
   size_t out_len;
@@ -349,7 +349,7 @@ attachsql_query_column_st *attachsql_query_column_get(attachsql_connect_t *con, 
   return &con->columns[column - 1];
 }
 
-attachsql_query_row_st *attachsql_query_row_get(attachsql_connect_t *con, attachsql_error_st **error)
+attachsql_query_row_st *attachsql_query_row_get(attachsql_connect_t *con, attachsql_error_t **error)
 {
   uint16_t column;
   uint16_t total_columns;
@@ -502,7 +502,7 @@ uint64_t attachsql_query_row_count(attachsql_connect_t *con)
   return con->row_buffer_count;
 }
 
-attachsql_return_t attachsql_query_row_buffer(attachsql_connect_t *con, attachsql_error_st **error)
+attachsql_return_t attachsql_query_row_buffer(attachsql_connect_t *con, attachsql_error_t **error)
 {
   uint16_t column;
   uint16_t total_columns;

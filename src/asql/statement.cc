@@ -21,7 +21,7 @@
 #include "src/ascore/statement.h"
 #include "src/asql/statement_internal.h"
 
-attachsql_error_st *attachsql_statement_prepare(attachsql_connect_t *con, size_t length, const char *statement)
+attachsql_error_t *attachsql_statement_prepare(attachsql_connect_t *con, size_t length, const char *statement)
 {
   if (con->core_con->status == ASCORE_CON_STATUS_NOT_CONNECTED)
   {
@@ -31,7 +31,7 @@ attachsql_error_st *attachsql_statement_prepare(attachsql_connect_t *con, size_t
     con->query_buffer_statement= true;
     return attachsql_connect(con);
   }
-  attachsql_error_st *error= NULL;
+  attachsql_error_t *error= NULL;
   con->stmt= ascore_stmt_prepare(con->core_con, length, statement);
   if (con->stmt == NULL)
   {
@@ -40,9 +40,9 @@ attachsql_error_st *attachsql_statement_prepare(attachsql_connect_t *con, size_t
   return error;
 }
 
-attachsql_error_st *attachsql_statement_execute(attachsql_connect_t *con)
+attachsql_error_t *attachsql_statement_execute(attachsql_connect_t *con)
 {
-  attachsql_error_st *error;
+  attachsql_error_t *error;
   if (con == NULL)
   {
     attachsql_error_client_create(&error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "No connection provided");
@@ -69,9 +69,9 @@ attachsql_error_st *attachsql_statement_execute(attachsql_connect_t *con)
   return NULL;
 }
 
-attachsql_error_st *attachsql_statement_reset(attachsql_connect_t *con)
+attachsql_error_t *attachsql_statement_reset(attachsql_connect_t *con)
 {
-  attachsql_error_st *error;
+  attachsql_error_t *error;
   if (con == NULL)
   {
     attachsql_error_client_create(&error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "No connection provided");
@@ -92,9 +92,9 @@ attachsql_error_st *attachsql_statement_reset(attachsql_connect_t *con)
   return NULL;
 }
 
-attachsql_error_st *attachsql_statement_send_long_data(attachsql_connect_t *con, uint16_t param, size_t length, char *data)
+attachsql_error_t *attachsql_statement_send_long_data(attachsql_connect_t *con, uint16_t param, size_t length, char *data)
 {
-  attachsql_error_st *error;
+  attachsql_error_t *error;
   if (con == NULL)
   {
     attachsql_error_client_create(&error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "No statement provided");
@@ -124,54 +124,54 @@ uint16_t attachsql_statement_get_param_count(attachsql_connect_t *con)
   return con->stmt->param_count;
 }
 
-attachsql_error_st *attachsql_statement_set_int(attachsql_connect_t *con, uint16_t param, int32_t value)
+attachsql_error_t *attachsql_statement_set_int(attachsql_connect_t *con, uint16_t param, int32_t value)
 {
   return attachsql_statement_set_param(con, ASCORE_COLUMN_TYPE_LONG, param, 0, &value, false);
 }
 
-attachsql_error_st *attachsql_statement_set_unsigned_int(attachsql_connect_t *con, uint16_t param, uint32_t value)
+attachsql_error_t *attachsql_statement_set_unsigned_int(attachsql_connect_t *con, uint16_t param, uint32_t value)
 {
   return attachsql_statement_set_param(con, ASCORE_COLUMN_TYPE_LONG, param, 0, &value, true);
 }
 
-attachsql_error_st *attachsql_statement_set_bigint(attachsql_connect_t *con, uint16_t param, int64_t value)
+attachsql_error_t *attachsql_statement_set_bigint(attachsql_connect_t *con, uint16_t param, int64_t value)
 {
   return attachsql_statement_set_param(con, ASCORE_COLUMN_TYPE_LONGLONG, param, 0, &value, false);
 }
 
-attachsql_error_st *attachsql_statement_set_unsigned_bigint(attachsql_connect_t *con, uint16_t param, uint64_t value)
+attachsql_error_t *attachsql_statement_set_unsigned_bigint(attachsql_connect_t *con, uint16_t param, uint64_t value)
 {
   return attachsql_statement_set_param(con, ASCORE_COLUMN_TYPE_LONGLONG, param, 0, &value, true);
 }
 
-attachsql_error_st *attachsql_statement_set_float(attachsql_connect_t *con, uint16_t param, float value)
+attachsql_error_t *attachsql_statement_set_float(attachsql_connect_t *con, uint16_t param, float value)
 {
   return attachsql_statement_set_param(con, ASCORE_COLUMN_TYPE_FLOAT, param, 0, &value, false);
 }
 
-attachsql_error_st *attachsql_statement_set_double(attachsql_connect_t *con, uint16_t param, double value)
+attachsql_error_t *attachsql_statement_set_double(attachsql_connect_t *con, uint16_t param, double value)
 {
   return attachsql_statement_set_param(con, ASCORE_COLUMN_TYPE_DOUBLE, param, 0, &value, false);
 }
 
-attachsql_error_st *attachsql_statement_set_string(attachsql_connect_t *con, uint16_t param, size_t length, const char *value)
+attachsql_error_t *attachsql_statement_set_string(attachsql_connect_t *con, uint16_t param, size_t length, const char *value)
 {
   return attachsql_statement_set_param(con, ASCORE_COLUMN_TYPE_STRING, param, length, value, false);
 }
 
-attachsql_error_st *attachsql_statement_set_binary(attachsql_connect_t *con, uint16_t param, size_t length, const char *value)
+attachsql_error_t *attachsql_statement_set_binary(attachsql_connect_t *con, uint16_t param, size_t length, const char *value)
 {
   return attachsql_statement_set_param(con, ASCORE_COLUMN_TYPE_BLOB, param, length, value, false);
 }
 
-attachsql_error_st *attachsql_statement_set_null(attachsql_connect_t *con, uint16_t param)
+attachsql_error_t *attachsql_statement_set_null(attachsql_connect_t *con, uint16_t param)
 {
   return attachsql_statement_set_param(con, ASCORE_COLUMN_TYPE_NULL, param, 0, NULL, false);
 }
 
-attachsql_error_st *attachsql_statement_set_datetime(attachsql_connect_t *con, uint16_t param, uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second, uint32_t microsecond)
+attachsql_error_t *attachsql_statement_set_datetime(attachsql_connect_t *con, uint16_t param, uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second, uint32_t microsecond)
 {
-  attachsql_error_st *error;
+  attachsql_error_t *error;
 
   if ((con == NULL) || (con->stmt == NULL))
   {
@@ -197,9 +197,9 @@ attachsql_error_st *attachsql_statement_set_datetime(attachsql_connect_t *con, u
   return NULL;
 }
 
-attachsql_error_st *attachsql_statement_set_time(attachsql_connect_t *con, uint16_t param, uint8_t hour, uint8_t minute, uint8_t second, uint32_t microsecond, bool is_negative)
+attachsql_error_t *attachsql_statement_set_time(attachsql_connect_t *con, uint16_t param, uint8_t hour, uint8_t minute, uint8_t second, uint32_t microsecond, bool is_negative)
 {
-  attachsql_error_st *error;
+  attachsql_error_t *error;
 
   if ((con == NULL) || (con->stmt == NULL))
   {
@@ -223,9 +223,9 @@ attachsql_error_st *attachsql_statement_set_time(attachsql_connect_t *con, uint1
   return NULL;
 }
 
-attachsql_error_st *attachsql_statement_set_param(attachsql_connect_t *con, ascore_column_type_t type, uint16_t param, size_t length, const void *value, bool is_unsigned)
+attachsql_error_t *attachsql_statement_set_param(attachsql_connect_t *con, ascore_column_type_t type, uint16_t param, size_t length, const void *value, bool is_unsigned)
 {
-  attachsql_error_st *error;
+  attachsql_error_t *error;
 
   if ((con == NULL) || (con->stmt == NULL))
   {
@@ -300,9 +300,9 @@ attachsql_error_st *attachsql_statement_set_param(attachsql_connect_t *con, asco
   return NULL;
 }
 
-attachsql_error_st *attachsql_statement_row_get(attachsql_connect_t *con)
+attachsql_error_t *attachsql_statement_row_get(attachsql_connect_t *con)
 {
-  attachsql_error_st *error;
+  attachsql_error_t *error;
   char *raw_row;
   uint16_t column;
   uint16_t total_columns;
@@ -404,7 +404,7 @@ attachsql_error_st *attachsql_statement_row_get(attachsql_connect_t *con)
   return NULL;
 }
 
-int32_t attachsql_statement_get_int(attachsql_connect_t *con, uint16_t column, attachsql_error_st **error)
+int32_t attachsql_statement_get_int(attachsql_connect_t *con, uint16_t column, attachsql_error_t **error)
 {
   if (con == NULL)
   {
@@ -487,7 +487,7 @@ int32_t attachsql_statement_get_int(attachsql_connect_t *con, uint16_t column, a
 }
 
 
-uint32_t attachsql_statement_get_int_unsigned(attachsql_connect_t *con, uint16_t column, attachsql_error_st **error)
+uint32_t attachsql_statement_get_int_unsigned(attachsql_connect_t *con, uint16_t column, attachsql_error_t **error)
 {
   if (con == NULL)
   {
@@ -570,7 +570,7 @@ uint32_t attachsql_statement_get_int_unsigned(attachsql_connect_t *con, uint16_t
 }
 
 
-int64_t attachsql_statement_get_bigint(attachsql_connect_t *con, uint16_t column, attachsql_error_st **error)
+int64_t attachsql_statement_get_bigint(attachsql_connect_t *con, uint16_t column, attachsql_error_t **error)
 {
   if (con == NULL)
   {
@@ -652,7 +652,7 @@ int64_t attachsql_statement_get_bigint(attachsql_connect_t *con, uint16_t column
   return 0;
 }
 
-uint64_t attachsql_statement_get_bigint_unsigned(attachsql_connect_t *con, uint16_t column, attachsql_error_st **error)
+uint64_t attachsql_statement_get_bigint_unsigned(attachsql_connect_t *con, uint16_t column, attachsql_error_t **error)
 {
   if (con == NULL)
   {
@@ -734,7 +734,7 @@ uint64_t attachsql_statement_get_bigint_unsigned(attachsql_connect_t *con, uint1
   return 0;
 }
 
-double attachsql_statement_get_double(attachsql_connect_t *con, uint16_t column, attachsql_error_st **error)
+double attachsql_statement_get_double(attachsql_connect_t *con, uint16_t column, attachsql_error_t **error)
 {
   if (con == NULL)
   {
@@ -816,7 +816,7 @@ double attachsql_statement_get_double(attachsql_connect_t *con, uint16_t column,
   return 0;
 }
 
-float attachsql_statement_get_float(attachsql_connect_t *con, uint16_t column, attachsql_error_st **error)
+float attachsql_statement_get_float(attachsql_connect_t *con, uint16_t column, attachsql_error_t **error)
 {
   if (con == NULL)
   {
@@ -899,7 +899,7 @@ float attachsql_statement_get_float(attachsql_connect_t *con, uint16_t column, a
 }
 
 
-char *attachsql_statement_get_char(attachsql_connect_t *con, uint16_t column, size_t *length, attachsql_error_st **error)
+char *attachsql_statement_get_char(attachsql_connect_t *con, uint16_t column, size_t *length, attachsql_error_t **error)
 {
   if (con == NULL)
   {

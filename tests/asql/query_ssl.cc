@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
   (void) argc;
   (void) argv;
   attachsql_connect_t *con;
-  attachsql_error_st *error;
+  attachsql_error_t *error;
   const char *data= "SHOW PROCESSLIST";
   const char *data2= "SELECT ? as a, '?' as b, ? as c, ? as d, ? as e";
   attachsql_return_t aret= ATTACHSQL_RETURN_NONE;
@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
   attachsql_library_init();
   con= attachsql_connect_create("localhost", 3306, "test", "test", "", NULL);
   error= attachsql_connect_set_ssl(con, "tests/ssl/client-key.pem", "tests/ssl/client-cert.pem", "tests/ssl/ca-cert.pem", NULL, NULL, false);
-  if (error and (error->code == 3002))
+  if (error and (attachsql_error_code(error) == 3002))
   {
     SKIP_IF_(true, "SSL not supported");
   }
@@ -55,13 +55,13 @@ int main(int argc, char *argv[])
       attachsql_query_row_next(con);
       printf("\n");
     }
-    if (error && (error->code == 2002))
+    if (error && (attachsql_error_code(error) == 2002))
     {
       SKIP_IF_(true, "No MYSQL server, or MySQL doesn't support SSL");
     }
     else if (error)
     {
-      ASSERT_FALSE_(true, "Error exists: %d, %s", error->code, error->msg);
+      ASSERT_FALSE_(true, "Error exists: %d, %s", attachsql_error_code(error), attachsql_error_message(error));
     }
   }
   attachsql_query_close(con);

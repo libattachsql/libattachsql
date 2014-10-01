@@ -23,7 +23,7 @@
 int main(int argc, char *argv[])
 {
   attachsql_connect_t *con= NULL;
-  attachsql_error_st *error= NULL;
+  attachsql_error_t *error= NULL;
   const char *query= "SELECT * FROM t1 WHERE name = ? AND age > ?";
   attachsql_return_t ret= ATTACHSQL_RETURN_NONE;
   attachsql_query_row_st *row;
@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
   }
   if (error != NULL)
   {
-    printf("Error occurred: %s", error->msg);
+    printf("Error occurred: %s", attachsql_error_message(error));
     attachsql_error_free(error);
   }
   attachsql_query_close(con);
