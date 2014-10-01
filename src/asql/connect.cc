@@ -233,9 +233,8 @@ attachsql_return_t attachsql_connect_query(attachsql_connect_t *con, attachsql_e
   return ATTACHSQL_RETURN_PROCESSING;
 }
 
-attachsql_error_t *attachsql_connect(attachsql_connect_t *con)
+bool attachsql_connect(attachsql_connect_t *con, attachsql_error_t **error)
 {
-  attachsql_error_t *error= NULL;
   ascore_con_status_t status;
 
   status= ascore_connect(con->core_con);
@@ -243,65 +242,65 @@ attachsql_error_t *attachsql_connect(attachsql_connect_t *con)
   switch(status)
   {
     case ASCORE_CON_STATUS_PARAMETER_ERROR:
-      attachsql_error_client_create(&error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Bad parameter");
+      attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Bad parameter");
       if (con->callback_fn != NULL)
       {
         con->callback_fn(con, ATTACHSQL_EVENT_ERROR, con->callback_context);
       }
-      return error;
+      return false;
       break;
     case ASCORE_CON_STATUS_NOT_CONNECTED:
       /* Shouldn't happen */
-      return NULL;
+      return true;
       break;
     case ASCORE_CON_STATUS_CONNECTING:
-      return NULL;
+      return true;
       break;
     case ASCORE_CON_STATUS_CONNECT_FAILED:
       if (con->core_con->local_errcode == ASRET_DNS_ERROR)
       {
-        attachsql_error_client_create(&error, ATTACHSQL_ERROR_CODE_HOST_UNKNOWN, ATTACHSQL_ERROR_LEVEL_ERROR, "08000", con->core_con->errmsg);
+        attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_HOST_UNKNOWN, ATTACHSQL_ERROR_LEVEL_ERROR, "08000", con->core_con->errmsg);
       }
       else if (con->core_con->server_errno != 0)
       {
-        attachsql_error_server_create(con, &error);
+        attachsql_error_server_create(con, error);
       }
       else
       {
         if (con->core_con->errmsg[0] != '\0')
         {
-          attachsql_error_client_create(&error, ATTACHSQL_ERROR_CODE_CONNECT, ATTACHSQL_ERROR_LEVEL_ERROR, "08000", con->core_con->errmsg);
+          attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_CONNECT, ATTACHSQL_ERROR_LEVEL_ERROR, "08000", con->core_con->errmsg);
         }
         else
         {
-          attachsql_error_client_create(&error, ATTACHSQL_ERROR_CODE_CONNECT, ATTACHSQL_ERROR_LEVEL_ERROR, "08000", "Unknown connection failure");
+          attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_CONNECT, ATTACHSQL_ERROR_LEVEL_ERROR, "08000", "Unknown connection failure");
         }
       }
       if (con->callback_fn != NULL)
       {
         con->callback_fn(con, ATTACHSQL_EVENT_ERROR, con->callback_context);
       }
-      return error;
+      return false;
       break;
     case ASCORE_CON_STATUS_BUSY:
       /* Should never be hit */
-      return NULL;
+      return false;
       break;
     case ASCORE_CON_STATUS_IDLE:
       if ((con->core_con->command_status == ASCORE_COMMAND_STATUS_CONNECTED) and (con->callback_fn != NULL))
       {
         con->callback_fn(con, ATTACHSQL_EVENT_CONNECTED, con->callback_context);
       }
-      return NULL;
+      return true;
       break;
     case ASCORE_CON_STATUS_SSL_ERROR:
-      attachsql_error_client_create(&error, ATTACHSQL_ERROR_CODE_SSL, ATTACHSQL_ERROR_LEVEL_ERROR, "08000", con->core_con->errmsg);
-      return error;
+      attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_SSL, ATTACHSQL_ERROR_LEVEL_ERROR, "08000", con->core_con->errmsg);
+      return false;
       break;
 
   }
 
-  return NULL;
+  return true;
 }
 
 bool attachsql_connect_set_option(attachsql_connect_t *con, attachsql_options_t option, const void *arg)
@@ -360,25 +359,23 @@ bool attachsql_connect_set_option(attachsql_connect_t *con, attachsql_options_t 
 }
 
 #ifdef HAVE_OPENSSL
-attachsql_error_t *attachsql_connect_set_ssl(attachsql_connect_t *con, const char *key, const char *cert, const char *ca, const char *capath, const char *cipher, bool verify)
+bool attachsql_connect_set_ssl(attachsql_connect_t *con, const char *key, const char *cert, const char *ca, const char *capath, const char *cipher, bool verify, attachsql_error_t **error)
 {
-  attachsql_error_t *err= NULL;
-
   if (con == NULL)
   {
-    attachsql_error_client_create(&err, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Connection parameter not valid");
-    return err;
+    attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Connection parameter not valid");
+    return false;
   }
 
   if (not ascore_con_set_ssl(con->core_con, key, cert, ca, capath, cipher, verify))
   {
-    attachsql_error_client_create(&err, ATTACHSQL_ERROR_CODE_SSL, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", con->core_con->errmsg);
-    return err;
+    attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_SSL, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", con->core_con->errmsg);
+    return false;
   }
-  return NULL;
+  return true;
 }
 #else
-attachsql_error_t *attachsql_connect_set_ssl(attachsql_connect_t *con, const char *key, const char *cert, const char *ca, const char *capath, const char *cipher, bool verify)
+bool attachsql_connect_set_ssl(attachsql_connect_t *con, const char *key, const char *cert, const char *ca, const char *capath, const char *cipher, bool verify, attachsql_error_t **error)
 {
   (void) con;
   (void) key;
@@ -387,9 +384,8 @@ attachsql_error_t *attachsql_connect_set_ssl(attachsql_connect_t *con, const cha
   (void) capath;
   (void) cipher;
   (void) verify;
-  attachsql_error_t *err= NULL;
 
-  attachsql_error_client_create(&err, ATTACHSQL_ERROR_CODE_NO_SSL, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "SSL support has not been compiled in");
-  return err;
+  attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_NO_SSL, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "SSL support has not been compiled in");
+  return false;
 }
 #endif

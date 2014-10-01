@@ -31,7 +31,7 @@ Next we send a query to the MySQL server, at this stage the query will only be p
 
 .. code-block:: c
 
-   error= attachsql_query(con, strlen(query), query, 0, NULL);
+   attachsql_query(con, strlen(query), query, 0, NULL, &error);
 
 We want to loop until all the rows have been retrieved (``ATTACHSQL_RETURN_EOF``) or an error occurs:
 
@@ -137,7 +137,7 @@ The query is then executed in a similar way as before, but this time we are tell
 
 .. code-block:: c
 
-   error= attachsql_query(con, strlen(query), query, 2, param)
+   attachsql_query(con, strlen(query), query, 2, param, &error)
 
 The resulting query generated before sending to the MySQL server is:
 

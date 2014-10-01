@@ -24,12 +24,12 @@ int main(int argc, char *argv[])
   (void) argc;
   (void) argv;
   attachsql_connect_t *con;
-  attachsql_error_t *error;
+  attachsql_error_t *error= NULL;
   attachsql_return_t aret= ATTACHSQL_RETURN_NONE;
   const char *data= "SHOW PROCESSLIST";
 
   con= attachsql_connect_create("localhost", 3306, "bad_user", "test", "", NULL);
-  error= attachsql_query(con, strlen(data), data, 0, NULL);
+  attachsql_query(con, strlen(data), data, 0, NULL, &error);
   while (aret != ATTACHSQL_RETURN_ERROR)
   {
     aret= attachsql_connect_poll(con, &error);

@@ -16,7 +16,7 @@ attachsql_connect_create()
    :param user: The user name for the connection
    :param pass: The password for the user
    :param schema: The default schema for the connection
-   :param error: A pointer to a pointer of an error struct which is created if an error occurs
+   :param error: A pointer to a pointer of an error object which is created if an error occurs
    :returns: A newly allocated connection object or :c:type:`NULL` on error
 
    .. versionadded:: 0.1.0
@@ -35,14 +35,16 @@ attachsql_connect_destroy()
 attachsql_connect()
 -------------------
 
-.. c:function:: attachsql_error_t *attachsql_connect(attachsql_connect_t *con)
+.. c:function:: bool attachsql_connect(attachsql_connect_t *con, attachsql_error_t **error)
 
    Starts an asyncronus connection to a MySQL server and returns immediately.  Call :c:func:`attachsql_connect_poll` until connected test to see if the connection has been established yet.
 
    :param con: The connetion object to use for the connection
-   :returns: An error struct or NULL if there is no error
+   :param error: A pointer to a pointer of an error object which is created if an error occurs
+   :returns: ``true`` on success, ``false`` on failure
 
    .. versionadded:: 0.1.0
+   .. versionchanged:: 0.5.0
 
 attachsql_connect_set_callback()
 --------------------------------
@@ -80,7 +82,7 @@ attachsql_connect_poll()
    Polls the connection to check if new data is ready.  If there is the new data will automatically be processed ready for use.
 
    :param con: The connection object to poll
-   :param error: A pointer to a pointer of an error struct which is created if an error occurs
+   :param error: A pointer to a pointer of an error object which is created if an error occurs
    :returns: The status of the connection after the poll
 
    .. versionadded:: 0.1.0
@@ -102,7 +104,7 @@ attachsql_connect_set_option()
 attachsql_connect_set_ssl()
 ---------------------------
 
-.. c:function:: attachsql_error_t *attachsql_connect_set_ssl(attachsql_connect_t *con, const char *key, const char *cert, const char *ca, const char *capath, const char *cipher, bool verify)
+.. c:function:: bool attachsql_connect_set_ssl(attachsql_connect_t *con, const char *key, const char *cert, const char *ca, const char *capath, const char *cipher, bool verify, attachsql_error_t **error)
 
    Configures SSL for the MySQL connection.  Should be used before any connection is established.
 
@@ -115,6 +117,8 @@ attachsql_connect_set_ssl()
    :param ca: The certificate authority file
    :param capath: The path to multiple certificate authority files
    :param cipher: The optional list of ciphers to use, see `OpenSSL's cipher examples <https://www.openssl.org/docs/apps/ciphers.html#EXAMPLES>`_ for how to use this
-   :returns: An error object if an error occurs, `NULL` on success
+   :param: A pointer to a pointer of an error object which is created if an error occurs
+   :returns: ``true`` on success, ``false`` on failure
 
    .. versionadded:: 0.3.0
+   .. versionchanged:: 0.5.0

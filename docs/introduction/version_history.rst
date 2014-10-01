@@ -22,6 +22,31 @@ Version 0.5.0 Beta (Not yet released)
 
      This is an API incompatible change over 0.4.0
 
+* Changed several functions for a more consistent error handling API.  These are:
+
+  * :c:func:`attachsql_connect`
+  * :c:func:`attachsql_connect_set_ssl`
+  * :c:func:`attachsql_query`
+  * :c:func:`attachsql_statement_prepare`
+  * :c:func:`attachsql_statement_execute`
+  * :c:func:`attachsql_statement_reset`
+  * :c:func:`attachsql_statement_send_long_data`
+  * :c:func:`attachsql_statement_set_int`
+  * :c:func:`attachsql_statement_set_unsigned_int`
+  * :c:func:`attachsql_statement_set_bigint`
+  * :c:func:`attachsql_statement_set_unsigned_bigint`
+  * :c:func:`attachsql_statement_set_float`
+  * :c:func:`attachsql_statement_set_double`
+  * :c:func:`attachsql_statement_set_string`
+  * :c:func:`attachsql_statement_set_binary`
+  * :c:func:`attachsql_statement_set_null`
+  * :c:func:`attachsql_statement_set_datetime`
+  * :c:func:`attachsql_statement_set_time`
+  * :c:func:`attachsql_statement_row_get`
+
+  .. warning::
+
+     This is an API incompatible change over 0.4.0
 
 Version 0.4
 -----------

@@ -20,9 +20,8 @@
 #include "src/asql/query_internal.h"
 #include "src/ascore/ascore.h"
 
-attachsql_error_t *attachsql_query(attachsql_connect_t *con, size_t length, const char *statement, uint16_t parameter_count, attachsql_query_parameter_st *parameters)
+bool attachsql_query(attachsql_connect_t *con, size_t length, const char *statement, uint16_t parameter_count, attachsql_query_parameter_st *parameters, attachsql_error_t **error)
 {
-  attachsql_error_t *err= NULL;
   size_t pos;
   size_t buffer_pos= 0;
   size_t out_len;
@@ -31,14 +30,14 @@ attachsql_error_t *attachsql_query(attachsql_connect_t *con, size_t length, cons
 
   if (con == NULL)
   {
-    attachsql_error_client_create(&err, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Connection parameter not valid");
-    return err;
+    attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Connection parameter not valid");
+    return false;
   }
 
   if (con->in_query)
   {
-    attachsql_error_client_create(&err, ATTACHSQL_ERROR_CODE_OUT_OF_SYNC, ATTACHSQL_ERROR_LEVEL_ERROR, "08002", "Connection already used for query");
-    return err;
+    attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_OUT_OF_SYNC, ATTACHSQL_ERROR_LEVEL_ERROR, "08002", "Connection already used for query");
+    return false;
   }
   con->in_query= true;
 
@@ -51,15 +50,15 @@ attachsql_error_t *attachsql_query(attachsql_connect_t *con, size_t length, cons
       con->query_buffer_length= length;
       con->query_buffer_alloc= false;
       con->query_buffer_statement= false;
-      return attachsql_connect(con);
+      return attachsql_connect(con, error);
     }
     ret= ascore_command_send(con->core_con, ASCORE_COMMAND_QUERY, (char*)statement, length);
     if (ret == ASCORE_COMMAND_STATUS_SEND_FAILED)
     {
-      attachsql_error_client_create(&err, ATTACHSQL_ERROR_CODE_SERVER_GONE, ATTACHSQL_ERROR_LEVEL_ERROR, "08006", con->core_con->errmsg);
-      return err;
+      attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_SERVER_GONE, ATTACHSQL_ERROR_LEVEL_ERROR, "08006", con->core_con->errmsg);
+      return false;
     }
-    return NULL;
+    return true;
   }
 
   /* Work out buffer size */
@@ -172,15 +171,15 @@ attachsql_error_t *attachsql_query(attachsql_connect_t *con, size_t length, cons
   con->query_buffer_statement= false;
   if (con->core_con->status == ASCORE_CON_STATUS_NOT_CONNECTED)
   {
-    return attachsql_connect(con);
+    return attachsql_connect(con, error);
   }
   ret= ascore_command_send(con->core_con, ASCORE_COMMAND_QUERY, con->query_buffer, con->query_buffer_length);
   if (ret == ASCORE_COMMAND_STATUS_SEND_FAILED)
   {
-    attachsql_error_client_create(&err, ATTACHSQL_ERROR_CODE_SERVER_GONE, ATTACHSQL_ERROR_LEVEL_ERROR, "08006", con->core_con->errmsg);
-    return err;
+    attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_SERVER_GONE, ATTACHSQL_ERROR_LEVEL_ERROR, "08006", con->core_con->errmsg);
+    return false;
   }
-  return NULL;
+  return true;
 }
 
 size_t attachsql_query_no_backslash_escape_data(char *buffer, char *data, size_t length)

@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
   (void) argc;
   (void) argv;
   attachsql_connect_t *con;
-  attachsql_error_t *error;
+  attachsql_error_t *error= NULL;
   const char *data= "SHOW PROCESSLIST";
   const char *data2= "SELECT ? as a, '?' as b, ? as c, ? as d, ? as e";
   attachsql_return_t aret= ATTACHSQL_RETURN_NONE;
@@ -34,13 +34,13 @@ int main(int argc, char *argv[])
 
   attachsql_library_init();
   con= attachsql_connect_create("localhost", 3306, "test", "test", "", NULL);
-  error= attachsql_connect_set_ssl(con, "tests/ssl/client-key.pem", "tests/ssl/client-cert.pem", "tests/ssl/ca-cert.pem", NULL, NULL, false);
+  attachsql_connect_set_ssl(con, "tests/ssl/client-key.pem", "tests/ssl/client-cert.pem", "tests/ssl/ca-cert.pem", NULL, NULL, false, &error);
   if (error and (attachsql_error_code(error) == 3002))
   {
     SKIP_IF_(true, "SSL not supported");
   }
   ASSERT_NULL_(error, "SSL setup error");
-  error= attachsql_query(con, strlen(data), data, 0, NULL);
+  attachsql_query(con, strlen(data), data, 0, NULL, &error);
   while(aret != ATTACHSQL_RETURN_EOF)
   {
     aret= attachsql_connect_poll(con, &error);
@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
   param[3].data= &tf;
   param[4].type= ATTACHSQL_ESCAPE_TYPE_DOUBLE;
   param[4].data= &tlf;
-  error= attachsql_query(con, strlen(data2), data2, 5, param);
+  attachsql_query(con, strlen(data2), data2, 5, param, &error);
   ASSERT_NULL_(error, "Error not NULL");
   aret= ATTACHSQL_RETURN_NONE;
   while(aret != ATTACHSQL_RETURN_EOF)

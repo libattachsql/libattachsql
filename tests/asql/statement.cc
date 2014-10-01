@@ -30,14 +30,14 @@ int main(int argc, char *argv[])
   uint16_t columns;
 
   con= attachsql_connect_create("localhost", 3306, "test", "test", "", NULL);
-  error= attachsql_statement_prepare(con, strlen(data), data);
+  attachsql_statement_prepare(con, strlen(data), data, &error);
   ASSERT_FALSE_(error, "Statement creation error");
   while(aret != ATTACHSQL_RETURN_EOF)
   {
     aret= attachsql_connect_poll(con, &error);
   }
 
-  error= attachsql_statement_execute(con);
+  attachsql_statement_execute(con, &error);
   aret= ATTACHSQL_RETURN_NONE;
   while(aret != ATTACHSQL_RETURN_EOF)
   {
@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     if (aret == ATTACHSQL_RETURN_ROW_READY)
     {
       columns= attachsql_query_column_count(con);
-      error= attachsql_statement_row_get(con);
+      attachsql_statement_row_get(con, &error);
       printf("Got %d columns\n", columns);
       attachsql_query_row_next(con);
     }

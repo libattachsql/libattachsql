@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
   (void) argc;
   (void) argv;
   attachsql_connect_t *con;
-  attachsql_error_t *error;
+  attachsql_error_t *error= NULL;
   const char *data= "SET SESSION sql_mode='NO_BACKSLASH_ESCAPES'";
   const char *data2= "SELECT ? as a";
   attachsql_return_t aret= ATTACHSQL_RETURN_NONE;
@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
   uint16_t columns;
 
   con= attachsql_connect_create("localhost", 3306, "test", "test", "", NULL);
-  error= attachsql_query(con, strlen(data), data, 0, NULL);
+  attachsql_query(con, strlen(data), data, 0, NULL, &error);
   while(aret != ATTACHSQL_RETURN_EOF)
   {
     aret= attachsql_connect_poll(con, &error);
@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
   param[0].type= ATTACHSQL_ESCAPE_TYPE_CHAR;
   param[0].data= (char*)td;
   param[0].length= strlen(td);
-  error= attachsql_query(con, strlen(data2), data2, 1, param);
+  attachsql_query(con, strlen(data2), data2, 1, param, &error);
   ASSERT_NULL_(error, "Error not NULL");
   aret= ATTACHSQL_RETURN_NONE;
   while(aret != ATTACHSQL_RETURN_EOF)

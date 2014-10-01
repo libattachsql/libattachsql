@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
   (void) argc;
   (void) argv;
   attachsql_connect_t *con;
-  attachsql_error_t *error;
+  attachsql_error_t *error= NULL;
   const char *data= "SHOW PROCESSLIST; SHOW PROCESSLIST";
   attachsql_return_t aret= ATTACHSQL_RETURN_NONE;
   attachsql_query_row_st *row;
@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
 
   con= attachsql_connect_create("localhost", 3306, "test", "test", "", NULL);
   attachsql_connect_set_option(con, ATTACHSQL_OPTION_MULTI_STATEMENTS, NULL);
-  error= attachsql_query(con, strlen(data), data, 0, NULL);
+  attachsql_query(con, strlen(data), data, 0, NULL, &error);
   SKIP_IF_(error, "Error not NULL");
   while(aret != ATTACHSQL_RETURN_EOF)
   {

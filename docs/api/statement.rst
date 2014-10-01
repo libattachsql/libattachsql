@@ -4,7 +4,7 @@ Server-side Prepared Statement Functions
 attachsql_statement_prepare()
 -----------------------------
 
-.. c:function:: attachsql_error_t *attachsql_statement_prepare(attachsql_connect_t *con, size_t length, const char *statement)
+.. c:function:: bool attachsql_statement_prepare(attachsql_connect_t *con, size_t length, const char *statement, attachsql_error_t **error)
 
    Asyncronusly sends the statement to be prepared to the server, with ``?`` placeholders to be filled in with bound parameters.
 
@@ -14,33 +14,39 @@ attachsql_statement_prepare()
    :param con: The connection object to prepare the statement on
    :param length: The length of the statement
    :param statement: The statement itself
-   :returns: An error structure or :c:type:`NULL` upon success
+   :param error: A pointer to a pointer of an error object which is created if an error occurs
+   :returns: ``true`` on success or ``false`` on failure
 
    .. versionadded:: 0.4.0
+   .. versionchanged:: 0.5.0
 
 attachsql_statement_execute()
 -----------------------------
 
-.. c:function:: attachsql_error_t *attachsql_statement_execute(attachsql_connect_t *con)
+.. c:function:: bool attachsql_statement_execute(attachsql_connect_t *con, attachsql_error_t **error)
 
    Executes a prepared statement
 
    :param con: The connection the statement is on
-   :returns: An error structure or :c:type:`NULL` upon success
+   :param error: A pointer to a pointer of an error object which is created if an error occurs
+   :returns: ``true`` on success or ``false`` on failure
 
    .. versionadded:: 0.4.0
+   .. versionchanged:: 0.5.0
 
 attachsql_statement_reset()
 ---------------------------
 
-.. c:function:: attachsql_error_t *attachsql_statement_reset(attachsql_connect_t *con)
+.. c:function:: bool attachsql_statement_reset(attachsql_connect_t *con, attachsql_error_t **error)
 
    Resets a prepared statement.  Polling will be required to send the reset command.
 
    :param con: The connection the statement is on
-   :returns: An error structure or :c:type:`NULL` upon success
+   :param error: A pointer to a pointer of an error object which is created if an error occurs
+   :returns: ``true`` on success or ``false`` on failure
 
    .. versionadded:: 0.4.0
+   .. versionchanged:: 0.5.0
 
 attachsql_statement_close()
 ---------------------------
@@ -56,7 +62,7 @@ attachsql_statement_close()
 attachsql_statement_send_long_data()
 ------------------------------------
 
-.. c:function:: attachsql_error_t *attachsql_statement_send_long_data(attachsql_connect_t *con, uint16_t param, size_t length, char *data)
+.. c:function:: bool attachsql_statement_send_long_data(attachsql_connect_t *con, uint16_t param, size_t length, char *data, attachsql_error_t **error)
 
    Send a large amount of data for a given prepared statement parameter
 
@@ -64,9 +70,11 @@ attachsql_statement_send_long_data()
    :param param: The parameter number (starting with 0)
    :param length: The length of the data to send
    :param data: The data to send
-   :returns: An error structure or :c:type:`NULL` upon success
+   :param error: A pointer to a pointer of an error object which is created if an error occurs
+   :returns: ``true`` on success or ``false`` on failure
 
    .. versionadded:: 0.4.0
+   .. versionchanged:: 0.5.0
 
 attachsql_statement_get_param_count()
 -------------------------------------
@@ -83,91 +91,103 @@ attachsql_statement_get_param_count()
 attachsql_statement_set_int()
 -----------------------------
 
-.. c:function:: attachsql_error_t *attachsql_statement_set_int(attachsql_connect_t *con, uint16_t param, int32_t value)
+.. c:function:: bool attachsql_statement_set_int(attachsql_connect_t *con, uint16_t param, int32_t value, attachsql_error_t **error)
 
    Sets a signed int value for a given parameter
 
    :param con: The connection the statement is on
    :param param: The parameter to set (starting at 0)
    :param value: The value for the parameter
-   :returns: An error structure or :c:type:`NULL` upon success
+   :param error: A pointer to a pointer of an error object which is created if an error occurs
+   :returns: ``true`` on success or ``false`` on failure
 
    .. versionadded:: 0.4.0
+   .. versionchanged:: 0.5.0
 
 attachsql_statement_set_unsigned_int()
 --------------------------------------
 
-.. c:function:: attachsql_error_t *attachsql_statement_set_unsigned_int(attachsql_connect_t *con, uint16_t param, uint32_t value)
+.. c:function:: bool attachsql_statement_set_unsigned_int(attachsql_connect_t *con, uint16_t param, uint32_t value, attachsql_error_t **error)
 
    Sets an unsigned int value for a given parameter
 
    :param con: The connection the statement is on
    :param param: The parameter to set (starting at 0)
    :param value: The value for the parameter
-   :returns: An error structure or :c:type:`NULL` upon success
+   :param error: A pointer to a pointer of an error object which is created if an error occurs
+   :returns: ``true`` on success or ``false`` on failure
 
    .. versionadded:: 0.4.0
+   .. versionchanged:: 0.5.0
 
 attachsql_statement_set_bigint()
 --------------------------------
 
-.. c:function:: attachsql_error_t *attachsql_statement_set_bigint(attachsql_connect_t *con, uint16_t param, int64_t value)
+.. c:function:: bool attachsql_statement_set_bigint(attachsql_connect_t *con, uint16_t param, int64_t value, attachsql_error_t **error)
 
    Sets a signed bigint value for a given parameter
 
    :param con: The connection the statement is on
    :param param: The parameter to set (starting at 0)
    :param value: The value for the parameter
-   :returns: An error structure or :c:type:`NULL` upon success
+   :param error: A pointer to a pointer of an error object which is created if an error occurs
+   :returns: ``true`` on success or ``false`` on failure
 
    .. versionadded:: 0.4.0
+   .. versionchanged:: 0.5.0
 
 attachsql_statement_set_unsigned_bigint()
 -----------------------------------------
 
-.. c:function:: attachsql_error_t *attachsql_statement_set_unsigned_bigint(attachsql_connect_t *con, uint16_t param, uint64_t value)
+.. c:function:: bool attachsql_statement_set_unsigned_bigint(attachsql_connect_t *con, uint16_t param, uint64_t value, attachsql_error_t **error)
 
    Sets an unsigned bigint value for a given parameter
 
    :param con: The connection the statement is on
    :param param: The parameter to set (starting at 0)
    :param value: The value for the parameter
-   :returns: An error structure or :c:type:`NULL` upon success
+   :param error: A pointer to a pointer of an error object which is created if an error occurs
+   :returns: ``true`` on success or ``false`` on failure
 
    .. versionadded:: 0.4.0
+   .. versionchanged:: 0.5.0
 
 attachsql_statement_set_float()
 -------------------------------
 
-.. c:function:: attachsql_error_t *attachsql_statement_set_float(attachsql_connect_t *con, uint16_t param, float value)
+.. c:function:: bool attachsql_statement_set_float(attachsql_connect_t *con, uint16_t param, float value, attachsql_error_t **error)
 
    Sets a float value for a given parameter
 
    :param con: The connection the statement is on
    :param param: The parameter to set (starting at 0)
    :param value: The value for the parameter
-   :returns: An error structure or :c:type:`NULL` upon success
+   :param error: A pointer to a pointer of an error object which is created if an error occurs
+   :returns: ``true`` on success or ``false`` on failure
 
    .. versionadded:: 0.4.0
+   .. versionchanged:: 0.5.0
 
 attachsql_statement_set_double()
 --------------------------------
 
-.. c:function:: attachsql_error_t *attachsql_statement_set_float(attachsql_connect_t *con, uint16_t param, double value)
+.. c:function:: bool attachsql_statement_set_double(attachsql_connect_t *con, uint16_t param, double value, attachsql_error_t **error)
 
    Sets a double value for a given parameter
 
    :param con: The connection the statement is on
    :param param: The parameter to set (starting at 0)
    :param value: The value for the parameter
-   :returns: An error structure or :c:type:`NULL` upon success
+   :param error: A pointer to a pointer of an error object which is created if an error occurs
+   :returns: ``true`` on success or ``false`` on failure
 
    .. versionadded:: 0.4.0
+   .. versionchanged:: 0.5.0
 
 attachsql_statement_set_string()
 --------------------------------
 
-.. c:function:: attachsql_error_t *attachsql_statement_set_string(attachsql_connect_t *con, uint16_t param, size_t length, const char *value)
+.. c:function:: bool attachsql_statement_set_string(attachsql_connect_t *con, uint16_t param, size_t length, const char *value, attachsql_error_t **error)
 
    Sets a string value for a given parameter
 
@@ -175,14 +195,16 @@ attachsql_statement_set_string()
    :param param: The parameter to set (starting at 0)
    :param length: The length of the value
    :param value: The value for the parameter
-   :returns: An error structure or :c:type:`NULL` upon success
+   :param error: A pointer to a pointer of an error object which is created if an error occurs
+   :returns: ``true`` on success or ``false`` on failure
 
    .. versionadded:: 0.4.0
+   .. versionchanged:: 0.5.0
 
 attachsql_statement_set_binary()
 --------------------------------
 
-.. c:function:: attachsql_error_t *attachsql_statement_set_binary(attachsql_connect_t *con, uint16_t param, size_t length, const char *value)
+.. c:function:: bool attachsql_statement_set_binary(attachsql_connect_t *con, uint16_t param, size_t length, const char *value, attachsql_error_t **error)
 
    Sets a binary value for a given parameter
 
@@ -190,27 +212,31 @@ attachsql_statement_set_binary()
    :param param: The parameter to set (starting at 0)
    :param length: The length of the value
    :param value: The value for the parameter
-   :returns: An error structure or :c:type:`NULL` upon success
+   :param error: A pointer to a pointer of an error object which is created if an error occurs
+   :returns: ``true`` on success or ``false`` on failure
 
    .. versionadded:: 0.4.0
+   .. versionchanged:: 0.5.0
 
 attachsql_statement_set_null()
 ------------------------------
 
-.. c:function:: attachsql_error_t *attachsql_statement_set_null(attachsql_connect_t *con, uint16_t param)
+.. c:function:: bool attachsql_statement_set_null(attachsql_connect_t *con, uint16_t param, attachsql_error_t **error)
 
    Sets a ``NULL`` value for a given parameter
 
    :param con: The connection the statement is on
    :param param: The parameter to set (starting at 0)
-   :returns: An error structure or :c:type:`NULL` upon success
+   :param error: A pointer to a pointer of an error object which is created if an error occurs
+   :returns: ``true`` on success or ``false`` on failure
 
    .. versionadded:: 0.4.0
+   .. versionchanged:: 0.5.0
 
 attachsql_statement_set_datetime()
 ----------------------------------
 
-.. c:function:: attachsql_error_t *attachsql_statement_set_datetime(attachsql_connect_t *con, uint16_t param, uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second, uint32_t microsecond)
+.. c:function:: bool attachsql_statement_set_datetime(attachsql_connect_t *con, uint16_t param, uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second, uint32_t microsecond, attachsql_error_t **error)
 
    Sets a date and optional time for a given parameter
 
@@ -223,14 +249,16 @@ attachsql_statement_set_datetime()
    :param minute: The minute value for the time
    :param second: The second value for the time
    :param microsecond: The microsend value for the time
-   :returns: An error structure or :c:type:`NULL` upon success
+   :param error: A pointer to a pointer of an error object which is created if an error occurs
+   :returns: ``true`` on success or ``false`` on failure
 
    .. versionadded:: 0.4.0
+   .. versionchanged:: 0.5.0
 
 attachsql_statement_set_time()
 ------------------------------
 
-.. c:function:: attachsql_error_t *attachsql_statement_set_time(attachsql_connect_t *con, uint16_t param, uint8_t hour, uint8_t minute, uint8_t second, uint32_t microsecond, bool is_negative)
+.. c:function:: bool attachsql_statement_set_time(attachsql_connect_t *con, uint16_t param, uint8_t hour, uint8_t minute, uint8_t second, uint32_t microsecond, bool is_negative, attachsql_error_t **error)
 
    Sets a time for a given parameter
 
@@ -241,21 +269,25 @@ attachsql_statement_set_time()
    :param second: The second value for the time
    :param microsecond: The microsend value for the time
    :param is_negative: Set to ``true`` for a negative time
-   :returns: An error structure or :c:type:`NULL` upon success
+   :param error: A pointer to a pointer of an error object which is created if an error occurs
+   :returns: ``true`` on success or ``false`` on failure
 
    .. versionadded:: 0.4.0
+   .. versionchanged:: 0.5.0
 
 attachsql_statement_row_get()
 -----------------------------
 
-.. c:function:: attachsql_error_t *attachsql_statement_row_get(attachsql_connect_t *con)
+.. c:function:: bool attachsql_statement_row_get(attachsql_connect_t *con, attachsql_error_t **error)
 
    Retrieves row data from a prepared statement.  Should be called when :c:func:`attachsql_connect_poll` returns ``ATTACHSQL_RETURN_ROW_READY``
 
    :param con: The connection the statement is on
-   :returns: An error structure or :c:type:`NULL` upon success
+   :param error: A pointer to a pointer of an error object which is created if an error occurs
+   :returns: ``true`` on success or ``false`` on failure
 
    .. versionadded:: 0.4.0
+   .. versionchanged:: 0.5.0
 
 attachsql_statement_get_int()
 -----------------------------
@@ -266,7 +298,7 @@ attachsql_statement_get_int()
 
    :param con: The connection the statement is on
    :param column: The column number to retrieve data from (starting at 0)
-   :param error: A pointer to a pointer of an error struct which is created if an error occurs
+   :param error: A pointer to a pointer of an error object which is created if an error occurs
    :returns: The signed integer value (or 0 upon error)
 
    .. versionadded:: 0.4.0
@@ -280,7 +312,7 @@ attachsql_statement_get_unsigned_int()
 
    :param con: The connection the statement is on
    :param column: The column number to retrieve data from (starting at 0)
-   :param error: A pointer to a pointer of an error struct which is created if an error occurs
+   :param error: A pointer to a pointer of an error object which is created if an error occurs
    :returns: The unsigned integer value (or 0 upon error)
 
    .. versionadded:: 0.4.0
@@ -294,7 +326,7 @@ attachsql_statement_get_bigint()
 
    :param con: The connection the statement is on
    :param column: The column number to retrieve data from (starting at 0)
-   :param error: A pointer to a pointer of an error struct which is created if an error occurs
+   :param error: A pointer to a pointer of an error object which is created if an error occurs
    :returns: The signed integer value (or 0 upon error)
 
    .. versionadded:: 0.4.0
@@ -308,7 +340,7 @@ attachsql_statement_get_unsigned_bigint()
 
    :param con: The connection the statement is on
    :param column: The column number to retrieve data from (starting at 0)
-   :param error: A pointer to a pointer of an error struct which is created if an error occurs
+   :param error: A pointer to a pointer of an error object which is created if an error occurs
    :returns: The unsigned integer value (or 0 upon error)
 
    .. versionadded:: 0.4.0
@@ -322,7 +354,7 @@ attachsql_statement_get_float()
 
    :param con: The connection the statement is on
    :param column: The column number to retrieve data from (starting at 0)
-   :param error: A pointer to a pointer of an error struct which is created if an error occurs
+   :param error: A pointer to a pointer of an error object which is created if an error occurs
    :returns: The float value (or 0 upon error)
 
    .. versionadded:: 0.4.0
@@ -336,7 +368,7 @@ attachsql_statement_get_double()
 
    :param con: The connection the statement is on
    :param column: The column number to retrieve data from (starting at 0)
-   :param error: A pointer to a pointer of an error struct which is created if an error occurs
+   :param error: A pointer to a pointer of an error object which is created if an error occurs
    :returns: The float value (or 0 upon error)
 
    .. versionadded:: 0.4.0
@@ -350,7 +382,7 @@ attachsql_statement_get_char()
 
    :param con: The connection the statement is on
    :param column: The column number to retrieve data from (starting at 0)
-   :param error: A pointer to a pointer of an error struct which is created if an error occurs
+   :param error: A pointer to a pointer of an error object which is created if an error occurs
    :param length: An application allocated variable which the API will set the length of the return value into
    :returns: The string/binary value (or 0 upon error).  Not ``NUL`` terminated.
 

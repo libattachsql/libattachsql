@@ -40,13 +40,13 @@ ASQL_API
 attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_error_t **error);
 
 ASQL_API
-attachsql_error_t *attachsql_connect(attachsql_connect_t *con);
+bool attachsql_connect(attachsql_connect_t *con, attachsql_error_t **error);
 
 ASQL_API
 bool attachsql_connect_set_option(attachsql_connect_t *con, attachsql_options_t option, const void *arg);
 
 ASQL_API
-attachsql_error_t *attachsql_connect_set_ssl(attachsql_connect_t *con, const char *key, const char *cert, const char *ca, const char *capath, const char *cipher, bool verify);
+bool attachsql_connect_set_ssl(attachsql_connect_t *con, const char *key, const char *cert, const char *ca, const char *capath, const char *cipher, bool verify, attachsql_error_t **error);
 
 #ifdef __cplusplus
 }
