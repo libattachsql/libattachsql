@@ -191,7 +191,16 @@ ascore_con_status_t ascore_connect(ascon_st *con)
   {
     return con->status;
   }
+
   con->uv_objects.loop= uv_loop_new();
+  if (con->uv_objects.loop == NULL)
+  {
+    asdebug("Loop initalize failure");
+    con->local_errcode= ASRET_OUT_OF_MEMORY_ERROR;
+    snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "Loop initialization failure, either out of memory or out of file descripitors (usually the latter)");
+    con->status= ASCORE_CON_STATUS_CONNECT_FAILED;
+    return con->status;
+  }
 
   con->uv_objects.loop->data= con;
 

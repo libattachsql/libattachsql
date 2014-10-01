@@ -10,6 +10,8 @@ Version 0.5
 * Fix crash when using multiple threads (`Issue #86 <https://github.com/libattachsql/libattachsql/issues/86>`_)
 * Fix possible double-free on :c:func`attachsql_query_close (`Issue #85 <https://github.com/libattachsql/libattachsql/issues/85>`_)
 * Add a semi-blocking mode for one connection per thread access (`Issue #89 <https://github.com/libattachsql/libattachsql/issues/89>`_)
+* Attempt to error when file descriptors are exhausted (`Issue #92 <https://github.com/libattachsql/libattachsql/issues/92>`_)
+* Add the start of troubleshooting documentation
 
 
 Version 0.5.0 Beta (Not yet released)
