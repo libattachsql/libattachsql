@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
   uint16_t columns, current_column;
 
   con= attachsql_connect_create("localhost", 3306, "test", "test", "testdb", NULL);
-  error= attachsql_query(con, strlen(query), query, 0, NULL);
+  attachsql_query(con, strlen(query), query, 0, NULL, &error);
 
   while ((ret != ATTACHSQL_RETURN_EOF) && (error == NULL))
   {

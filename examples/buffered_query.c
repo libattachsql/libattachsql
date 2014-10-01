@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 
   con= attachsql_connect_create("localhost", 3306, "test", "test", "testdb", NULL);
   attachsql_query_buffer_rows(con, true);
-  error= attachsql_query(con, strlen(query), query, 0, NULL);
+  attachsql_query(con, strlen(query), query, 0, NULL, &error);
 
   while ((ret != ATTACHSQL_RETURN_EOF) && (error == NULL))
   {

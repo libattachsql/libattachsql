@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
   param[1].type= ATTACHSQL_ESCAPE_TYPE_INT;
   param[1].data= &age;
   param[1].is_unsigned= true;
-  error= attachsql_query(con, strlen(query), query, 2, param);
+  attachsql_query(con, strlen(query), query, 2, param, &error);
 
   while ((ret != ATTACHSQL_RETURN_EOF) && (error == NULL))
   {

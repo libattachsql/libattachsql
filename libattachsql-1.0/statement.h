@@ -22,55 +22,55 @@ extern "C" {
 #endif
 
 ASQL_API
-attachsql_error_t *attachsql_statement_prepare(attachsql_connect_t *con, size_t length, const char *statement);
+bool attachsql_statement_prepare(attachsql_connect_t *con, size_t length, const char *statement, attachsql_error_t **error);
 
 ASQL_API
-attachsql_error_t *attachsql_statement_execute(attachsql_connect_t *con);
+bool attachsql_statement_execute(attachsql_connect_t *con, attachsql_error_t **error);
 
 ASQL_API
-attachsql_error_t *attachsql_statement_reset(attachsql_connect_t *con);
+bool attachsql_statement_reset(attachsql_connect_t *con, attachsql_error_t **error);
 
 ASQL_API
-attachsql_error_t *attachsql_statement_send_long_data(attachsql_connect_t *con, uint16_t param, size_t length, char *data);
+bool attachsql_statement_send_long_data(attachsql_connect_t *con, uint16_t param, size_t length, char *data, attachsql_error_t **error);
 
 ASQL_API
 uint16_t attachsql_statement_get_param_count(attachsql_connect_t *con);
 
 ASQL_API
-attachsql_error_t *attachsql_statement_set_int(attachsql_connect_t *con, uint16_t param, int32_t value);
+bool attachsql_statement_set_int(attachsql_connect_t *con, uint16_t param, int32_t value, attachsql_error_t **error);
 
 ASQL_API
-attachsql_error_t *attachsql_statement_set_unsigned_int(attachsql_connect_t *con, uint16_t param, uint32_t value);
+bool attachsql_statement_set_unsigned_int(attachsql_connect_t *con, uint16_t param, uint32_t value, attachsql_error_t **error);
 
 ASQL_API
-attachsql_error_t *attachsql_statement_set_bigint(attachsql_connect_t *con, uint16_t param, int64_t value);
+bool attachsql_statement_set_bigint(attachsql_connect_t *con, uint16_t param, int64_t value, attachsql_error_t **error);
 
 ASQL_API
-attachsql_error_t *attachsql_statement_set_unsigned_bigint(attachsql_connect_t *con, uint16_t param, uint64_t value);
+bool attachsql_statement_set_unsigned_bigint(attachsql_connect_t *con, uint16_t param, uint64_t value, attachsql_error_t **error);
 
 ASQL_API
-attachsql_error_t *attachsql_statement_set_float(attachsql_connect_t *con, uint16_t param, float value);
+bool attachsql_statement_set_float(attachsql_connect_t *con, uint16_t param, float value, attachsql_error_t **error);
 
 ASQL_API
-attachsql_error_t *attachsql_statement_set_double(attachsql_connect_t *con, uint16_t param, double value);
+bool attachsql_statement_set_double(attachsql_connect_t *con, uint16_t param, double value, attachsql_error_t **error);
 
 ASQL_API
-attachsql_error_t *attachsql_statement_set_string(attachsql_connect_t *con, uint16_t param, size_t length, const char *value);
+bool attachsql_statement_set_string(attachsql_connect_t *con, uint16_t param, size_t length, const char *value, attachsql_error_t **error);
 
 ASQL_API
-attachsql_error_t *attachsql_statement_set_binary(attachsql_connect_t *con, uint16_t param, size_t length, const char *value);
+bool attachsql_statement_set_binary(attachsql_connect_t *con, uint16_t param, size_t length, const char *value, attachsql_error_t **error);
 
 ASQL_API
-attachsql_error_t *attachsql_statement_set_null(attachsql_connect_t *con, uint16_t param);
+bool attachsql_statement_set_null(attachsql_connect_t *con, uint16_t param, attachsql_error_t **error);
 
 ASQL_API
-attachsql_error_t *attachsql_statement_set_datetime(attachsql_connect_t *con, uint16_t param, uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second, uint32_t microsecond);
+bool attachsql_statement_set_datetime(attachsql_connect_t *con, uint16_t param, uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second, uint32_t microsecond, attachsql_error_t **error);
 
 ASQL_API
-attachsql_error_t *attachsql_statement_set_time(attachsql_connect_t *con, uint16_t param, uint8_t hour, uint8_t minute, uint8_t second, uint32_t microsecond, bool is_negative);
+bool attachsql_statement_set_time(attachsql_connect_t *con, uint16_t param, uint8_t hour, uint8_t minute, uint8_t second, uint32_t microsecond, bool is_negative, attachsql_error_t **error);
 
 ASQL_API
-attachsql_error_t *attachsql_statement_row_get(attachsql_connect_t *con);
+bool attachsql_statement_row_get(attachsql_connect_t *con, attachsql_error_t **error);
 
 ASQL_API
 int32_t attachsql_statement_get_int(attachsql_connect_t *con, uint16_t column, attachsql_error_t **error);

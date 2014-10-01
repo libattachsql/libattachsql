@@ -4,7 +4,7 @@ Query Functions
 attachsql_query()
 -----------------
 
-.. c:function:: attachsql_error_t *attachsql_query(attachsql_connect_t *con, size_t length, const char *statement, uint16_t parameter_count, attachsql_query_parameter_st *parameters)
+.. c:function:: bool attachsql_query(attachsql_connect_t *con, size_t length, const char *statement, uint16_t parameter_count, attachsql_query_parameter_st *parameters, attachsql_error_t **error)
 
    Asyncronusly sends a query to the MySQL server.  The query will not be sent until :c:func:`attachsql_connect_poll` is called.  The call to :c:func:`attachsql_connect_poll` should be repeated until an error has returned or ``ATTACHSQL_RETURN_ROW_READY``.  When buffered results are enabled with :c:func:`attachsql_query_buffer_rows` the polling will return ``ATTACHSQL_RETURN_EOF`` when ready.
 
@@ -21,9 +21,11 @@ attachsql_query()
    :param statement: The statement itself
    :param parameter_count: The number of parameters provided and therefore ``?`` placeholders in the query
    :param parameters: An array of parameter fillers
-   :returns: An error structure or :c:type:`NULL` upon success
+   :patam error: A pointer to a pointer of an error object which is created if an error occurs
+   :returns: ``true`` on success or ``false`` on failure
 
    .. versionadded:: 0.1.0
+   .. versionchanged:: 0.5.0
 
 attachsql_query_close()
 -----------------------
@@ -75,7 +77,7 @@ attachsql_query_row_get()
       Do not use this function when using row buffering, it will return an error, instead use :c:func:`attachsql_query_buffer_row_get`
 
    :param con: The connection object the query is on
-   :param error: A pointer to a pointer of an error struct which is created if an error occurs
+   :param error: A pointer to a pointer of an error object which is created if an error occurs
    :returns: An array of row data, the number of elements in the array can be found with :c:func:`attachsql_query_column_count`
 
    .. versionadded:: 0.1.0
