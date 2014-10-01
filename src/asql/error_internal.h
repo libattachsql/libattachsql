@@ -23,9 +23,9 @@
 extern "C" {
 #endif
 
-void attachsql_error_client_create(attachsql_error_st **error, int code, attachsql_error_level_t level, const char *sqlstate, const char *msg, ...);
+void attachsql_error_client_create(attachsql_error_t **error, int code, attachsql_error_level_t level, const char *sqlstate, const char *msg, ...);
 
-void attachsql_error_server_create(attachsql_connect_t *con, attachsql_error_st **error);
+void attachsql_error_server_create(attachsql_connect_t *con, attachsql_error_t **error);
 
 #ifdef __cplusplus
 }

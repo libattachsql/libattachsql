@@ -95,18 +95,19 @@ enum attachsql_error_codes_t
 
 typedef enum attachsql_error_codes_t attachsql_error_codes_t;
 
-struct attachsql_error_st
-{
-  int code;
-  char msg[ATTACHSQL_MESSAGE_SIZE];
-  char sqlstate[ATTACHSQL_SQLSTATE_SIZE];
-  attachsql_error_level_t level;
-};
-
-typedef struct attachsql_error_st attachsql_error_st;
+typedef struct attachsql_error_t attachsql_error_t;
 
 ASQL_API
-void attachsql_error_free(attachsql_error_st *err);
+void attachsql_error_free(attachsql_error_t *err);
+
+ASQL_API
+int attachsql_error_code(attachsql_error_t *err);
+
+ASQL_API
+char *attachsql_error_message(attachsql_error_t *err);
+
+ASQL_API
+char *attachsql_error_sqlstate(attachsql_error_t *err);
 
 #ifdef __cplusplus
 }

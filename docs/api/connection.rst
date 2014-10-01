@@ -4,7 +4,7 @@ Connection Functions
 attachsql_connect_create()
 --------------------------
 
-.. c:function:: attachsql_connect_t *attachsql_connect_create(const char *host, in_port_t port, const char *user, const char *pass, const char *schema, attachsql_error_st **error)
+.. c:function:: attachsql_connect_t *attachsql_connect_create(const char *host, in_port_t port, const char *user, const char *pass, const char *schema, attachsql_error_t **error)
 
    Creates a connection object with the requested parameters.  If port ``0`` is given then the library will assume a Unix Domain Socket (UDS) connection is required unless explicitly specified.
 
@@ -35,7 +35,7 @@ attachsql_connect_destroy()
 attachsql_connect()
 -------------------
 
-.. c:function:: attachsql_error_st *attachsql_connect(attachsql_connect_t *con)
+.. c:function:: attachsql_error_t *attachsql_connect(attachsql_connect_t *con)
 
    Starts an asyncronus connection to a MySQL server and returns immediately.  Call :c:func:`attachsql_connect_poll` until connected test to see if the connection has been established yet.
 
@@ -75,7 +75,7 @@ attachsql_connect_get_server_version()
 attachsql_connect_poll()
 ------------------------
 
-.. c:function:: attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_error_st **error)
+.. c:function:: attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_error_t **error)
 
    Polls the connection to check if new data is ready.  If there is the new data will automatically be processed ready for use.
 
@@ -102,7 +102,7 @@ attachsql_connect_set_option()
 attachsql_connect_set_ssl()
 ---------------------------
 
-.. c:function:: attachsql_error_st *attachsql_connect_set_ssl(attachsql_connect_t *con, const char *key, const char *cert, const char *ca, const char *capath, const char *cipher, bool verify)
+.. c:function:: attachsql_error_t *attachsql_connect_set_ssl(attachsql_connect_t *con, const char *key, const char *cert, const char *ca, const char *capath, const char *cipher, bool verify)
 
    Configures SSL for the MySQL connection.  Should be used before any connection is established.
 

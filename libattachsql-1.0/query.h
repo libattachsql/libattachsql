@@ -137,7 +137,7 @@ struct attachsql_query_row_st
 typedef struct attachsql_query_row_st attachsql_query_row_st;
 
 ASQL_API
-attachsql_error_st *attachsql_query(attachsql_connect_t *con, size_t length, const char *statement, uint16_t parameter_count, attachsql_query_parameter_st *parameters);
+attachsql_error_t *attachsql_query(attachsql_connect_t *con, size_t length, const char *statement, uint16_t parameter_count, attachsql_query_parameter_st *parameters);
 
 ASQL_API
 void attachsql_query_close(attachsql_connect_t *con);
@@ -149,7 +149,7 @@ ASQL_API
 attachsql_query_column_st *attachsql_query_column_get(attachsql_connect_t *con, uint16_t column);
 
 ASQL_API
-attachsql_query_row_st *attachsql_query_row_get(attachsql_connect_t *con, attachsql_error_st **error);
+attachsql_query_row_st *attachsql_query_row_get(attachsql_connect_t *con, attachsql_error_t **error);
 
 ASQL_API
 void attachsql_query_row_next(attachsql_connect_t *con);

@@ -4,6 +4,10 @@ Version History
 Version 0.5
 -----------
 
+Version 0.5.0 Beta (Not yet released)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
 * Remove unused network blocking code (`Issue #72 <https://github.com/libattachsql/libattachsql/issues/72>`_)
 * Add support for ``NO_BACKSLASH_ESCAPES`` SQL mode (`Issue #63 <https://github.com/libattachsql/libattachsql/issues/63>`_)
 * Fix wrong return state for empty result set (`Issue #83 <https://github.com/libattachsql/libattachsql/issues/83>`_)
@@ -12,10 +16,12 @@ Version 0.5
 * Add a semi-blocking mode for one connection per thread access (`Issue #89 <https://github.com/libattachsql/libattachsql/issues/89>`_)
 * Attempt to error when file descriptors are exhausted (`Issue #92 <https://github.com/libattachsql/libattachsql/issues/92>`_)
 * Add the start of troubleshooting documentation
+* Changed error struct to a hidden error type (``attachsql_error_st`` has been replaced by :c:type:`attachsql_error_t`) and added access functions (:c:func:`attachsql_error_code`, :c:func:`attachsql_error_message` and :c:func:`attachsql_error_sqlstate`).
 
+  .. warning::
 
-Version 0.5.0 Beta (Not yet released)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     This is an API incompatible change over 0.4.0
+
 
 Version 0.4
 -----------

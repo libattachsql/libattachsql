@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
   (void) argc;
   (void) argv;
   attachsql_connect_t *con;
-  attachsql_error_st *error= NULL;
+  attachsql_error_t *error= NULL;
   const char *data= "SELECT ? as a, ? as b, FROM_UNIXTIME(1196440219) as c";
   const char *data2= "hello world";
   attachsql_return_t aret= ATTACHSQL_RETURN_NONE;
@@ -62,13 +62,13 @@ int main(int argc, char *argv[])
       ASSERT_STREQL_("2007-11-30 16:30:19", col_data, len, "Column 2 str conversion fail");
       attachsql_query_row_next(con);
     }
-    if (error && (error->code == 2002))
+    if (error && (attachsql_error_code(error) == 2002))
     {
       SKIP_IF_(true, "No MYSQL server");
     }
     else if (error)
     {
-      ASSERT_FALSE_(true, "Error exists: %d", error->code);
+      ASSERT_FALSE_(true, "Error exists: %d", attachsql_error_code(error));
     }
   }
   attachsql_statement_close(con);

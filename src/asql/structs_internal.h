@@ -89,6 +89,23 @@ struct attachsql_connect_t
   }
 };
 
+struct attachsql_error_t
+{
+  int code;
+  char msg[ATTACHSQL_MESSAGE_SIZE];
+  char sqlstate[ATTACHSQL_SQLSTATE_SIZE];
+  attachsql_error_level_t level;
+
+  attachsql_error_t() :
+    code(0),
+    level(ATTACHSQL_ERROR_LEVEL_NOTICE)
+  {
+    msg[0]= '\0';
+    sqlstate[0]= '\0';
+  }
+};
+
+
 #ifdef __cplusplus
 }
 #endif

@@ -8,6 +8,10 @@ Basic Types
 
    A connection object allocated by :c:func:`attachsql_connect_create` and used to send and receive data from the MySQL server.
 
+.. c:type:: attachsql_error_t
+
+   An error object allocated by many functions in the library and needs to be freed by the user using :c:func:`attachsql_error_free`.
+
 Builtin Types
 -------------
 
@@ -61,26 +65,6 @@ Builtin Types
 
 Structs
 -------
-
-.. c:type:: attachsql_error_st
-
-   An error struct.
-
-   .. c:member:: int code
-
-      An integer container the error code.
-
-   .. c:member:: char *msg
-
-      The error message
-
-   .. c:member:: char *sqlstate
-
-      The SQLSTATE of the error
-
-   .. c:member:: attachsql_error_level_t level
-
-      The severity of the error
 
 .. c:type:: attachsql_query_parameter_st
 

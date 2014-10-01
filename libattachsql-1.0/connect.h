@@ -22,7 +22,7 @@ extern "C" {
 #endif
 
 ASQL_API
-attachsql_connect_t *attachsql_connect_create(const char *host, in_port_t port, const char *user, const char *pass, const char *schema, attachsql_error_st **error);
+attachsql_connect_t *attachsql_connect_create(const char *host, in_port_t port, const char *user, const char *pass, const char *schema, attachsql_error_t **error);
 
 ASQL_API
 void attachsql_connect_destroy(attachsql_connect_t *con);
@@ -37,16 +37,16 @@ ASQL_API
 uint32_t attachsql_connect_get_connection_id(attachsql_connect_t *con);
 
 ASQL_API
-attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_error_st **error);
+attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_error_t **error);
 
 ASQL_API
-attachsql_error_st *attachsql_connect(attachsql_connect_t *con);
+attachsql_error_t *attachsql_connect(attachsql_connect_t *con);
 
 ASQL_API
 bool attachsql_connect_set_option(attachsql_connect_t *con, attachsql_options_t option, const void *arg);
 
 ASQL_API
-attachsql_error_st *attachsql_connect_set_ssl(attachsql_connect_t *con, const char *key, const char *cert, const char *ca, const char *capath, const char *cipher, bool verify);
+attachsql_error_t *attachsql_connect_set_ssl(attachsql_connect_t *con, const char *key, const char *cert, const char *ca, const char *capath, const char *cipher, bool verify);
 
 #ifdef __cplusplus
 }

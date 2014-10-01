@@ -4,7 +4,7 @@ Server-side Prepared Statement Functions
 attachsql_statement_prepare()
 -----------------------------
 
-.. c:function:: attachsql_error_st *attachsql_statement_prepare(attachsql_connect_t *con, size_t length, const char *statement)
+.. c:function:: attachsql_error_t *attachsql_statement_prepare(attachsql_connect_t *con, size_t length, const char *statement)
 
    Asyncronusly sends the statement to be prepared to the server, with ``?`` placeholders to be filled in with bound parameters.
 
@@ -21,7 +21,7 @@ attachsql_statement_prepare()
 attachsql_statement_execute()
 -----------------------------
 
-.. c:function:: attachsql_error_st *attachsql_statement_execute(attachsql_connect_t *con)
+.. c:function:: attachsql_error_t *attachsql_statement_execute(attachsql_connect_t *con)
 
    Executes a prepared statement
 
@@ -33,7 +33,7 @@ attachsql_statement_execute()
 attachsql_statement_reset()
 ---------------------------
 
-.. c:function:: attachsql_error_st *attachsql_statement_reset(attachsql_connect_t *con)
+.. c:function:: attachsql_error_t *attachsql_statement_reset(attachsql_connect_t *con)
 
    Resets a prepared statement.  Polling will be required to send the reset command.
 
@@ -56,7 +56,7 @@ attachsql_statement_close()
 attachsql_statement_send_long_data()
 ------------------------------------
 
-.. c:function:: attachsql_error_st *attachsql_statement_send_long_data(attachsql_connect_t *con, uint16_t param, size_t length, char *data)
+.. c:function:: attachsql_error_t *attachsql_statement_send_long_data(attachsql_connect_t *con, uint16_t param, size_t length, char *data)
 
    Send a large amount of data for a given prepared statement parameter
 
@@ -83,7 +83,7 @@ attachsql_statement_get_param_count()
 attachsql_statement_set_int()
 -----------------------------
 
-.. c:function:: attachsql_error_st *attachsql_statement_set_int(attachsql_connect_t *con, uint16_t param, int32_t value)
+.. c:function:: attachsql_error_t *attachsql_statement_set_int(attachsql_connect_t *con, uint16_t param, int32_t value)
 
    Sets a signed int value for a given parameter
 
@@ -97,7 +97,7 @@ attachsql_statement_set_int()
 attachsql_statement_set_unsigned_int()
 --------------------------------------
 
-.. c:function:: attachsql_error_st *attachsql_statement_set_unsigned_int(attachsql_connect_t *con, uint16_t param, uint32_t value)
+.. c:function:: attachsql_error_t *attachsql_statement_set_unsigned_int(attachsql_connect_t *con, uint16_t param, uint32_t value)
 
    Sets an unsigned int value for a given parameter
 
@@ -111,7 +111,7 @@ attachsql_statement_set_unsigned_int()
 attachsql_statement_set_bigint()
 --------------------------------
 
-.. c:function:: attachsql_error_st *attachsql_statement_set_bigint(attachsql_connect_t *con, uint16_t param, int64_t value)
+.. c:function:: attachsql_error_t *attachsql_statement_set_bigint(attachsql_connect_t *con, uint16_t param, int64_t value)
 
    Sets a signed bigint value for a given parameter
 
@@ -125,7 +125,7 @@ attachsql_statement_set_bigint()
 attachsql_statement_set_unsigned_bigint()
 -----------------------------------------
 
-.. c:function:: attachsql_error_st *attachsql_statement_set_unsigned_bigint(attachsql_connect_t *con, uint16_t param, uint64_t value)
+.. c:function:: attachsql_error_t *attachsql_statement_set_unsigned_bigint(attachsql_connect_t *con, uint16_t param, uint64_t value)
 
    Sets an unsigned bigint value for a given parameter
 
@@ -139,7 +139,7 @@ attachsql_statement_set_unsigned_bigint()
 attachsql_statement_set_float()
 -------------------------------
 
-.. c:function:: attachsql_error_st *attachsql_statement_set_float(attachsql_connect_t *con, uint16_t param, float value)
+.. c:function:: attachsql_error_t *attachsql_statement_set_float(attachsql_connect_t *con, uint16_t param, float value)
 
    Sets a float value for a given parameter
 
@@ -153,7 +153,7 @@ attachsql_statement_set_float()
 attachsql_statement_set_double()
 --------------------------------
 
-.. c:function:: attachsql_error_st *attachsql_statement_set_float(attachsql_connect_t *con, uint16_t param, double value)
+.. c:function:: attachsql_error_t *attachsql_statement_set_float(attachsql_connect_t *con, uint16_t param, double value)
 
    Sets a double value for a given parameter
 
@@ -167,7 +167,7 @@ attachsql_statement_set_double()
 attachsql_statement_set_string()
 --------------------------------
 
-.. c:function:: attachsql_error_st *attachsql_statement_set_string(attachsql_connect_t *con, uint16_t param, size_t length, const char *value)
+.. c:function:: attachsql_error_t *attachsql_statement_set_string(attachsql_connect_t *con, uint16_t param, size_t length, const char *value)
 
    Sets a string value for a given parameter
 
@@ -182,7 +182,7 @@ attachsql_statement_set_string()
 attachsql_statement_set_binary()
 --------------------------------
 
-.. c:function:: attachsql_error_st *attachsql_statement_set_binary(attachsql_connect_t *con, uint16_t param, size_t length, const char *value)
+.. c:function:: attachsql_error_t *attachsql_statement_set_binary(attachsql_connect_t *con, uint16_t param, size_t length, const char *value)
 
    Sets a binary value for a given parameter
 
@@ -197,7 +197,7 @@ attachsql_statement_set_binary()
 attachsql_statement_set_null()
 ------------------------------
 
-.. c:function:: attachsql_error_st *attachsql_statement_set_null(attachsql_connect_t *con, uint16_t param)
+.. c:function:: attachsql_error_t *attachsql_statement_set_null(attachsql_connect_t *con, uint16_t param)
 
    Sets a ``NULL`` value for a given parameter
 
@@ -210,7 +210,7 @@ attachsql_statement_set_null()
 attachsql_statement_set_datetime()
 ----------------------------------
 
-.. c:function:: attachsql_error_st *attachsql_statement_set_datetime(attachsql_connect_t *con, uint16_t param, uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second, uint32_t microsecond)
+.. c:function:: attachsql_error_t *attachsql_statement_set_datetime(attachsql_connect_t *con, uint16_t param, uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second, uint32_t microsecond)
 
    Sets a date and optional time for a given parameter
 
@@ -230,7 +230,7 @@ attachsql_statement_set_datetime()
 attachsql_statement_set_time()
 ------------------------------
 
-.. c:function:: attachsql_error_st *attachsql_statement_set_time(attachsql_connect_t *con, uint16_t param, uint8_t hour, uint8_t minute, uint8_t second, uint32_t microsecond, bool is_negative)
+.. c:function:: attachsql_error_t *attachsql_statement_set_time(attachsql_connect_t *con, uint16_t param, uint8_t hour, uint8_t minute, uint8_t second, uint32_t microsecond, bool is_negative)
 
    Sets a time for a given parameter
 
@@ -248,7 +248,7 @@ attachsql_statement_set_time()
 attachsql_statement_row_get()
 -----------------------------
 
-.. c:function:: attachsql_error_st *attachsql_statement_row_get(attachsql_connect_t *con)
+.. c:function:: attachsql_error_t *attachsql_statement_row_get(attachsql_connect_t *con)
 
    Retrieves row data from a prepared statement.  Should be called when :c:func:`attachsql_connect_poll` returns ``ATTACHSQL_RETURN_ROW_READY``
 
@@ -260,7 +260,7 @@ attachsql_statement_row_get()
 attachsql_statement_get_int()
 -----------------------------
 
-.. c:function:: int32_t attachsql_statement_get_int(attachsql_connect_t *con, uint16_t column, attachsql_error_st **error)
+.. c:function:: int32_t attachsql_statement_get_int(attachsql_connect_t *con, uint16_t column, attachsql_error_t **error)
 
    Retrieves a signed int value from a column of a result set.  Converting a non-integer where possible.  An error condition will occur if conversion is not possible.
 
@@ -274,7 +274,7 @@ attachsql_statement_get_int()
 attachsql_statement_get_unsigned_int()
 --------------------------------------
 
-.. c:function:: uint32_t attachsql_statement_get_unsigned_int(attachsql_connect_t *con, uint16_t column, attachsql_error_st **error)
+.. c:function:: uint32_t attachsql_statement_get_unsigned_int(attachsql_connect_t *con, uint16_t column, attachsql_error_t **error)
 
    Retrieves an unsigned int value from a column of a result set.  Converting a non-integer where possible.  An error condition will occur if conversion is not possible.
 
@@ -288,7 +288,7 @@ attachsql_statement_get_unsigned_int()
 attachsql_statement_get_bigint()
 --------------------------------
 
-.. c:function:: int64_t attachsql_statement_get_bigint(attachsql_connect_t *con, uint16_t column, attachsql_error_st **error)
+.. c:function:: int64_t attachsql_statement_get_bigint(attachsql_connect_t *con, uint16_t column, attachsql_error_t **error)
 
    Retrieves a signed bigint value from a column of a result set.  Converting a non-integer where possible.  An error condition will occur if conversion is not possible.
 
@@ -302,7 +302,7 @@ attachsql_statement_get_bigint()
 attachsql_statement_get_unsigned_bigint()
 -----------------------------------------
 
-.. c:function:: uint64_t attachsql_statement_get_unsigned_bigint(attachsql_connect_t *con, uint16_t column, attachsql_error_st **error)
+.. c:function:: uint64_t attachsql_statement_get_unsigned_bigint(attachsql_connect_t *con, uint16_t column, attachsql_error_t **error)
 
    Retrieves an unsigned bigint value from a column of a result set.  Converting a non-integer where possible.  An error condition will occur if conversion is not possible.
 
@@ -316,7 +316,7 @@ attachsql_statement_get_unsigned_bigint()
 attachsql_statement_get_float()
 -------------------------------
 
-.. c:function:: float attachsql_statement_get_float(attachsql_connect_t *con, uint16_t column, attachsql_error_st **error)
+.. c:function:: float attachsql_statement_get_float(attachsql_connect_t *con, uint16_t column, attachsql_error_t **error)
 
    Retrieves a float value from a column of a result set.  Converting a non-float where possible.  An error condition will occur if conversion is not possible.
 
@@ -330,7 +330,7 @@ attachsql_statement_get_float()
 attachsql_statement_get_double()
 --------------------------------
 
-.. c:function:: double attachsql_statement_get_double(attachsql_connect_t *con, uint16_t column, attachsql_error_st **error)
+.. c:function:: double attachsql_statement_get_double(attachsql_connect_t *con, uint16_t column, attachsql_error_t **error)
 
    Retrieves a double value from a column of a result set.  Converting a non-double where possible.  An error condition will occur if conversion is not possible.
 
@@ -344,7 +344,7 @@ attachsql_statement_get_double()
 attachsql_statement_get_char()
 ------------------------------
 
-.. c:function:: char *attachsql_statement_get_char(attachsql_connect_t *con, uint16_t column, size_t *length, attachsql_error_st **error)
+.. c:function:: char *attachsql_statement_get_char(attachsql_connect_t *con, uint16_t column, size_t *length, attachsql_error_t **error)
 
    Retrieves a string/binary value from a column of a result set.  Converting number and date/time values where possible.  An error condition will occur if conversion is not possible.
 

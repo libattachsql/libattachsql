@@ -21,7 +21,7 @@
 #include "src/asql/query_internal.h"
 #include "src/asql/connect_internal.h"
 
-attachsql_connect_t *attachsql_connect_create(const char *host, in_port_t port, const char *user, const char *pass, const char *schema, attachsql_error_st **error)
+attachsql_connect_t *attachsql_connect_create(const char *host, in_port_t port, const char *user, const char *pass, const char *schema, attachsql_error_t **error)
 {
   attachsql_connect_t *con= NULL;
 
@@ -100,7 +100,7 @@ uint32_t attachsql_connect_get_connection_id(attachsql_connect_t *con)
   return con->core_con->thread_id;
 }
 
-attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_error_st **error)
+attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_error_t **error)
 {
   ascore_con_status_t status;
 
@@ -212,7 +212,7 @@ attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_er
   return ATTACHSQL_RETURN_ERROR;
 }
 
-attachsql_return_t attachsql_connect_query(attachsql_connect_t *con, attachsql_error_st **error)
+attachsql_return_t attachsql_connect_query(attachsql_connect_t *con, attachsql_error_t **error)
 {
   ascore_command_status_t ret;
 
@@ -233,9 +233,9 @@ attachsql_return_t attachsql_connect_query(attachsql_connect_t *con, attachsql_e
   return ATTACHSQL_RETURN_PROCESSING;
 }
 
-attachsql_error_st *attachsql_connect(attachsql_connect_t *con)
+attachsql_error_t *attachsql_connect(attachsql_connect_t *con)
 {
-  attachsql_error_st *error= NULL;
+  attachsql_error_t *error= NULL;
   ascore_con_status_t status;
 
   status= ascore_connect(con->core_con);
@@ -360,9 +360,9 @@ bool attachsql_connect_set_option(attachsql_connect_t *con, attachsql_options_t 
 }
 
 #ifdef HAVE_OPENSSL
-attachsql_error_st *attachsql_connect_set_ssl(attachsql_connect_t *con, const char *key, const char *cert, const char *ca, const char *capath, const char *cipher, bool verify)
+attachsql_error_t *attachsql_connect_set_ssl(attachsql_connect_t *con, const char *key, const char *cert, const char *ca, const char *capath, const char *cipher, bool verify)
 {
-  attachsql_error_st *err= NULL;
+  attachsql_error_t *err= NULL;
 
   if (con == NULL)
   {
@@ -378,7 +378,7 @@ attachsql_error_st *attachsql_connect_set_ssl(attachsql_connect_t *con, const ch
   return NULL;
 }
 #else
-attachsql_error_st *attachsql_connect_set_ssl(attachsql_connect_t *con, const char *key, const char *cert, const char *ca, const char *capath, const char *cipher, bool verify)
+attachsql_error_t *attachsql_connect_set_ssl(attachsql_connect_t *con, const char *key, const char *cert, const char *ca, const char *capath, const char *cipher, bool verify)
 {
   (void) con;
   (void) key;
@@ -387,7 +387,7 @@ attachsql_error_st *attachsql_connect_set_ssl(attachsql_connect_t *con, const ch
   (void) capath;
   (void) cipher;
   (void) verify;
-  attachsql_error_st *err= NULL;
+  attachsql_error_t *err= NULL;
 
   attachsql_error_client_create(&err, ATTACHSQL_ERROR_CODE_NO_SSL, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "SSL support has not been compiled in");
   return err;

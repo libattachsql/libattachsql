@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
   (void) argc;
   (void) argv;
   attachsql_connect_t *con;
-  attachsql_error_st *error;
+  attachsql_error_t *error;
   const char *data= "SHOW PROCESSLIST";
   attachsql_return_t aret= ATTACHSQL_RETURN_NONE;
   attachsql_query_row_st *row;
@@ -36,13 +36,13 @@ int main(int argc, char *argv[])
   while(aret != ATTACHSQL_RETURN_EOF)
   {
     aret= attachsql_connect_poll(con, &error);
-    if (error && (error->code == 2002))
+    if (error && (attachsql_error_code(error) == 2002))
     {
       SKIP_IF_(true, "No MYSQL server");
     }
     else if (error)
     {
-      ASSERT_FALSE_(true, "Error exists: %d", error->code);
+      ASSERT_FALSE_(true, "Error exists: %d", attachsql_error_code(error));
     }
   }
   columns= attachsql_query_column_count(con);

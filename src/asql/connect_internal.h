@@ -23,7 +23,7 @@
 extern "C" {
 #endif
 
-attachsql_return_t attachsql_connect_query(attachsql_connect_t *con, attachsql_error_st **error);
+attachsql_return_t attachsql_connect_query(attachsql_connect_t *con, attachsql_error_t **error);
 
 #ifdef __cplusplus
 }
