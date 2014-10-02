@@ -36,6 +36,14 @@ int main(int argc, char *argv[])
   while(aret != ATTACHSQL_RETURN_EOF)
   {
     aret= attachsql_connect_poll(con, &error);
+    if (error && (attachsql_error_code(error) == 2002))
+    {
+      SKIP_IF_(true, "No MYSQL server");
+    }
+    else if (error)
+    {
+      ASSERT_FALSE_(true, "Error exists: %d", attachsql_error_code(error));
+    }
   }
   attachsql_statement_set_string(con, 0, 11, data2, NULL);
   attachsql_statement_set_int(con, 1, 123456, NULL);
@@ -62,11 +70,7 @@ int main(int argc, char *argv[])
       ASSERT_STREQL_("2007-11-30 16:30:19", col_data, len, "Column 2 str conversion fail");
       attachsql_query_row_next(con);
     }
-    if (error && (attachsql_error_code(error) == 2002))
-    {
-      SKIP_IF_(true, "No MYSQL server");
-    }
-    else if (error)
+    if (error)
     {
       ASSERT_FALSE_(true, "Error exists: %d", attachsql_error_code(error));
     }

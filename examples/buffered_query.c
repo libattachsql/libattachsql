@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <string.h>
 
-int main(int argc, char *argv[])
+int main(void)
 {
   attachsql_connect_t *con= NULL;
   attachsql_error_t *error= NULL;
@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
   if (error != NULL)
   {
     printf("Error occurred: %s", attachsql_error_message(error));
-    return;
+    return 1;
   }
 
   columns= attachsql_query_column_count(con);
