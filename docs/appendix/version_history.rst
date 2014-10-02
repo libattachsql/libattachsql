@@ -8,16 +8,18 @@ Version 0.5.0 Beta (Not yet released)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
-* Remove unused network blocking code (`Issue #72 <https://github.com/libattachsql/libattachsql/issues/72>`_)
-* Add support for ``NO_BACKSLASH_ESCAPES`` SQL mode (`Issue #63 <https://github.com/libattachsql/libattachsql/issues/63>`_)
-* Fix wrong return state for empty result set (`Issue #83 <https://github.com/libattachsql/libattachsql/issues/83>`_)
-* Fix crash when using multiple threads (`Issue #86 <https://github.com/libattachsql/libattachsql/issues/86>`_)
-* Fix possible double-free on :c:func`attachsql_query_close (`Issue #85 <https://github.com/libattachsql/libattachsql/issues/85>`_)
-* Add a semi-blocking mode for one connection per thread access (`Issue #89 <https://github.com/libattachsql/libattachsql/issues/89>`_)
+* Removed unused network blocking code (`Issue #72 <https://github.com/libattachsql/libattachsql/issues/72>`_)
+* Added support for ``NO_BACKSLASH_ESCAPES`` SQL mode (`Issue #63 <https://github.com/libattachsql/libattachsql/issues/63>`_)
+* Fixed wrong return state for empty result set (`Issue #83 <https://github.com/libattachsql/libattachsql/issues/83>`_)
+* Fixed crash when using multiple threads (`Issue #86 <https://github.com/libattachsql/libattachsql/issues/86>`_)
+* Fixed possible double-free on :c:func`attachsql_query_close (`Issue #85 <https://github.com/libattachsql/libattachsql/issues/85>`_)
+* Added a semi-blocking mode for one connection per thread access (`Issue #89 <https://github.com/libattachsql/libattachsql/issues/89>`_)
 * Attempt to error when file descriptors are exhausted (`Issue #92 <https://github.com/libattachsql/libattachsql/issues/92>`_)
-* Add the start of troubleshooting documentation
+* Added the start of troubleshooting documentation
 * Fix statement and statement_param test cases when a MySQL server is not present (`Issue #99 <https://github.com/libattachsql/libattachsql/issues/99>`_)
 * Examples are now compiled to ensure API compatibility (`Issue #97 <https://github.com/libattachsql/libattachsql/issues/97>`_)
+* Added basic API usage documentation (`Issue #96 <https://github.com/libattachsql/libattachsql/issues/96>`_)
+* Moved some documentation around to make the sections clearer
 
 Incompatible changes
 """"""""""""""""""""

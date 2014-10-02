@@ -12,8 +12,8 @@ Introduction
    introduction/whatis
    introduction/license
    introduction/compiling
+   introduction/using
    introduction/troubleshooting
-   introduction/version_history
 
 API Documentation
 -----------------
@@ -39,9 +39,15 @@ Contributing
    contributors/docs
    contributors/test_cases
    contributors/github
-   contributors/authors
 
-Reference
----------
+Appendix
+--------
+
+.. toctree::
+   :maxdepth: 2
+
+   appendix/authors
+   appendix/version_history
+
 * :ref:`genindex`
 * :ref:`search`
