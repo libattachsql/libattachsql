@@ -48,3 +48,4 @@ libattachsql-config
 examples/*
 !examples/*\.c
 !examples/*\.sql
+!examples/include.am

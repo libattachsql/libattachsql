@@ -35,6 +35,14 @@ int main(int argc, char *argv[])
   while(aret != ATTACHSQL_RETURN_EOF)
   {
     aret= attachsql_connect_poll(con, &error);
+    if (error && (attachsql_error_code(error) == 2002))
+    {
+      SKIP_IF_(true, "No MYSQL server");
+    }
+    else if (error)
+    {
+      ASSERT_FALSE_(true, "Error exists: %d", attachsql_error_code(error));
+    }
   }
 
   attachsql_statement_execute(con, &error);
@@ -49,11 +57,7 @@ int main(int argc, char *argv[])
       printf("Got %d columns\n", columns);
       attachsql_query_row_next(con);
     }
-    if (error && (attachsql_error_code(error) == 2002))
-    {
-      SKIP_IF_(true, "No MYSQL server");
-    }
-    else if (error)
+    if (error)
     {
       ASSERT_FALSE_(true, "Error exists: %d", attachsql_error_code(error));
     }

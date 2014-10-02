@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <string.h>
 
-int main(int argc, char *argv[])
+int main(void)
 {
   attachsql_connect_t *con= NULL;
   attachsql_error_t *error= NULL;

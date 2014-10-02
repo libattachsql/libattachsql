@@ -16,12 +16,17 @@ Version 0.5.0 Beta (Not yet released)
 * Add a semi-blocking mode for one connection per thread access (`Issue #89 <https://github.com/libattachsql/libattachsql/issues/89>`_)
 * Attempt to error when file descriptors are exhausted (`Issue #92 <https://github.com/libattachsql/libattachsql/issues/92>`_)
 * Add the start of troubleshooting documentation
-* Changed error struct to a hidden error type (``attachsql_error_st`` has been replaced by :c:type:`attachsql_error_t`) and added access functions (:c:func:`attachsql_error_code`, :c:func:`attachsql_error_message` and :c:func:`attachsql_error_sqlstate`).
+* Fix statement and statement_param test cases when a MySQL server is not present (`Issue #99 <https://github.com/libattachsql/libattachsql/issues/99>`_)
+* Examples are now compiled to ensure API compatibility (`Issue #97 <https://github.com/libattachsql/libattachsql/issues/97>`_)
+
+Incompatible changes
+""""""""""""""""""""
 
   .. warning::
 
-     This is an API incompatible change over 0.4.0
+     These changes are API incompatible change over 0.4.0
 
+* Changed error struct to a hidden error type (``attachsql_error_st`` has been replaced by :c:type:`attachsql_error_t`) and added access functions (:c:func:`attachsql_error_code`, :c:func:`attachsql_error_message` and :c:func:`attachsql_error_sqlstate`).
 * Changed several functions for a more consistent error handling API.  These are:
 
   * :c:func:`attachsql_connect`
@@ -43,10 +48,6 @@ Version 0.5.0 Beta (Not yet released)
   * :c:func:`attachsql_statement_set_datetime`
   * :c:func:`attachsql_statement_set_time`
   * :c:func:`attachsql_statement_row_get`
-
-  .. warning::
-
-     This is an API incompatible change over 0.4.0
 
 Version 0.4
 -----------

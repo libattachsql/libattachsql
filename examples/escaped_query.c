@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <string.h>
 
-int main(int argc, char *argv[])
+int main(void)
 {
   attachsql_connect_t *con= NULL;
   attachsql_error_t *error= NULL;
@@ -31,10 +31,10 @@ int main(int argc, char *argv[])
   attachsql_query_parameter_st param[2];
 
   con= attachsql_connect_create("localhost", 3306, "test", "test", "testdb", NULL);
-  char *name= "fred";
+  const char *name= "fred";
   uint32_t age= 30;
   param[0].type= ATTACHSQL_ESCAPE_TYPE_CHAR;
-  param[0].data= name;
+  param[0].data= (char*)name;
   param[0].length= strlen(name);
   param[1].type= ATTACHSQL_ESCAPE_TYPE_INT;
   param[1].data= &age;
