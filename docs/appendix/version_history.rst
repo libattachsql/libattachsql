@@ -20,6 +20,8 @@ Version 0.5.0 Beta (Not yet released)
 * Examples are now compiled to ensure API compatibility (`Issue #97 <https://github.com/libattachsql/libattachsql/issues/97>`_)
 * Added basic API usage documentation (`Issue #96 <https://github.com/libattachsql/libattachsql/issues/96>`_)
 * Moved some documentation around to make the sections clearer
+* Fixed bad send/receive packets for :c:func:`attachsql_statement_close` (`Issue #102 <https://github.com/libattachsql/libattachsql/issues/102>`_ and `Issue #103 <https://github.com/libattachsql/libattachsql/issues/103>`_)
+* Fixed --enable-debug breakage linkage with C applications (`Issue #104 <https://github.com/libattachsql/libattachsql/issues/104>`_)
 
 Incompatible changes
 """"""""""""""""""""
