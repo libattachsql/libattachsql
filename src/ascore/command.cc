@@ -68,11 +68,11 @@ ascore_command_status_t ascore_command_send(ascon_st *con, ascore_command_t comm
   con->warning_count= 0;
   con->server_errno= 0;
 
-  asdebug("Sending command %02X to sever", command);
+  asdebug("Sending command 0x%02X to server", command);
   con->local_errcode= ASRET_OK;
   con->errmsg[0]= '\0';
 
-  ascore_pack_int3(con->packet_header, length + 1);
+  ascore_pack_int3(con->packet_header, length + 1 + con->write_buffer_extra);
   con->packet_number= 0;
   con->packet_header[3] = con->packet_number;
 
@@ -137,7 +137,7 @@ ascore_command_status_t ascore_command_send(ascon_st *con, ascore_command_t comm
   {
     con->next_packet_type= ASCORE_PACKET_TYPE_PREPARE_RESPONSE;
   }
-  else if (command == ASCORE_COMMAND_STMT_RESET)
+  else if ((command == ASCORE_COMMAND_STMT_RESET) || (command == ASCORE_COMMAND_STMT_CLOSE))
   {
     con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
   }
@@ -145,7 +145,7 @@ ascore_command_status_t ascore_command_send(ascon_st *con, ascore_command_t comm
   {
     con->next_packet_type= ASCORE_PACKET_TYPE_RESPONSE;
   }
-  if (command != ASCORE_COMMAND_STMT_RESET)
+  if ((command != ASCORE_COMMAND_STMT_RESET) && (command != ASCORE_COMMAND_STMT_CLOSE))
   {
     uv_read_start(con->uv_objects.stream, on_alloc, ascore_read_data_cb);
   }
