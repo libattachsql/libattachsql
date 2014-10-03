@@ -28,7 +28,7 @@ Incompatible changes
 
   .. warning::
 
-     These changes are API incompatible change over 0.4.0
+     These changes are API incompatible with version 0.4.0 and below
 
 * Changed error struct to a hidden error type (``attachsql_error_st`` has been replaced by :c:type:`attachsql_error_t`) and added access functions (:c:func:`attachsql_error_code`, :c:func:`attachsql_error_message` and :c:func:`attachsql_error_sqlstate`).
 * Changed several functions for a more consistent error handling API.  These are:
