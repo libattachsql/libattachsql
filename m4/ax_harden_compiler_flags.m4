@@ -51,39 +51,7 @@
 # -Wdeclaration-after-statement is counter to C99
 # _APPEND_COMPILE_FLAGS_ERROR([-pedantic])
 
-#serial 16
-
-AC_DEFUN([_SET_SANITIZE_FLAGS],
-         [AS_IF([test "x$MINGW" != xyes],[
-                AS_IF([test "x$enable_shared" = "xyes"],
-                      [AS_CASE([$ax_harden_sanitize],
-                               [thread],[
-                               _APPEND_COMPILE_FLAGS_ERROR([-fsanitize=thread])],
-                               [address],[
-                               _APPEND_COMPILE_FLAGS_ERROR([-fsanitize=address])],
-                               [rest],[
-                               _APPEND_COMPILE_FLAGS_ERROR([-fno-omit-frame-pointer])
-                               _APPEND_COMPILE_FLAGS_ERROR([-fsanitize=integer])
-                               _APPEND_COMPILE_FLAGS_ERROR([-fsanitize=memory])
-                               _APPEND_COMPILE_FLAGS_ERROR([-fsanitize=alignment])
-                               _APPEND_COMPILE_FLAGS_ERROR([-fsanitize=bool])
-                               _APPEND_COMPILE_FLAGS_ERROR([-fsanitize=bounds])
-                               _APPEND_COMPILE_FLAGS_ERROR([-fsanitize=enum])
-                               _APPEND_COMPILE_FLAGS_ERROR([-fsanitize=float-cast-overflow])
-                               _APPEND_COMPILE_FLAGS_ERROR([-fsanitize=float-divide-by-zero])
-                               _APPEND_COMPILE_FLAGS_ERROR([-fsanitize=integer-divide-by-zero])
-                               _APPEND_COMPILE_FLAGS_ERROR([-fsanitize=null])
-                               _APPEND_COMPILE_FLAGS_ERROR([-fsanitize=object-size])
-                               _APPEND_COMPILE_FLAGS_ERROR([-fsanitize=return])
-                               _APPEND_COMPILE_FLAGS_ERROR([-fsanitize=shift])
-                               _APPEND_COMPILE_FLAGS_ERROR([-fsanitize=signed-integer-overflow])
-                               _APPEND_COMPILE_FLAGS_ERROR([-fsanitize=unreachable])
-                               _APPEND_COMPILE_FLAGS_ERROR([-fsanitize=unsigned-integer-overflow])
-                               _APPEND_COMPILE_FLAGS_ERROR([-fsanitize=vla-bound])
-                               _APPEND_COMPILE_FLAGS_ERROR([-fsanitize=vptr])])
-                      ])
-                ])
-          ])
+#serial 17
 
 AC_DEFUN([_WARNINGS_AS_ERRORS],
     [AC_CACHE_CHECK([if all warnings into errors],[ac_cv_warnings_as_errors],
@@ -112,21 +80,6 @@ AC_DEFUN([_HARDEN_LINKER_FLAGS],
           AS_IF([test "x$ac_cv_warnings_as_errors" = xyes],[AX_APPEND_LINK_FLAGS([-Werror])])
           ])
         ])
-
-AC_DEFUN([_AX_HARDEN_SANITIZE],
-         [AC_REQUIRE([AX_DEBUG])
-         AC_ARG_WITH([sanitize],
-                     [AS_HELP_STRING([--with-sanitize],
-                                     [Enable sanitize flag for compiler if it supports them @<:@default=no@:>@])],
-                     [AS_CASE([$with_sanitize],
-                              [thread],[
-                              ax_harden_sanitize='thread'],
-                              [address],[
-                              ax_harden_sanitize='address'],
-                              [ax_harden_sanitize='rest'])
-                     ],
-                     [AS_IF([test "x$ax_enable_debug" = xyes],[ax_harden_sanitize='rest'])])
-         ])
 
 AC_DEFUN([_HARDEN_CC_COMPILER_FLAGS],
          [AC_LANG_PUSH([C])dnl
@@ -220,8 +173,6 @@ AC_DEFUN([_HARDEN_CC_COMPILER_FLAGS],
           _APPEND_COMPILE_FLAGS_ERROR([ftrapv])
 #         GCC 4.5 removed this.
 #         _APPEND_COMPILE_FLAGS_ERROR([-Wunreachable-code])
-
-          _SET_SANITIZE_FLAGS
 
           AS_IF([test "x$ax_enable_debug" = xno],
             [AS_IF([test "x$ac_cv_vcs_checkout" = xyes],
@@ -336,8 +287,6 @@ AC_DEFUN([_HARDEN_CXX_COMPILER_FLAGS],
                 _APPEND_COMPILE_FLAGS_ERROR([-fstack-protector-all])
                 ])])])])
 
-          _SET_SANITIZE_FLAGS
-
           AS_IF([test "x$ac_cv_warnings_as_errors" = xyes],
                 [AX_APPEND_COMPILE_FLAGS([-Werror])])
           AC_LANG_POP([C++])
@@ -352,7 +301,6 @@ AC_DEFUN([_HARDEN_CXX_COMPILER_FLAGS],
            AC_REQUIRE([AX_DEBUG])
            AC_REQUIRE([AX_ASSERT])
            _WARNINGS_AS_ERRORS
-           _AX_HARDEN_SANITIZE
 
            AC_REQUIRE([gl_VISIBILITY])
            AS_IF([test -n "$CFLAG_VISIBILITY"],[CPPFLAGS="$CPPFLAGS $CFLAG_VISIBILITY"])
