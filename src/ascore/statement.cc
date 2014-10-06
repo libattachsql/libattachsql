@@ -264,6 +264,13 @@ void ascore_stmt_destroy(ascore_stmt_st *stmt)
 
   if (stmt->param_data != NULL)
   {
+    for (uint16_t param= 0; param < stmt->param_count; param++)
+    {
+      if (stmt->param_data[param].datetime_alloc)
+      {
+        delete stmt->param_data[param].data.datetime_data;
+      }
+    }
     delete[] stmt->param_data;
   }
 
