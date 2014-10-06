@@ -343,6 +343,11 @@ void on_write(uv_write_t *req, int status)
   ascon_st *con= (ascon_st*)req->handle->loop->data;
   asdebug("Write callback, status: %d", status);
 
+  if (con->next_packet_type == ASCORE_PACKET_TYPE_NONE)
+  {
+    con->status= ASCORE_CON_STATUS_IDLE;
+    con->command_status= ASCORE_COMMAND_STATUS_EOF;
+  }
   if (status != 0)
   {
     con->local_errcode= ASRET_NET_WRITE_ERROR;

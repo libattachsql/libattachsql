@@ -1056,6 +1056,7 @@ void attachsql_statement_close(attachsql_connect_t *con)
   {
     delete[] con->stmt_row;
   }
+  con->stmt_row= NULL;
   ascore_stmt_destroy(con->stmt);
   con->stmt= NULL;
 }

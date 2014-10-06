@@ -22,6 +22,8 @@ Version 0.5.0 Beta (Not yet released)
 * Moved some documentation around to make the sections clearer
 * Fixed bad send/receive packets for :c:func:`attachsql_statement_close` (`Issue #102 <https://github.com/libattachsql/libattachsql/issues/102>`_ and `Issue #103 <https://github.com/libattachsql/libattachsql/issues/103>`_)
 * Fixed ``./configure --enable-debug`` breaking linkage with C applications (`Issue #104 <https://github.com/libattachsql/libattachsql/issues/104>`_)
+* Fixed bad internal state after :c:func:`attachsql_statement_close` (`Issue #106 <https://github.com/libattachsql/libattachsql/issues/106>`_)
+* Fixed double-free on close of second call oc :c:func:`attachsql_statement_close` (`Issue #107 <https://github.com/libattachsql/libattachsql/issues/107>`_)
 
 Incompatible changes
 """"""""""""""""""""
