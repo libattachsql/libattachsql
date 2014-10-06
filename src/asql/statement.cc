@@ -52,6 +52,8 @@ bool attachsql_statement_execute(attachsql_connect_t *con, attachsql_error_t **e
     attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "No statement prepared");
     return false;
   }
+  /* Free anything left over from last exec */
+  ascore_command_free(con->core_con);
   if (not ascore_stmt_execute(con->stmt))
   {
     if (con->core_con->local_errcode == ASRET_BAD_STMT_PARAMETER)
@@ -180,6 +182,7 @@ bool attachsql_statement_set_datetime(attachsql_connect_t *con, uint16_t param, 
     return false;
   }
   con->stmt->param_data[param].data.datetime_data= new ascore_datetime_st;
+  con->stmt->param_data[param].datetime_alloc= true;
   con->stmt->param_data[param].data.datetime_data->year= year;
   con->stmt->param_data[param].data.datetime_data->month= month;
   con->stmt->param_data[param].data.datetime_data->day= day;
@@ -206,6 +209,7 @@ bool attachsql_statement_set_time(attachsql_connect_t *con, uint16_t param, uint
     return false;
   }
   con->stmt->param_data[param].data.datetime_data= new ascore_datetime_st;
+  con->stmt->param_data[param].datetime_alloc= false;
   con->stmt->param_data[param].data.datetime_data->hour= hour;
   con->stmt->param_data[param].data.datetime_data->minute= minute;
   con->stmt->param_data[param].data.datetime_data->second= second;
@@ -1056,6 +1060,7 @@ void attachsql_statement_close(attachsql_connect_t *con)
   {
     delete[] con->stmt_row;
   }
+  con->stmt_row= NULL;
   ascore_stmt_destroy(con->stmt);
   con->stmt= NULL;
 }

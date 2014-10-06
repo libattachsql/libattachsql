@@ -108,6 +108,7 @@ struct ascore_stmt_param_st
   size_t length;
   bool is_long_data;
   bool is_unsigned;
+  bool datetime_alloc;
   union data_t
   {
     uint8_t tinyint_data;
@@ -124,7 +125,8 @@ struct ascore_stmt_param_st
     type(ASCORE_COLUMN_TYPE_NULL),
     length(0),
     is_long_data(false),
-    is_unsigned(false)
+    is_unsigned(false),
+    datetime_alloc(false)
   { }
 };
 

@@ -113,6 +113,26 @@ endif
 check_PROGRAMS+= t/asql/statement_param
 noinst_PROGRAMS+= t/asql/statement_param
 
+t_asql_statement_reuse_SOURCES= tests/asql/statement_reuse.cc
+t_asql_statement_reuse_LDADD= src/asql/libattachsql.la
+if BUILD_WIN32
+t_asql_statement_reuse_LDADD+= -lws2_32
+t_asql_statement_reuse_LDADD+= -lpsapi
+t_asql_statement_reuse_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/asql/statement_reuse
+noinst_PROGRAMS+= t/asql/statement_reuse
+
+t_asql_statement_twice_SOURCES= tests/asql/statement_twice.cc
+t_asql_statement_twice_LDADD= src/asql/libattachsql.la
+if BUILD_WIN32
+t_asql_statement_twice_LDADD+= -lws2_32
+t_asql_statement_twice_LDADD+= -lpsapi
+t_asql_statement_twice_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/asql/statement_twice
+noinst_PROGRAMS+= t/asql/statement_twice
+
 t_asql_no_backslash_SOURCES= tests/asql/no_backslash.cc
 t_asql_no_backslash_LDADD= src/asql/libattachsql.la
 if BUILD_WIN32
