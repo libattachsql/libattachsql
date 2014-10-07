@@ -50,7 +50,12 @@ The build system is an m4 template system called `DDM4 <https://github.com/Brian
 Shared Library Version
 ^^^^^^^^^^^^^^^^^^^^^^
 
-If any of the API has changed please see ``LIBATTACHSQL_LIBRARY_VERSION`` in ``configure.ac``.  This gives rules on bumping the shared library versioning (not to be confused with the API public version).
+If any of the source code has changed please see ``LIBATTACHSQL_LIBRARY_VERSION`` in ``configure.ac``.  This gives rules on bumping the shared library versioning, not to be confused with the API public version which follows similar rules as described in the next section.
+
+API Version
+-----------
+
+API versioning is stored in the ``VERSION`` file which is used by the build system to version the API and docs.  The versioning scheme follows the `Semantic Versioning Rules <http://semver.org/>`_.
 
 Function Visibility
 -------------------
