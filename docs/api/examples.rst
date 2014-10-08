@@ -188,4 +188,72 @@ We can now loop through :c:func:`attachsql_query_buffer_row_get` to retrieve the
    }
 
 
+Prepared Statements
+-------------------
 
+The API has server-side Prepared Statement functionality.  The implementation is more similar to JDBC than MySQL's own C implementation.
+
+This example implements the same query as the escaped query example, but uses prepared statements instead.  It can be found at ``examples/prepared_statement.c`` in the source.
+
+Source Code
+^^^^^^^^^^^
+
+.. literalinclude:: ../../examples/prepared_statement.c
+   :language: c
+
+Breaking it Down
+^^^^^^^^^^^^^^^^
+
+As before we have the query using "?" placeholders representing the values to be filled in.  This time it will be the server filling in the values rather than libAttachSQL:
+
+.. code-block:: c
+
+   const char *query= "SELECT * FROM t1 WHERE name = ? AND age > ?";
+
+This time we need to send the query to the server in the prepare phase, we will loop until we know that the prepare is complete:
+
+.. code-block:: c
+
+   attachsql_statement_prepare(con, strlen(query), query, &error);
+   while((ret != ATTACHSQL_RETURN_EOF) && (error == NULL))
+   {
+     ret= attachsql_connect_poll(con, &error);
+   }
+
+Now to fill in the blanks, we use :c:func:`attachsql_statement_set_int` and :c:func:`attachsql_statement_set_string` to set the parameter data.  It is important to note that data pointed to in :c:func:`attachsql_statement_set_string` needs to stay in scope until after the execute phase has started returning results.
+
+.. code-block:: c
+
+   const char *name= "fred";
+   uint32_t age= 30;
+   attachsql_statement_set_string(con, 0, strlen(name), name, NULL);
+   attachsql_statement_set_int(con, 1, age, NULL);
+
+Once all the parameters have been set, the statement needs executing:
+
+.. code-block:: c
+
+   attachsql_statement_execute(con, &error);
+
+As with previous examples we loop until we get the result ``ATTACHSQL_RETURN_ROW_READY``.  At this point we use :c:func:`attachsql_statement_row_get` to process the row ready for retrieval.  The :c:func:`attachsql_statement_get_int` and :c:func:`attachsql_statement_get_char` functions will return the data, converting it if needed into the required type (if possible).
+
+.. code-block:: c
+
+   attachsql_statement_row_get(con, &error);
+   printf("ID: %d, ", attachsql_statement_get_int(con, 0, &error));
+   size_t len;
+   char *name_data= attachsql_statement_get_char(con, 1, &len, &error);
+   printf("Name: %.*s, ", (int)len, name_data);
+   printf("Age: %d\n", attachsql_statement_get_int(con, 2, &error));
+
+When we have finished with the row, a new one is requested.
+
+.. code-block:: c
+
+   attachsql_query_row_next(con);
+
+And finally instead of closing a query, we are closing a statement.
+
+.. code-block:: c
+
+   attachsql_statement_close(con);

@@ -19,3 +19,8 @@ noinst_PROGRAMS+= examples/buffered_query
 examples_escaped_query_SOURCES= examples/escaped_query.c
 examples_escaped_query_LDADD= src/asql/libattachsql.la
 noinst_PROGRAMS+= examples/escaped_query
+
+examples_prepared_statement_SOURCES= examples/prepared_statement.c
+examples_prepared_statement_LDADD= src/asql/libattachsql.la
+noinst_PROGRAMS+= examples/prepared_statement
+
