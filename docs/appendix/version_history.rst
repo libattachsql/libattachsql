@@ -4,9 +4,8 @@ Version History
 Version 0.5
 -----------
 
-Version 0.5.0 Beta (Not yet released)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
+Version 0.5.0 Beta (2014-10-08)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * Removed unused network blocking code (`Issue #72 <https://github.com/libattachsql/libattachsql/issues/72>`_)
 * Added support for ``NO_BACKSLASH_ESCAPES`` SQL mode (`Issue #63 <https://github.com/libattachsql/libattachsql/issues/63>`_)
