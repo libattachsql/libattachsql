@@ -25,6 +25,7 @@ Version 0.5.0 Beta (Not yet released)
 * Fixed bad internal state after :c:func:`attachsql_statement_close` (`Issue #106 <https://github.com/libattachsql/libattachsql/issues/106>`_)
 * Fixed double-free on close of second call oc :c:func:`attachsql_statement_close` (`Issue #107 <https://github.com/libattachsql/libattachsql/issues/107>`_)
 * Fixed minor memory leaks in prepared statements (`Issue #109 <https://github.com/libattachsql/libattachsql/issues/109>`_)
+* Added a prepared statement example (`Issue #80 <https://github.com/libattachsql/libattachsql/issues/80>`_)
 
 Incompatible changes
 """"""""""""""""""""
