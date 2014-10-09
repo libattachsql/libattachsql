@@ -7,6 +7,12 @@ Version 0.9
 Version 0.9.0 RC (Not yet Released)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Added three new API calls for prepared statements (`Issue #113 <https://github.com/libattachsql/libattachsql/issues/113>`_)
+
+  * :c:func:`attachsql_statement_get_column_type`
+  * :c:func:`attachsql_statement_row_next`
+  * :c:func:`attachsql_statement_get_column_count`
+
 Version 0.5
 -----------
 
@@ -28,7 +34,7 @@ Version 0.5.0 Beta (2014-10-08)
 * Fixed bad send/receive packets for :c:func:`attachsql_statement_close` (`Issue #102 <https://github.com/libattachsql/libattachsql/issues/102>`_ and `Issue #103 <https://github.com/libattachsql/libattachsql/issues/103>`_)
 * Fixed ``./configure --enable-debug`` breaking linkage with C applications (`Issue #104 <https://github.com/libattachsql/libattachsql/issues/104>`_)
 * Fixed bad internal state after :c:func:`attachsql_statement_close` (`Issue #106 <https://github.com/libattachsql/libattachsql/issues/106>`_)
-* Fixed double-free on close of second call oc :c:func:`attachsql_statement_close` (`Issue #107 <https://github.com/libattachsql/libattachsql/issues/107>`_)
+* Fixed double-free on close of second call to :c:func:`attachsql_statement_close` (`Issue #107 <https://github.com/libattachsql/libattachsql/issues/107>`_)
 * Fixed minor memory leaks in prepared statements (`Issue #109 <https://github.com/libattachsql/libattachsql/issues/109>`_)
 * Added a prepared statement example (`Issue #80 <https://github.com/libattachsql/libattachsql/issues/80>`_)
 
