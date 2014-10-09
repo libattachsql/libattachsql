@@ -107,6 +107,7 @@ void ascore_con_destroy(ascon_st *con)
 #endif
   if (con->uv_objects.stream != NULL)
   {
+    uv_check_stop(&con->uv_objects.check);
     uv_close((uv_handle_t*)con->uv_objects.stream, NULL);
     uv_run(con->uv_objects.loop, UV_RUN_DEFAULT);
   }
@@ -157,20 +158,24 @@ ascore_con_status_t ascore_con_poll(ascon_st *con)
     ascore_ssl_run(con);
   }
 #endif
-  // Make sure we aren't polling for something already in the buffer first
-  if (not ascore_con_process_packets(con))
+  if (con->options.semi_block)
   {
-    if (con->options.semi_block)
-    {
-      uv_run(con->uv_objects.loop, UV_RUN_ONCE);
-    }
-    else
-    {
-      uv_run(con->uv_objects.loop, UV_RUN_NOWAIT);
-    }
+    uv_run(con->uv_objects.loop, UV_RUN_ONCE);
+  }
+  else
+  {
+    uv_run(con->uv_objects.loop, UV_RUN_NOWAIT);
   }
 
   return con->status;
+}
+
+void ascore_check_for_data_cb(uv_check_t *handle, int status)
+{
+  (void) status;
+  asdebug("Check called");
+  struct ascon_st *con= (struct ascon_st*)handle->loop->data;
+  ascore_con_process_packets(con);
 }
 
 ascore_con_status_t ascore_connect(ascon_st *con)
@@ -218,6 +223,8 @@ ascore_con_status_t ascore_connect(ascon_st *con)
       con->options.protocol= ASCORE_CON_PROTOCOL_TCP;
     }
   }
+  uv_check_init(con->uv_objects.loop, &con->uv_objects.check);
+  uv_check_start(&con->uv_objects.check, ascore_check_for_data_cb);
   switch(con->options.protocol)
   {
     case ASCORE_CON_PROTOCOL_TCP:

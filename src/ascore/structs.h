@@ -219,6 +219,7 @@ struct ascon_st
   struct uv_objects_t
   {
     uv_loop_t *loop;
+    uv_check_t check;
     struct addrinfo hints;
     uv_getaddrinfo_t resolver;
     uv_connect_t connect_req;

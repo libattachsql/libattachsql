@@ -59,6 +59,8 @@ bool ascore_con_set_ssl(ascon_st *con, const char *key, const char *cert, const 
 int ascore_ssl_buffer_write(ascon_st *con, uv_buf_t *buf, int buf_len);
 #endif
 
+void ascore_check_for_data_cb(uv_check_t *handle, int status);
+
 #ifdef __cplusplus
 }
 #endif

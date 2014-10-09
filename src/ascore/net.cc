@@ -388,7 +388,6 @@ void ascore_read_data_cb(uv_stream_t* tcp, ssize_t read_size, const uv_buf_t buf
       asdebug("Got unencrypted data, %d bytes", r);
       ascore_buffer_move_write_ptr(buffer, r);
     }
-    ascore_con_process_packets(con);
     return;
   }
 #endif
