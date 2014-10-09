@@ -96,6 +96,14 @@ char *attachsql_statement_get_char(attachsql_connect_t *con, uint16_t column, si
 ASQL_API
 void attachsql_statement_close(attachsql_connect_t *con);
 
+ASQL_API
+attachsql_column_type_t attachsql_statement_get_column_type(attachsql_connect_t *con, uint16_t column);
+
+ASQL_API
+void attachsql_statement_row_next(attachsql_connect_t *con);
+
+ASQL_API
+uint16_t attachsql_statement_get_column_count(attachsql_connect_t *con);
 
 #ifdef __cplusplus
 }

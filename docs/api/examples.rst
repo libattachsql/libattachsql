@@ -250,7 +250,7 @@ When we have finished with the row, a new one is requested.
 
 .. code-block:: c
 
-   attachsql_query_row_next(con);
+   attachsql_statement_row_next(con);
 
 And finally instead of closing a query, we are closing a statement.
 

@@ -45,6 +45,7 @@ int main(int argc, char *argv[])
       ASSERT_FALSE_(true, "Error exists: %d", attachsql_error_code(error));
     }
   }
+  ASSERT_EQ_(2, attachsql_statement_get_param_count(con), "Wrong number of params");
   attachsql_statement_set_string(con, 0, 11, data2, NULL);
   attachsql_statement_set_int(con, 1, 123456, NULL);
   attachsql_statement_execute(con, &error);
@@ -54,7 +55,7 @@ int main(int argc, char *argv[])
     aret= attachsql_connect_poll(con, &error);
     if (aret == ATTACHSQL_RETURN_ROW_READY)
     {
-      columns= attachsql_query_column_count(con);
+      columns= attachsql_statement_get_column_count(con);
       attachsql_statement_row_get(con, &error);
       printf("Got %d columns\n", columns);
       size_t len;
@@ -62,13 +63,14 @@ int main(int argc, char *argv[])
       printf("Column 0: %.*s\n", (int)len, col_data);
       printf("Column 1: %d\n", attachsql_statement_get_int(con, 1, &error));
       ASSERT_EQ_(123456, attachsql_statement_get_int(con, 1, &error), "Column 1 result match fail");
+      ASSERT_EQ_(ATTACHSQL_COLUMN_TYPE_LONG, attachsql_statement_get_column_type(con, 1), "Column 1 type match fail");
       ASSERT_STREQL_("hello world", col_data, len, "Column 0 result match fail");
       col_data= attachsql_statement_get_char(con, 1, &len, &error);
       ASSERT_STREQL_("123456", col_data, len, "Column 0 str conversion fail");
       col_data= attachsql_statement_get_char(con, 2, &len, &error);
       printf("Column 2: %.*s\n", (int)len, col_data);
       ASSERT_STREQL_("2007-11-30 16:30:19", col_data, len, "Column 2 str conversion fail");
-      attachsql_query_row_next(con);
+      attachsql_statement_row_next(con);
     }
     if (error)
     {

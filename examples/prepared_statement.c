@@ -61,7 +61,7 @@ int main(void)
     char *name_data= attachsql_statement_get_char(con, 1, &len, &error);
     printf("Name: %.*s, ", (int)len, name_data);
     printf("Age: %d\n", attachsql_statement_get_int(con, 2, &error));
-    attachsql_query_row_next(con);
+    attachsql_statement_row_next(con);
   }
   if (error != NULL)
   {

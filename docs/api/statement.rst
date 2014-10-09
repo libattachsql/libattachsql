@@ -388,4 +388,38 @@ attachsql_statement_get_char()
 
    .. versionadded:: 0.4.0
 
+attachsql_statement_get_column_type()
+-------------------------------------
 
+.. c:function:: attachsql_column_type_t attachsql_statement_get_column_type(attachsql_connect_t *con, uint16_t column)
+
+   Retrieves the data type for a given column in a prepared statement result set.
+
+   :param con: The connection the statement is on
+   :param column: The column number to get the data type of
+   :returns: The column type or ``ATTACHSQL_COLUMN_TYPE_ERROR`` if any parameter is invalid
+
+   .. versionadded:: 0.9.0
+
+attachsql_statement_row_next()
+------------------------------
+
+.. c:function:: void attachsql_statement_row_next(attachsql_connect_t *con)
+
+   Start retrieving the next row in a statement result set.  This will return immediately and calls to :c:func:`attachsql_connect_poll` will retrieve the row until ``ATTACHSQL_RETURN_ROW_READY`` is returned.  This should not be used for the first row, but every subsequent row.
+
+   :param con: The connection the statement is on
+
+   .. versionadded:: 0.9.0
+
+attachsql_statement_get_column_count()
+--------------------------------------
+
+.. c:function:: uint16_t attachsql_statement_get_column_count(attachsql_connect_t *con)
+
+   Returns the number of columns in a statement result
+
+  :param con: The connection object the statement is on
+  :returns: The column count or ``0`` if there is no active statement
+
+  .. versionadded:: 0.9.0
