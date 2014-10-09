@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
     aret= attachsql_connect_poll(con, &error);
     if (aret == ATTACHSQL_RETURN_ROW_READY)
     {
-      columns= attachsql_query_column_count(con);
+      columns= attachsql_statement_get_column_count(con);
       attachsql_statement_row_get(con, &error);
       printf("Got %d columns\n", columns);
       size_t len;
@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
       col_data= attachsql_statement_get_char(con, 2, &len, &error);
       printf("Column 2: %.*s\n", (int)len, col_data);
       ASSERT_STREQL_("2007-11-30 16:30:19", col_data, len, "Column 2 str conversion fail");
-      attachsql_query_row_next(con);
+      attachsql_statement_row_next(con);
     }
     if (error)
     {
@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
     aret= attachsql_connect_poll(con, &error);
     if (aret == ATTACHSQL_RETURN_ROW_READY)
     {
-      columns= attachsql_query_column_count(con);
+      columns= attachsql_statement_get_column_count(con);
       attachsql_statement_row_get(con, &error);
       printf("Got %d columns\n", columns);
       size_t len;
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
       col_data= attachsql_statement_get_char(con, 2, &len, &error);
       printf("Column 2: %.*s\n", (int)len, col_data);
       ASSERT_STREQL_("2007-11-30 16:30:19", col_data, len, "Column 2 str conversion fail");
-      attachsql_query_row_next(con);
+      attachsql_statement_row_next(con);
     }
     if (error)
     {

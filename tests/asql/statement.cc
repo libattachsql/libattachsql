@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
       columns= attachsql_query_column_count(con);
       attachsql_statement_row_get(con, &error);
       printf("Got %d columns\n", columns);
-      attachsql_query_row_next(con);
+      attachsql_statement_row_next(con);
     }
     if (error)
     {

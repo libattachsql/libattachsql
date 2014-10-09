@@ -1065,3 +1065,37 @@ void attachsql_statement_close(attachsql_connect_t *con)
   con->stmt= NULL;
 }
 
+attachsql_column_type_t attachsql_statement_get_column_type(attachsql_connect_t *con, uint16_t column)
+{
+  if (con == NULL)
+  {
+    return ATTACHSQL_COLUMN_TYPE_ERROR;
+  }
+
+  if (column >= con->core_con->result.column_count)
+  {
+    return ATTACHSQL_COLUMN_TYPE_ERROR;
+  }
+
+  return (attachsql_column_type_t)con->core_con->result.columns[column].type;
+}
+
+void attachsql_statement_row_next(attachsql_connect_t *con)
+{
+  if (con == NULL)
+  {
+    return;
+  }
+  ascore_get_next_row(con->core_con);
+}
+
+uint16_t attachsql_statement_get_column_count(attachsql_connect_t *con)
+{
+  if (con == NULL)
+  {
+    return 0;
+  }
+
+  return con->core_con->result.column_count;
+}
+
