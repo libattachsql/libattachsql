@@ -69,12 +69,12 @@ void attachsql_connect_destroy(attachsql_connect_t *con)
 
   if (con->core_con != NULL)
   {
+    bool in_group= con->core_con->in_group;
     ascore_con_destroy(con->core_con);
-  }
-
-  if (not con->core_con->in_group)
-  {
-    delete con;
+    if (not in_group)
+    {
+      delete con;
+    }
   }
 }
 
