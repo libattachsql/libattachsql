@@ -28,7 +28,7 @@ attachsql_connect_t *attachsql_connect_create(const char *host, in_port_t port, 
   con= new (std::nothrow) attachsql_connect_t;
   if (con == NULL)
   {
-    attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "No connection provided");
+    attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "82100", "Allocation failure for connection object");
     return NULL;
   }
   con->core_con= ascore_con_create(host, port, user, pass, schema);
@@ -72,7 +72,10 @@ void attachsql_connect_destroy(attachsql_connect_t *con)
     ascore_con_destroy(con->core_con);
   }
 
-  delete con;
+  if (not con->core_con->in_group)
+  {
+    delete con;
+  }
 }
 
 void attachsql_connect_set_callback(attachsql_connect_t *con, attachsql_callback_fn *function, void *context)
@@ -109,8 +112,14 @@ attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_er
     attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Invalid connection object");
     return ATTACHSQL_RETURN_ERROR;
   }
-
-  status= ascore_con_poll(con->core_con);
+  if (not con->core_con->in_group)
+  {
+    status= ascore_con_poll(con->core_con);
+  }
+  else
+  {
+    status= con->core_con->status;
+  }
 
   switch (status)
   {
@@ -118,7 +127,7 @@ attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_er
       attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Bad parameter");
       if (con->callback_fn != NULL)
       {
-        con->callback_fn(con, ATTACHSQL_EVENT_ERROR, con->callback_context);
+        con->callback_fn(con, ATTACHSQL_EVENT_ERROR, con->callback_context, *error);
       }
       return ATTACHSQL_RETURN_ERROR;
       break;
@@ -150,7 +159,7 @@ attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_er
       }
       if (con->callback_fn != NULL)
       {
-        con->callback_fn(con, ATTACHSQL_EVENT_ERROR, con->callback_context);
+        con->callback_fn(con, ATTACHSQL_EVENT_ERROR, con->callback_context, *error);
       }
       return ATTACHSQL_RETURN_ERROR;
       break;
@@ -159,6 +168,10 @@ attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_er
       break;
     case ASCORE_CON_STATUS_SSL_ERROR:
       attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_SSL, ATTACHSQL_ERROR_LEVEL_ERROR, "08000", con->core_con->errmsg);
+      if (con->callback_fn != NULL)
+      {
+        con->callback_fn(con, ATTACHSQL_EVENT_ERROR, con->callback_context, *error);
+      }
       return ATTACHSQL_RETURN_ERROR;
       break;
     case ASCORE_CON_STATUS_IDLE:
@@ -166,15 +179,20 @@ attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_er
       {
         // Server error during query
         attachsql_error_server_create(con, error);
+        if (con->callback_fn != NULL)
+        {
+          con->callback_fn(con, ATTACHSQL_EVENT_ERROR, con->callback_context, *error);
+        }
         return ATTACHSQL_RETURN_ERROR;
       }
       else if (con->core_con->command_status == ASCORE_COMMAND_STATUS_EOF)
       {
         if (con->callback_fn != NULL)
         {
-          con->callback_fn(con, ATTACHSQL_EVENT_EOF, con->callback_context);
+          con->callback_fn(con, ATTACHSQL_EVENT_EOF, con->callback_context, NULL);
         }
         con->all_rows_buffered= true;
+        con->core_con->command_status= ASCORE_COMMAND_STATUS_NONE;
         return ATTACHSQL_RETURN_EOF;
       }
       else if (con->core_con->command_status == ASCORE_COMMAND_STATUS_ROW_IN_BUFFER)
@@ -187,7 +205,7 @@ attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_er
         {
           if (con->callback_fn != NULL)
           {
-            con->callback_fn(con, ATTACHSQL_EVENT_ROW_READY, con->callback_context);
+            con->callback_fn(con, ATTACHSQL_EVENT_ROW_READY, con->callback_context, NULL);
           }
           return ATTACHSQL_RETURN_ROW_READY;
         }
@@ -196,7 +214,7 @@ attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_er
       {
         if (con->callback_fn != NULL)
         {
-          con->callback_fn(con, ATTACHSQL_EVENT_CONNECTED, con->callback_context);
+          con->callback_fn(con, ATTACHSQL_EVENT_CONNECTED, con->callback_context, NULL);
         }
         if (con->query_buffer_length > 0)
         {
@@ -245,7 +263,7 @@ bool attachsql_connect(attachsql_connect_t *con, attachsql_error_t **error)
       attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Bad parameter");
       if (con->callback_fn != NULL)
       {
-        con->callback_fn(con, ATTACHSQL_EVENT_ERROR, con->callback_context);
+        con->callback_fn(con, ATTACHSQL_EVENT_ERROR, con->callback_context, *error);
       }
       return false;
       break;
@@ -278,7 +296,7 @@ bool attachsql_connect(attachsql_connect_t *con, attachsql_error_t **error)
       }
       if (con->callback_fn != NULL)
       {
-        con->callback_fn(con, ATTACHSQL_EVENT_ERROR, con->callback_context);
+        con->callback_fn(con, ATTACHSQL_EVENT_ERROR, con->callback_context, *error);
       }
       return false;
       break;
@@ -289,12 +307,17 @@ bool attachsql_connect(attachsql_connect_t *con, attachsql_error_t **error)
     case ASCORE_CON_STATUS_IDLE:
       if ((con->core_con->command_status == ASCORE_COMMAND_STATUS_CONNECTED) and (con->callback_fn != NULL))
       {
-        con->callback_fn(con, ATTACHSQL_EVENT_CONNECTED, con->callback_context);
+        con->callback_fn(con, ATTACHSQL_EVENT_CONNECTED, con->callback_context, NULL);
       }
       return true;
       break;
     case ASCORE_CON_STATUS_SSL_ERROR:
       attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_SSL, ATTACHSQL_ERROR_LEVEL_ERROR, "08000", con->core_con->errmsg);
+      if (con->callback_fn != NULL)
+      {
+        con->callback_fn(con, ATTACHSQL_EVENT_ERROR, con->callback_context, *error);
+      }
+
       return false;
       break;
 

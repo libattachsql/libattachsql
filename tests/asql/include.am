@@ -153,3 +153,14 @@ endif
 check_PROGRAMS+= t/asql/query_semi_block
 noinst_PROGRAMS+= t/asql/query_semi_block
 
+t_asql_group_SOURCES= tests/asql/group.cc
+t_asql_group_LDADD= src/asql/libattachsql.la
+if BUILD_WIN32
+t_asql_group_LDADD+= -lws2_32
+t_asql_group_LDADD+= -lpsapi
+t_asql_group_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/asql/group
+noinst_PROGRAMS+= t/asql/group
+
+

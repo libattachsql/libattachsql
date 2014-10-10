@@ -270,6 +270,7 @@ struct ascon_st
 #endif
   bool in_statement;
   ascore_stmt_st *stmt;
+  bool in_group;
 
   ascon_st() :
     host(NULL),
@@ -301,7 +302,8 @@ struct ascon_st
     compressed_buffer_len(0),
     compressed_packet_number(0),
     in_statement(false),
-    stmt(NULL)
+    stmt(NULL),
+    in_group(false)
   {
     str_port[0]= '\0';
     errmsg[0]= '\0';

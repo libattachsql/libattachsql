@@ -6,6 +6,7 @@ nobase_include_HEADERS+= libattachsql-1.0/attachsql.h
 nobase_include_HEADERS+= libattachsql-1.0/connect.h
 nobase_include_HEADERS+= libattachsql-1.0/constants.h
 nobase_include_HEADERS+= libattachsql-1.0/error.h
+nobase_include_HEADERS+= libattachsql-1.0/group.h
 nobase_include_HEADERS+= libattachsql-1.0/query.h
 nobase_include_HEADERS+= libattachsql-1.0/utility.h
 nobase_include_HEADERS+= libattachsql-1.0/statement.h

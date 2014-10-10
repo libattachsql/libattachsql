@@ -17,25 +17,26 @@
 
 #pragma once
 
-#include <stdint.h>
-#include <stddef.h>
-#include <stdbool.h>
-#include <inttypes.h>
-#ifdef _WIN32
-
-typedef uint16_t in_port_t;
-
-#else
-# include <arpa/inet.h>
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-/* These three need to go first, in this order */
-#include <libattachsql-1.0/visibility.h>
-#include <libattachsql-1.0/error.h>
-#include <libattachsql-1.0/constants.h>
+struct attachsql_group_t;
+typedef struct attachsql_group_t attachsql_group_t;
 
-#include <libattachsql-1.0/connect.h>
-#include <libattachsql-1.0/group.h>
-#include <libattachsql-1.0/query.h>
-#include <libattachsql-1.0/statement.h>
-#include <libattachsql-1.0/utility.h>
+ASQL_API
+attachsql_group_t *attachsql_group_create(attachsql_error_t **error);
+
+ASQL_API
+void attachsql_group_destroy(attachsql_group_t *group);
+
+ASQL_API
+void attachsql_group_add_connection(attachsql_group_t *group, attachsql_connect_t *con, attachsql_error_t **error);
+
+ASQL_API
+void attachsql_group_run(attachsql_group_t *group);
+
+#ifdef __cplusplus
+}
+#endif
+
