@@ -257,3 +257,108 @@ And finally instead of closing a query, we are closing a statement.
 .. code-block:: c
 
    attachsql_statement_close(con);
+
+Group Conncetions
+-----------------
+
+libAttachSQL has the ability to group several connections into a single event loop.  This makes this more efficient for many connections on a single thread.  There is a slightly different access pattern for this which relies on callback.
+
+In this example we will make three simultaneous queries to the server on three connections in a single connection group.  All three will be executed in parallel and as such will return in a random order.  The example file can be found at ``examples/group_query.c``.
+
+Source Code
+^^^^^^^^^^^
+
+.. literalinclude:: ../../examples/prepared_statement.c
+   :language: c
+
+Breaking it Down
+^^^^^^^^^^^^^^^^
+
+First we create the group object which the connections will be attached to:
+
+.. code-block:: c
+
+   group= attachsql_group_create(NULL);
+
+Then we create the connections, add the connections to the group and set the callback function for the connections.  This is repeated 3 times, once for every connection:
+
+.. code-block:: c
+
+   con[0]= attachsql_connect_create("localhost", 3306, "test", "test", "testdb", NULL);
+   attachsql_group_add_connection(group, con[0], &error);
+   attachsql_connect_set_callback(con[0], callbk, &con_no[0]);
+
+We can now send a query to each of these connections:
+
+.. code-block:: c
+
+   const char *query1= "SELECT * FROM t1 WHERE name='fred'";
+   const char *query2= "SELECT * FROM t1 WHERE age >= 40";
+   const char *query3= "SELECT * FROM t1 WHERE age < 40";
+   ...
+   attachsql_query(con[0], strlen(query1), query1, 0, NULL, &error);
+   attachsql_query(con[1], strlen(query2), query2, 0, NULL, &error);
+   attachsql_query(con[2], strlen(query3), query3, 0, NULL, &error);
+
+The group method uses callbacks instead of polling and checking the results.  So you only need to run the group event loop whenever ready.  This is non-blocking and will only fire a callback if there is data ready:
+
+.. code-block:: c
+
+   while(done_count < 3)
+   {
+     attachsql_group_run(group);
+   }
+
+When there is an event to be triggered such as a row ready in the buffer the callback is triggered:
+
+.. code-block:: c
+
+   void callbk(attachsql_connect_t *current_con, attachsql_events_t events, void *context, attachsql_error_t *error)
+
+In this callback function we are using a switch statement to find out which event was fired and act appropriately.  The connected event fires when connection and handshake is complete:
+
+.. code-block:: c
+
+   case ATTACHSQL_EVENT_CONNECTED:
+     printf("Connected event on con %d\n", *con_no);
+     break;
+
+The error event fires when an error occurs.  It is up to the application to clean up the error:
+
+.. code-block:: c
+
+   case ATTACHSQL_EVENT_ERROR:
+     printf("Error exists on con %d: %d", *con_no, attachsql_error_code(error));
+     attachsql_error_free(error);
+     break;
+
+The EOF event fires when we have reached the end of the query results:
+
+.. code-block:: c
+
+   case ATTACHSQL_EVENT_EOF:
+     printf("Connection %d finished\n", *con_no);
+     done_count++;
+     attachsql_query_close(current_con);
+
+Finally the row ready event fires when a row is ready for processing in the buffer:
+
+.. code-block:: c
+
+   case ATTACHSQL_EVENT_ROW_READY:
+     row= attachsql_query_row_get(current_con, &error);
+     columns= attachsql_query_column_count(current_con);
+     for (col=0; col < columns; col++)
+     {
+       printf("Con: %d, Column: %d, Length: %zu, Data: %.*s ", *con_no, col, row[col].length, (int)row[col].length, row[col].data);
+     }
+     attachsql_query_row_next(current_con);
+     printf("\n");
+     break;
+
+After the main while() loop has finished the group needs to be destroyed.  This will cleanup all underlying connections:
+
+.. code-block:: c
+
+   attachsql_group_destroy(group);
+    break;
