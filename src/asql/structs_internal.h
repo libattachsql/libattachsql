@@ -105,6 +105,19 @@ struct attachsql_error_t
   }
 };
 
+struct attachsql_group_t
+{
+  attachsql_connect_t **connections;
+  size_t connection_count;
+  uv_loop_t *loop;
+
+  attachsql_group_t() :
+    connections(NULL),
+    connection_count(0),
+    loop(NULL)
+  { }
+
+};
 
 #ifdef __cplusplus
 }

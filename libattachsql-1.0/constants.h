@@ -35,7 +35,7 @@ enum attachsql_events_t
 
 typedef enum attachsql_events_t attachsql_events_t;
 
-typedef void (attachsql_callback_fn)(attachsql_connect_t *con, attachsql_events_t events, void *context);
+typedef void (attachsql_callback_fn)(attachsql_connect_t *con, attachsql_events_t events, void *context, attachsql_error_t *error);
 
 enum attachsql_return_t
 {

@@ -24,3 +24,8 @@ examples_prepared_statement_SOURCES= examples/prepared_statement.c
 examples_prepared_statement_LDADD= src/asql/libattachsql.la
 noinst_PROGRAMS+= examples/prepared_statement
 
+examples_group_query_SOURCES= examples/group_query.c
+examples_group_query_LDADD= src/asql/libattachsql.la
+noinst_PROGRAMS+= examples/group_query
+
+

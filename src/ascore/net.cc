@@ -340,7 +340,7 @@ void ascore_send_compressed_packet(ascon_st *con, char *data, size_t length, uin
 
 void on_write(uv_write_t *req, int status)
 {
-  ascon_st *con= (ascon_st*)req->handle->loop->data;
+  ascon_st *con= (ascon_st*)req->handle->data;
   asdebug("Write callback, status: %d", status);
 
   if (con->next_packet_type == ASCORE_PACKET_TYPE_NONE)
@@ -361,7 +361,7 @@ void on_write(uv_write_t *req, int status)
 void ascore_read_data_cb(uv_stream_t* tcp, ssize_t read_size, const uv_buf_t buf)
 {
   (void) buf;
-  struct ascon_st *con= (struct ascon_st*)tcp->loop->data;
+  struct ascon_st *con= (struct ascon_st*)tcp->data;
 
 #ifdef HAVE_OPENSSL
   if (con->ssl.handshake_done)
@@ -388,7 +388,6 @@ void ascore_read_data_cb(uv_stream_t* tcp, ssize_t read_size, const uv_buf_t buf
       asdebug("Got unencrypted data, %d bytes", r);
       ascore_buffer_move_write_ptr(buffer, r);
     }
-    ascore_con_process_packets(con);
     return;
   }
 #endif

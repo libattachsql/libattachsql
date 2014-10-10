@@ -12,6 +12,10 @@ Basic Types
 
    An error object allocated by many functions in the library and needs to be freed by the user using :c:func:`attachsql_error_free`.
 
+.. c:type:: attachsql_group_t
+
+   An object containing a group of connections to be executed using the same event loop.
+
 Builtin Types
 -------------
 
@@ -163,11 +167,12 @@ Callbacks
 
    A callback function template for use with :c:func:`attachsql_connect_set_callback`.  Defined as:
 
-   .. c:function:: void (attachsql_callback_fn)(attachsql_connect_t *con, attachsql_events_t events, void *context)
+   .. c:function:: void (attachsql_callback_fn)(attachsql_connect_t *con, attachsql_events_t events, void *context, attachsql_error_t *error)
 
       :param con: The connection object
       :param events: The event triggered
       :param context: A user defined pointer which is set along with the callback
+      :param error: An error object (if an error occurred)
 
 ENUMs
 -----

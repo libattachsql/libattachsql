@@ -13,6 +13,17 @@ Version 0.9.0 RC (Not yet Released)
   * :c:func:`attachsql_statement_row_next`
   * :c:func:`attachsql_statement_get_column_count`
 
+* Added new connection groups feature (`Issue #115 <https://github.com/libattachsql/libattachsql/issues/115>`_)
+
+  * Changed :c:type:`attachsql_callback_fn` to include an error object. **THIS BREAKS API OVER 0.5.0**
+  * Added :c:type:`attachsql_group_t`
+  * Added :c:func:`attachsql_group_create`
+  * Added :c:func:`attachsql_group_destroy`
+  * Added :c:func:`attachsql_group_add_connection`
+  * Added :c:func:`attachsql_group_run`
+  * Packet processing is now part of the event loop
+  * Added example
+
 Version 0.5
 -----------
 

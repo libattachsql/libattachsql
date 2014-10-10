@@ -107,16 +107,23 @@ void ascore_con_destroy(ascon_st *con)
 #endif
   if (con->uv_objects.stream != NULL)
   {
+    uv_check_stop(&con->uv_objects.check);
     uv_close((uv_handle_t*)con->uv_objects.stream, NULL);
-    uv_run(con->uv_objects.loop, UV_RUN_DEFAULT);
+    if (not con->in_group)
+    {
+      uv_run(con->uv_objects.loop, UV_RUN_DEFAULT);
+    }
   }
-  uv_loop_delete(con->uv_objects.loop);
-  delete con;
+  if (not con->in_group)
+  {
+    uv_loop_delete(con->uv_objects.loop);
+    delete con;
+  }
 }
 
 void on_resolved(uv_getaddrinfo_t *resolver, int status, struct addrinfo *res)
 {
-  ascon_st *con= (ascon_st *)resolver->loop->data;
+  ascon_st *con= (ascon_st *)resolver->data;
 
   asdebug("Resolver callback");
   if (status != 0)
@@ -132,7 +139,7 @@ void on_resolved(uv_getaddrinfo_t *resolver, int status, struct addrinfo *res)
   uv_ip4_name((struct sockaddr_in*) res->ai_addr, addr, 16);
   asdebug("DNS lookup success: %s", addr);
   uv_tcp_init(resolver->loop, &con->uv_objects.socket.tcp);
-
+  con->uv_objects.socket.tcp.data= con;
   con->uv_objects.connect_req.data= (void*) &con->uv_objects.socket.tcp;
   uv_tcp_connect(&con->uv_objects.connect_req, &con->uv_objects.socket.tcp, *(struct sockaddr_in*) res->ai_addr, on_connect);
 
@@ -157,20 +164,24 @@ ascore_con_status_t ascore_con_poll(ascon_st *con)
     ascore_ssl_run(con);
   }
 #endif
-  // Make sure we aren't polling for something already in the buffer first
-  if (not ascore_con_process_packets(con))
+  if (con->options.semi_block)
   {
-    if (con->options.semi_block)
-    {
-      uv_run(con->uv_objects.loop, UV_RUN_ONCE);
-    }
-    else
-    {
-      uv_run(con->uv_objects.loop, UV_RUN_NOWAIT);
-    }
+    uv_run(con->uv_objects.loop, UV_RUN_ONCE);
+  }
+  else
+  {
+    uv_run(con->uv_objects.loop, UV_RUN_NOWAIT);
   }
 
   return con->status;
+}
+
+void ascore_check_for_data_cb(uv_check_t *handle, int status)
+{
+  (void) status;
+  asdebug("Check called");
+  struct ascon_st *con= (struct ascon_st*)handle->data;
+  ascore_con_process_packets(con);
 }
 
 ascore_con_status_t ascore_connect(ascon_st *con)
@@ -192,7 +203,10 @@ ascore_con_status_t ascore_connect(ascon_st *con)
     return con->status;
   }
 
-  con->uv_objects.loop= uv_loop_new();
+  if (not con->in_group)
+  {
+    con->uv_objects.loop= uv_loop_new();
+  }
   if (con->uv_objects.loop == NULL)
   {
     asdebug("Loop initalize failure");
@@ -201,8 +215,6 @@ ascore_con_status_t ascore_connect(ascon_st *con)
     con->status= ASCORE_CON_STATUS_CONNECT_FAILED;
     return con->status;
   }
-
-  con->uv_objects.loop->data= con;
 
   snprintf(con->str_port, 6, "%d", con->port);
   // If port is 0 and no explicit option set then assume we mean UDS
@@ -223,6 +235,7 @@ ascore_con_status_t ascore_connect(ascon_st *con)
     case ASCORE_CON_PROTOCOL_TCP:
       asdebug("TCP connection");
       asdebug("Async DNS lookup: %s", con->host);
+      con->uv_objects.resolver.data= con;
       ret= uv_getaddrinfo(con->uv_objects.loop, &con->uv_objects.resolver, on_resolved, con->host, con->str_port, &con->uv_objects.hints);
       if (ret)
       {
@@ -245,6 +258,7 @@ ascore_con_status_t ascore_connect(ascon_st *con)
     case ASCORE_CON_PROTOCOL_UDS:
       asdebug("UDS connection");
       uv_pipe_init(con->uv_objects.loop, &con->uv_objects.socket.uds, 1);
+      con->uv_objects.socket.uds.data= con;
       con->uv_objects.connect_req.data= (void*) &con->uv_objects.socket.uds;
       con->status= ASCORE_CON_STATUS_CONNECTING;
       uv_pipe_connect(&con->uv_objects.connect_req, &con->uv_objects.socket.uds, con->host, on_connect);
@@ -268,7 +282,7 @@ ascore_con_status_t ascore_connect(ascon_st *con)
 
 void on_connect(uv_connect_t *req, int status)
 {
-  ascon_st *con= (ascon_st*)req->handle->loop->data;
+  ascon_st *con= (ascon_st*)req->handle->data;
   asdebug("Connect event callback");
   if (status != 0)
   {
@@ -282,6 +296,9 @@ void on_connect(uv_connect_t *req, int status)
   con->next_packet_type= ASCORE_PACKET_TYPE_HANDSHAKE;
   // maybe move the set con->stream to connect function
   con->uv_objects.stream= (uv_stream_t*)req->data;
+  uv_check_init(con->uv_objects.loop, &con->uv_objects.check);
+  con->uv_objects.check.data= con;
+  uv_check_start(&con->uv_objects.check, ascore_check_for_data_cb);
   uv_read_start((uv_stream_t*)req->data, on_alloc, ascore_read_data_cb);
 }
 
@@ -289,7 +306,7 @@ uv_buf_t on_alloc(uv_handle_t *client, size_t suggested_size)
 {
   size_t buffer_free;
   uv_buf_t buf;
-  ascon_st *con= (ascon_st*) client->loop->data;
+  ascon_st *con= (ascon_st*) client->data;
 
 #ifdef HAVE_OPENSSL
   if (con->ssl.handshake_done && (con->ssl.bio_buffer_size < suggested_size))

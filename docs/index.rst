@@ -24,6 +24,7 @@ API Documentation
    api/connection
    api/query
    api/statement
+   api/group
    api/error
    api/utility
    api/compiling
