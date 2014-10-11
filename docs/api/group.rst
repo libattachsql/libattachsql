@@ -53,6 +53,9 @@ attachsql_group_run()
 
    Runs the event loop for the connection group, firing the callbacks if any event has occurred.
 
+   .. warning::
+      This function is not reentrant, trying to call it on the same group with two threads will invoke undefined behaviour — it may block the process indefinitely, it may eat all your laundry, it will probably crash
+
    :param group: The connection group to run
 
    .. versionadded:: 0.9.0
