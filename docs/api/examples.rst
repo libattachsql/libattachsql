@@ -268,7 +268,7 @@ In this example we will make three simultaneous queries to the server on three c
 Source Code
 ^^^^^^^^^^^
 
-.. literalinclude:: ../../examples/prepared_statement.c
+.. literalinclude:: ../../examples/group_query.c
    :language: c
 
 Breaking it Down
