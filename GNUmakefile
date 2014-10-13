@@ -16,11 +16,11 @@ else
 .DEFAULT_GOAL:= basic_build
 srcdir= .
 
-configure: bootstrap.sh
-	@$(srcdir)/bootstrap.sh -a
+configure:
+	@autoreconf -fi
 
 Makefile: configure
-	@$(srcdir)/bootstrap.sh -c
+	@$(srcdir)/configure
 
 .PHONY: basic_build
 basic_build: Makefile

@@ -24,6 +24,8 @@ Version 0.9.0 RC (Not yet Released)
   * Packet processing is now part of the event loop
   * Added example
 
+* Remove bootstrap.sh file, autoreconf should be used instead
+
 Version 0.5
 -----------
 

@@ -50,13 +50,7 @@ And Ubuntu:
 Building
 --------
 
-To build libAttachSQL simply run::
-
-   ./bootstrap.sh
-
-This will generate required Makefiles and build the library ready for installation.
-
-Aternatively on most systems you can use the following commands, this is especially useful for customising your install::
+On most systems you can use the following commands, this is especially useful for customising your install::
 
    autoreconf -fi
    ./configure
@@ -88,9 +82,11 @@ It is possible to use Fedora Linux to cross-compile using MinGW for 64bit Window
       sudo cp include/uv.h /usr/x86_64-w64-mingw32/sys-root/mingw/include/
       sudo cp -a include/uv-private/ /usr/x86_64-w64-mingw32/sys-root/mingw/include/
 
-#. Execute the bootstrap file in MinGW mode::
+#. Configure and build in MinGW mode::
 
-      ./bootstrap.sh mingw
+      autoreconf -fi
+      mingw64-configure --disable-shared --enable-static
+      mingw64-make
 
 Testing
 -------
@@ -131,6 +127,7 @@ The build system for libAttachSQL has the capability to build RPMs.  To build RP
 
 .. code-block:: bash
 
-   ./bootstrap.sh
+   autoreconf -fi
+   ./configure
    make dist-rpm
 
