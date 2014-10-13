@@ -16,6 +16,11 @@ libattachsql
 * Waffle.io: |waffle|
 * Read The Docs status: |docs|
 
-.. warning::
+Compiling
+---------
 
-   **THIS PROJECT IS CURRENTLY IN BETA, API MAY CHANGE**
+.. code-block:: bash
+
+   autoreconf -fi
+   ./configure
+   make
