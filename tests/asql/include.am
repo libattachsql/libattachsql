@@ -10,6 +10,11 @@
 
 t_asql_version_SOURCES= tests/asql/version.cc
 t_asql_version_LDADD= src/asql/libattachsql.la
+if BUILD_WIN32
+t_asql_version_LDADD+= -lws2_32
+t_asql_version_LDADD+= -lpsapi
+t_asql_version_LDADD+= -liphlpapi
+endif
 check_PROGRAMS+= t/asql/version
 noinst_PROGRAMS+= t/asql/version
 
