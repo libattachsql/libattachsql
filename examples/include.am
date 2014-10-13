@@ -10,22 +10,53 @@
 
 examples_basic_query_SOURCES= examples/basic_query.c
 examples_basic_query_LDADD= src/asql/libattachsql.la
+if BUILD_WIN32
+examples_basic_query_LDADD+= -lws2_32
+examples_basic_query_LDADD+= -lpsapi
+examples_basic_query_LDADD+= -liphlpapi
+examples_basic_query_LDADD+= -lstdc++
+endif
 noinst_PROGRAMS+= examples/basic_query
 
 examples_buffered_query_SOURCES= examples/buffered_query.c
 examples_buffered_query_LDADD= src/asql/libattachsql.la
+if BUILD_WIN32
+examples_buffered_query_LDADD+= -lws2_32
+examples_buffered_query_LDADD+= -lpsapi
+examples_buffered_query_LDADD+= -liphlpapi
+examples_buffered_query_LDADD+= -lstdc++
+endif
 noinst_PROGRAMS+= examples/buffered_query
 
 examples_escaped_query_SOURCES= examples/escaped_query.c
 examples_escaped_query_LDADD= src/asql/libattachsql.la
+if BUILD_WIN32
+examples_escaped_query_LDADD+= -lws2_32
+examples_escaped_query_LDADD+= -lpsapi
+examples_escaped_query_LDADD+= -liphlpapi
+examples_escaped_query_LDADD+= -lstdc++
+endif
 noinst_PROGRAMS+= examples/escaped_query
 
 examples_prepared_statement_SOURCES= examples/prepared_statement.c
 examples_prepared_statement_LDADD= src/asql/libattachsql.la
+if BUILD_WIN32
+examples_prepared_statement_LDADD+= -lws2_32
+examples_prepared_statement_LDADD+= -lpsapi
+examples_prepared_statement_LDADD+= -liphlpapi
+examples_prepared_statement_LDADD+= -lstdc++
+endif
 noinst_PROGRAMS+= examples/prepared_statement
 
 examples_group_query_SOURCES= examples/group_query.c
 examples_group_query_LDADD= src/asql/libattachsql.la
+if BUILD_WIN32
+examples_group_query_LDADD+= -lws2_32
+examples_group_query_LDADD+= -lpsapi
+examples_group_query_LDADD+= -liphlpapi
+examples_group_query_CFLAGS= -D__USE_MINGW_ANSI_STDIO
+examples_group_query_LDADD+= -lstdc++
+endif
 noinst_PROGRAMS+= examples/group_query
 
 

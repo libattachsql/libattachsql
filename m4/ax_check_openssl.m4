@@ -32,7 +32,7 @@
 #   and this notice are preserved. This file is offered as-is, without any
 #   warranty.
 
-#serial 8
+#serial 9
 
 AU_ALIAS([CHECK_SSL], [AX_CHECK_OPENSSL])
 AC_DEFUN([AX_CHECK_OPENSSL], [
@@ -111,9 +111,11 @@ AC_DEFUN([AX_CHECK_OPENSSL], [
             AC_MSG_RESULT([yes])
             $1
         ], [
+            OPENSSL_LIBS=""
             AC_MSG_RESULT([no])
             $2
         ])
+
     CPPFLAGS="$save_CPPFLAGS"
     LDFLAGS="$save_LDFLAGS"
     LIBS="$save_LIBS"

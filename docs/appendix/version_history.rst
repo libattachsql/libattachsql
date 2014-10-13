@@ -24,7 +24,8 @@ Version 0.9.0 RC (Not yet Released)
   * Packet processing is now part of the event loop
   * Added example
 
-* Remove bootstrap.sh file, autoreconf should be used instead
+* Remove bootstrap.sh file, autoreconf should be used instead (`Issue #66 <https://github.com/libattachsql/libattachsql/issues/66>`_)
+* Fix MinGW compiling issues (`Issue #118 <https://github.com/libattachsql/libattachsql/issues/118>`_)
 
 Version 0.5
 -----------

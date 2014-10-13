@@ -88,6 +88,12 @@ It is possible to use Fedora Linux to cross-compile using MinGW for 64bit Window
       mingw64-configure --disable-shared --enable-static
       mingw64-make
 
+With Arch Linux the MinGW sysroot to copy files to is ``/usr/x86_64-w64-mingw32/`` without the ``sys-root/mingw`` on the end and to compile::
+
+   autoreconf -fi
+   ./configure --prefix=/usr/x86_64-w64-mingw32/ --with-sysroot=/usr/x86_64-w64-mingw32/ --host=x86_64-w64-mingw32
+   make
+
 Testing
 -------
 
