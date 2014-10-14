@@ -21,17 +21,41 @@
 extern "C" {
 #endif
 
-ASQL_API
-attachsql_group_t *attachsql_group_create(attachsql_error_t **error);
+struct attachsql_query_parameter_st
+{
+  attachsql_query_parameter_type_t type;
+  void *data;
+  size_t length;
+  bool is_unsigned;
+};
 
-ASQL_API
-void attachsql_group_destroy(attachsql_group_t *group);
+typedef struct attachsql_query_parameter_st attachsql_query_parameter_st;
 
-ASQL_API
-void attachsql_group_add_connection(attachsql_group_t *group, attachsql_connect_t *con, attachsql_error_t **error);
+struct attachsql_query_column_st
+{
+  char *schema;
+  char *table;
+  char *origin_table;
+  char *column;
+  char *origin_column;
+  uint16_t charset;
+  uint32_t length;
+  attachsql_column_type_t type;
+  attachsql_column_flags_t flags;
+  uint8_t decimals;
+  char *default_value;
+  size_t default_size;
+};
 
-ASQL_API
-void attachsql_group_run(attachsql_group_t *group);
+typedef struct attachsql_query_column_st attachsql_query_column_st;
+
+struct attachsql_query_row_st
+{
+  char *data;
+  size_t length;
+};
+
+typedef struct attachsql_query_row_st attachsql_query_row_st;
 
 #ifdef __cplusplus
 }
