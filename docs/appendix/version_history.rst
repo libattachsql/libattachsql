@@ -26,6 +26,7 @@ Version 0.9.0 RC (Not yet Released)
 
 * Remove bootstrap.sh file, autoreconf should be used instead (`Issue #66 <https://github.com/libattachsql/libattachsql/issues/66>`_)
 * Fix MinGW compiling issues (`Issue #118 <https://github.com/libattachsql/libattachsql/issues/118>`_)
+* Cleaned up header files (`Issue #53 <https://github.com/libattachsql/libattachsql/issues/53>`_)
 
 Version 0.5
 -----------
