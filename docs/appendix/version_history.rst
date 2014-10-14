@@ -4,8 +4,8 @@ Version History
 Version 0.9
 -----------
 
-Version 0.9.0 RC (Not yet Released)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Version 0.9.0 RC (2014-10-14)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * Added three new API calls for prepared statements (`Issue #113 <https://github.com/libattachsql/libattachsql/issues/113>`_)
 
