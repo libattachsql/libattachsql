@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
   {
     SKIP_IF_(true, "SSL not supported");
   }
-  ASSERT_NULL_(error, "SSL setup error");
+  SKIP_IF_(error, "SSL certs missing");
   attachsql_query(con, strlen(data), data, 0, NULL, &error);
   while(aret != ATTACHSQL_RETURN_EOF)
   {

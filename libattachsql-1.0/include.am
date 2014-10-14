@@ -10,4 +10,5 @@ nobase_include_HEADERS+= libattachsql-1.0/group.h
 nobase_include_HEADERS+= libattachsql-1.0/query.h
 nobase_include_HEADERS+= libattachsql-1.0/utility.h
 nobase_include_HEADERS+= libattachsql-1.0/statement.h
+nobase_include_HEADERS+= libattachsql-1.0/structs.h
 nobase_include_HEADERS+= libattachsql-1.0/visibility.h

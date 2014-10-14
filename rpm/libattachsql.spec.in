@@ -5,7 +5,7 @@ Release: 1
 License: Apache2
 Group: System Environment/Libraries
 BuildRequires: libuv-devel zlib-devel openssl-devel
-Requires libuv zlib openssl
+Requires: libuv zlib openssl
 URL: https://libattachsql.org/
 
 Packager: Andrew Hutchings <andrew@linuxjedi.co.uk>
