@@ -151,13 +151,16 @@ ascore_command_status_t ascore_command_send(ascon_st *con, ascore_command_t comm
   }
   con->command_status= ASCORE_COMMAND_STATUS_SEND;
   con->status= ASCORE_CON_STATUS_BUSY;
-  if (con->options.semi_block)
+  if (!con->in_group)
   {
-    uv_run(con->uv_objects.loop, UV_RUN_ONCE);
-  }
-  else
-  {
-    uv_run(con->uv_objects.loop, UV_RUN_NOWAIT);
+    if (con->options.semi_block)
+    {
+      uv_run(con->uv_objects.loop, UV_RUN_ONCE);
+    }
+    else
+    {
+      uv_run(con->uv_objects.loop, UV_RUN_NOWAIT);
+    }
   }
   return ASCORE_COMMAND_STATUS_SEND;
 }
