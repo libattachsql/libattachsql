@@ -1,6 +1,14 @@
 Version History
 ===============
 
+Version 1.0
+-----------
+
+Version 1.0.0 GA (Not yet released)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Fixed a lockup with many connections using connection groups (`Issue #124 <https://github.com/libattachsql/libattachsql/issues/124>`_)
+
 Version 0.9
 -----------
 
