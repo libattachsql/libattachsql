@@ -49,6 +49,8 @@ void ascore_packet_stmt_read_row(ascon_st *con);
 
 void ascore_packet_read_row(ascon_st *con);
 
+void ascore_run_uv_loop(ascon_st *con);
+
 #ifdef HAVE_ZLIB
 void ascore_send_compressed_packet(ascon_st *con, char *data, size_t length, uint8_t command);
 #endif
@@ -59,7 +61,6 @@ void ascore_ssl_run(ascon_st *con);
 void ascore_ssl_data_check(ascon_st *con);
 
 void ascore_ssl_handle_error(ascon_st *con, int result);
-
 #endif
 
 #ifdef __cplusplus

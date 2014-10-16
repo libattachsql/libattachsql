@@ -327,8 +327,19 @@ void ascore_send_compressed_packet(ascon_st *con, char *data, size_t length, uin
   asdebug_hex(data, length);
   con->command_status= ASCORE_COMMAND_STATUS_READ_RESPONSE;
 
-  uv_write_t *req= new (std::nothrow) uv_write_t;
-  if (uv_write(req, con->uv_objects.stream, send_buffer, 2, on_write) != 0)
+  int r;
+#ifdef HAVE_OPENSSL
+  if (con->ssl.handshake_done)
+  {
+    r= ascore_ssl_buffer_write(con, send_buffer, 2);
+  }
+  else
+#endif
+  {
+    uv_write_t *req= new (std::nothrow) uv_write_t;
+    r= uv_write(req, con->uv_objects.stream, send_buffer, 2, on_write);
+  }
+  if (r != 0)
   {
     con->local_errcode= ASRET_NET_WRITE_ERROR;
     asdebug("Write fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
@@ -356,12 +367,26 @@ void on_write(uv_write_t *req, int status)
     con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
   }
   delete req;
+  /* Prevents libuv locking up in semi block when no reads are pending */
+  if (con->options.semi_block)
+  {
+    uv_stop(con->uv_objects.loop);
+  }
 }
 
 void ascore_read_data_cb(uv_stream_t* tcp, ssize_t read_size, const uv_buf_t buf)
 {
   (void) buf;
   struct ascon_st *con= (struct ascon_st*)tcp->data;
+
+  if (read_size < 0)
+  {
+    con->local_errcode= ASRET_NET_READ_ERROR;
+    asdebug("Read fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
+    con->command_status= ASCORE_COMMAND_STATUS_READ_FAILED;
+    con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
+    return;
+  }
 
 #ifdef HAVE_OPENSSL
   if (con->ssl.handshake_done)
@@ -392,14 +417,6 @@ void ascore_read_data_cb(uv_stream_t* tcp, ssize_t read_size, const uv_buf_t buf
   }
 #endif
 
-  if (read_size < 0)
-  {
-    con->local_errcode= ASRET_NET_READ_ERROR;
-    asdebug("Read fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
-    con->command_status= ASCORE_COMMAND_STATUS_READ_FAILED;
-    con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
-    return;
-  }
   asdebug("Got data, %zd bytes", read_size);
   if (con->options.compression)
   {
@@ -995,4 +1012,19 @@ void ascore_packet_get_column(ascon_st *con, column_t *column)
   buffer->buffer_read_ptr+= str_len;
   asdebug("Got column %s.%s.%s", column->schema, column->table, column->column);
   ascore_buffer_packet_read_end(con->read_buffer);
+}
+
+void ascore_run_uv_loop(ascon_st *con)
+{
+  if (!con->in_group)
+  {
+    if (con->options.semi_block)
+    {
+      uv_run(con->uv_objects.loop, UV_RUN_ONCE);
+    }
+    else
+    {
+      uv_run(con->uv_objects.loop, UV_RUN_NOWAIT);
+    }
+  }
 }

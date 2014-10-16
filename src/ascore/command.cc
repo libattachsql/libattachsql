@@ -35,14 +35,7 @@ ascore_command_status_t ascore_command_send_compressed(ascon_st *con, ascore_com
     uv_read_start(con->uv_objects.stream, on_alloc, ascore_read_data_cb);
     con->command_status= ASCORE_COMMAND_STATUS_SEND;
     con->status= ASCORE_CON_STATUS_BUSY;
-    if (con->options.semi_block)
-    {
-      uv_run(con->uv_objects.loop, UV_RUN_ONCE);
-    }
-    else
-    {
-      uv_run(con->uv_objects.loop, UV_RUN_NOWAIT);
-    }
+    ascore_run_uv_loop(con);
     return ASCORE_COMMAND_STATUS_SEND;
   }
   return con->command_status;
@@ -93,7 +86,7 @@ ascore_command_status_t ascore_command_send(ascon_st *con, ascore_command_t comm
   {
     send_buffer[2].base= data;
     send_buffer[2].len= length;
-    asdebug("Sending %zd bytes with command to server", length);
+    asdebug("Sending %zd bytes with %zd command bytes to server", length, send_buffer[1].len);
     asdebug_hex(data, length);
 #ifdef HAVE_OPENSSL
     if (con->ssl.handshake_done)
@@ -109,7 +102,7 @@ ascore_command_status_t ascore_command_send(ascon_st *con, ascore_command_t comm
   }
   else
   {
-    asdebug("Sending command with no data");
+    asdebug("Sending %zd command bytes with no data", send_buffer[1].len);
 #ifdef HAVE_OPENSSL
     if (con->ssl.handshake_done)
     {
@@ -151,17 +144,7 @@ ascore_command_status_t ascore_command_send(ascon_st *con, ascore_command_t comm
   }
   con->command_status= ASCORE_COMMAND_STATUS_SEND;
   con->status= ASCORE_CON_STATUS_BUSY;
-  if (!con->in_group)
-  {
-    if (con->options.semi_block)
-    {
-      uv_run(con->uv_objects.loop, UV_RUN_ONCE);
-    }
-    else
-    {
-      uv_run(con->uv_objects.loop, UV_RUN_NOWAIT);
-    }
-  }
+  ascore_run_uv_loop(con);
   return ASCORE_COMMAND_STATUS_SEND;
 }
 
@@ -193,14 +176,7 @@ bool ascore_command_next_result(ascon_st *con)
     uv_read_start(con->uv_objects.stream, on_alloc, ascore_read_data_cb);
     con->command_status= ASCORE_COMMAND_STATUS_READ_RESPONSE;
     con->status= ASCORE_CON_STATUS_BUSY;
-    if (con->options.semi_block)
-    {
-      uv_run(con->uv_objects.loop, UV_RUN_ONCE);
-    }
-    else
-    {
-      uv_run(con->uv_objects.loop, UV_RUN_NOWAIT);
-    }
+    ascore_run_uv_loop(con);
     return true;
   }
   return false;
