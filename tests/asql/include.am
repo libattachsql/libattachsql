@@ -168,4 +168,43 @@ endif
 check_PROGRAMS+= t/asql/group
 noinst_PROGRAMS+= t/asql/group
 
+t_asql_statement_semi_block_SOURCES= tests/asql/statement_semi_block.cc
+t_asql_statement_semi_block_LDADD= src/asql/libattachsql.la
+if BUILD_WIN32
+t_asql_statement_semi_block_LDADD+= -lws2_32
+t_asql_statement_semi_block_LDADD+= -lpsapi
+t_asql_statement_semi_block_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/asql/statement_semi_block
+noinst_PROGRAMS+= t/asql/statement_semi_block
+
+t_asql_query_compress_semi_block_SOURCES= tests/asql/query_compress_semi_block.cc
+t_asql_query_compress_semi_block_LDADD= src/asql/libattachsql.la
+if BUILD_WIN32
+t_asql_query_compress_semi_block_LDADD+= -lws2_32
+t_asql_query_compress_semi_block_LDADD+= -lpsapi
+t_asql_query_compress_semi_block_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/asql/query_compress_semi_block
+noinst_PROGRAMS+= t/asql/query_compress_semi_block
+
+t_asql_group_compress_SOURCES= tests/asql/group_compress.cc
+t_asql_group_compress_LDADD= src/asql/libattachsql.la
+if BUILD_WIN32
+t_asql_group_compress_LDADD+= -lws2_32
+t_asql_group_compress_LDADD+= -lpsapi
+t_asql_group_compress_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/asql/group_compress
+noinst_PROGRAMS+= t/asql/group_compress
+
+t_asql_query_ssl_compress_SOURCES= tests/asql/query_ssl_compress.cc
+t_asql_query_ssl_compress_LDADD= src/asql/libattachsql.la
+if BUILD_WIN32
+t_asql_query_ssl_compress_LDADD+= -lws2_32
+t_asql_query_ssl_compress_LDADD+= -lpsapi
+t_asql_query_ssl_compress_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/asql/query_ssl_compress
+noinst_PROGRAMS+= t/asql/query_ssl_compress
 

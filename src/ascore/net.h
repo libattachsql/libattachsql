@@ -60,6 +60,8 @@ void ascore_ssl_data_check(ascon_st *con);
 
 void ascore_ssl_handle_error(ascon_st *con, int result);
 
+void ascore_run_uv_loop(ascon_st *con);
+
 #endif
 
 #ifdef __cplusplus
