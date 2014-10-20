@@ -365,6 +365,10 @@ void on_write(uv_write_t *req, int status)
     asdebug("Write fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
     con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
     con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
+    con->status= ASCORE_CON_STATUS_NET_ERROR;
+    snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "Net write failure: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
+    uv_check_stop(&con->uv_objects.check);
+    uv_close((uv_handle_t*)con->uv_objects.stream, NULL);
   }
   delete req;
   /* Prevents libuv locking up in semi block when no reads are pending */
@@ -385,6 +389,10 @@ void ascore_read_data_cb(uv_stream_t* tcp, ssize_t read_size, const uv_buf_t buf
     asdebug("Read fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
     con->command_status= ASCORE_COMMAND_STATUS_READ_FAILED;
     con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
+    con->status= ASCORE_CON_STATUS_NET_ERROR;
+    snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "Net read failure: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
+    uv_check_stop(&con->uv_objects.check);
+    uv_close((uv_handle_t*)con->uv_objects.stream, NULL);
     return;
   }
 

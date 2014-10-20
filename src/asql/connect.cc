@@ -223,6 +223,14 @@ attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_er
       }
       return ATTACHSQL_RETURN_IDLE;
       break;
+    case ASCORE_CON_STATUS_NET_ERROR:
+      attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_SERVER_LOST, ATTACHSQL_ERROR_LEVEL_ERROR, "08006", con->core_con->errmsg);
+      if (con->callback_fn != NULL)
+      {
+        con->callback_fn(con, ATTACHSQL_EVENT_ERROR, con->callback_context, *error);
+      }
+      return ATTACHSQL_RETURN_ERROR;
+      break;
   }
   /* If we get this far 1. our compiler needs shooting for not catching a
    * missing case statement and 2. something bad probably happened anyway */
@@ -320,7 +328,14 @@ bool attachsql_connect(attachsql_connect_t *con, attachsql_error_t **error)
 
       return false;
       break;
-
+    case ASCORE_CON_STATUS_NET_ERROR:
+      attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_SERVER_LOST, ATTACHSQL_ERROR_LEVEL_ERROR, "08006", con->core_con->errmsg);
+      if (con->callback_fn != NULL)
+      {
+        con->callback_fn(con, ATTACHSQL_EVENT_ERROR, con->callback_context, *error);
+      }
+      return false;
+      break;
   }
 
   return true;

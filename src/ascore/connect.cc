@@ -105,7 +105,8 @@ void ascore_con_destroy(ascon_st *con)
     SSL_CTX_free(con->ssl.context);
   }
 #endif
-  if (con->uv_objects.stream != NULL)
+  // On a net error we already closed the connection
+  if ((con->uv_objects.stream != NULL) and (con->status != ASCORE_CON_STATUS_NET_ERROR))
   {
     uv_check_stop(&con->uv_objects.check);
     uv_close((uv_handle_t*)con->uv_objects.stream, NULL);
@@ -361,6 +362,12 @@ void ascore_packet_read_handshake(ascon_st *con)
 {
   asdebug("Connect handshake packet");
   buffer_st *buffer= con->read_buffer;
+
+  // Rejection error before handshake
+  if ((unsigned char)buffer->buffer_read_ptr[0] == 0xff)
+  {
+    ascore_packet_read_response(con);
+  }
 
   // Protocol version
   if (buffer->buffer_read_ptr[0] != 10)
