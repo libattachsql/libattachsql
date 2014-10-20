@@ -11,6 +11,7 @@ Version 1.0.0 GA (Not yet released)
 * Fixed prepared statement with semi-block hangs (`Issue #128 <https://github.com/libattachsql/libattachsql/issues/128>`_)
 * Fixed SSL+compression on the same connection (`Issue #127 <https://github.com/libattachsql/libattachsql/issues/127>`_)
 * Fixed compression and SSL when used with Connection Groups (`Issue #125 <https://github.com/libattachsql/libattachsql/issues/125>`_)
+* Improved error handling for connect and network errors (`Issue #133 <https://github.com/libattachsql/libattachsql/issues/133>`_)
 
 Version 0.9
 -----------
