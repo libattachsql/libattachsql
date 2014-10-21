@@ -130,7 +130,6 @@ void ascore_ssl_handle_error(ascon_st *con, int result)
 int ascore_ssl_buffer_write(ascon_st *con, uv_buf_t *buf, int buf_len)
 {
   size_t required_size= 0;
-  size_t buffer_free= 0;
   int current_buf;
   for (current_buf= 0; current_buf < buf_len; current_buf++)
   {
@@ -141,12 +140,10 @@ int ascore_ssl_buffer_write(ascon_st *con, uv_buf_t *buf, int buf_len)
     asdebug("Creating SSL write buffer");
     con->ssl.write_buffer= ascore_buffer_create();
   }
-  buffer_free= ascore_buffer_get_available(con->ssl.write_buffer);
-  if (buffer_free < required_size)
+  if (ascore_buffer_get_available(con->ssl.write_buffer) < required_size)
   {
     asdebug("Enlarging SSL write buffer");
     ascore_buffer_increase(con->ssl.write_buffer);
-    buffer_free= ascore_buffer_get_available(con->ssl.write_buffer);
   }
   for (current_buf= 0; current_buf < buf_len; current_buf++)
   {
