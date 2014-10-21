@@ -35,6 +35,7 @@ attachsql_connect_t *attachsql_connect_create(const char *host, in_port_t port, 
   if (con->core_con == NULL)
   {
     attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_ALLOC, ATTACHSQL_ERROR_LEVEL_ERROR, "82100", "Allocation failure for connection object");
+    delete con;
     return NULL;
   }
 
@@ -57,6 +58,7 @@ attachsql_connect_t *attachsql_connect_create(const char *host, in_port_t port, 
 
 void attachsql_connect_destroy(attachsql_connect_t *con)
 {
+  bool in_group= false;
   if (con == NULL)
   {
     return;
@@ -69,12 +71,12 @@ void attachsql_connect_destroy(attachsql_connect_t *con)
 
   if (con->core_con != NULL)
   {
-    bool in_group= con->core_con->in_group;
+    in_group= con->core_con->in_group;
     ascore_con_destroy(con->core_con);
-    if (not in_group)
-    {
-      delete con;
-    }
+  }
+  if (not in_group)
+  {
+    delete con;
   }
 }
 
