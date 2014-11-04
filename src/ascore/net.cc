@@ -630,14 +630,12 @@ void ascore_packet_read_row(ascon_st *con)
   con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
   con->command_status= ASCORE_COMMAND_STATUS_ROW_IN_BUFFER;
   con->status= ASCORE_CON_STATUS_IDLE;
-  uv_read_stop(con->uv_objects.stream);
 }
 
 void ascore_packet_read_end(ascon_st *con)
 {
   asdebug("Packet end");
 
-  uv_read_stop(con->uv_objects.stream);
   ascore_buffer_packet_read_end(con->read_buffer);
 }
 

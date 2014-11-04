@@ -429,10 +429,6 @@ void ascore_handshake_response(ascon_st *con)
 
   asdebug("Sending handshake response");
   buffer_ptr= (unsigned char*)con->write_buffer;
-  if (con->next_packet_type != ASCORE_PACKET_TYPE_HANDSHAKE_SSL)
-  {
-    uv_read_start(con->uv_objects.stream, on_alloc, ascore_read_data_cb);
-  }
 
   capabilities= con->server_capabilities & ASCORE_CAPABILITY_CLIENT;
   capabilities|= ASCORE_CAPABILITY_MULTI_RESULTS;
