@@ -32,7 +32,6 @@ ascore_command_status_t ascore_command_send_compressed(ascon_st *con, ascore_com
     {
       con->next_packet_type= ASCORE_PACKET_TYPE_RESPONSE;
     }
-    uv_read_start(con->uv_objects.stream, on_alloc, ascore_read_data_cb);
     con->command_status= ASCORE_COMMAND_STATUS_SEND;
     con->status= ASCORE_CON_STATUS_BUSY;
     ascore_run_uv_loop(con);
@@ -138,10 +137,6 @@ ascore_command_status_t ascore_command_send(ascon_st *con, ascore_command_t comm
   {
     con->next_packet_type= ASCORE_PACKET_TYPE_RESPONSE;
   }
-  if ((command != ASCORE_COMMAND_STMT_RESET) && (command != ASCORE_COMMAND_STMT_CLOSE))
-  {
-    uv_read_start(con->uv_objects.stream, on_alloc, ascore_read_data_cb);
-  }
   con->command_status= ASCORE_COMMAND_STATUS_SEND;
   con->status= ASCORE_CON_STATUS_BUSY;
   ascore_run_uv_loop(con);
@@ -173,7 +168,6 @@ bool ascore_command_next_result(ascon_st *con)
     con->warning_count= 0;
     con->server_errno= 0;
     con->next_packet_type= ASCORE_PACKET_TYPE_RESPONSE;
-    uv_read_start(con->uv_objects.stream, on_alloc, ascore_read_data_cb);
     con->command_status= ASCORE_COMMAND_STATUS_READ_RESPONSE;
     con->status= ASCORE_CON_STATUS_BUSY;
     ascore_run_uv_loop(con);
