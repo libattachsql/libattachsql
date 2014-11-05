@@ -45,7 +45,7 @@ PROTECT_AC_USE_SYSTEM_EXTENSIONS
 AC_CONFIG_HEADERS([config.h:config.in])dnl Keep filename to 8.3 for MS-DOS.
 
 # shared library versioning
-LIBATTACHSQL_LIBRARY_VERSION=1:0:0
+LIBATTACHSQL_LIBRARY_VERSION=1:1:0
 #                            | | |
 #                     +------+ | +---+
 #                     |        |     |
