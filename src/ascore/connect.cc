@@ -86,6 +86,11 @@ void ascore_con_destroy(ascon_st *con)
     free(con->compressed_buffer);
   }
 
+  if (con->next_packet_queue != NULL)
+  {
+    free(con->next_packet_queue);
+  }
+
 #ifdef HAVE_OPENSSL
   if (con->ssl.bio_buffer != NULL)
   {
@@ -273,7 +278,7 @@ void on_connect(uv_connect_t *req, int status)
     return;
   }
   asdebug("Connection succeeded!");
-  con->next_packet_type= ASCORE_PACKET_TYPE_HANDSHAKE;
+  ascore_packet_queue_push(con, ASCORE_PACKET_TYPE_HANDSHAKE);
   // maybe move the set con->stream to connect function
   con->uv_objects.stream= (uv_stream_t*)req->data;
   uv_check_init(con->uv_objects.loop, &con->uv_objects.check);
@@ -303,7 +308,7 @@ uv_buf_t on_alloc(uv_handle_t *client, size_t suggested_size)
       con->local_errcode= ASRET_OUT_OF_MEMORY_ERROR;
       asdebug("SSL buffer realloc failure");
       con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
-      con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
+      con->next_packet_queue_used= 0;
     }
   }
 #endif
@@ -443,7 +448,7 @@ void ascore_handshake_response(ascon_st *con)
       con->local_errcode= ASRET_NET_SSL_ERROR;
       snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "SSL auth not supported enabled on server");
       con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
-      con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
+      con->next_packet_queue_used= 0;
       con->status= ASCORE_CON_STATUS_CONNECT_FAILED;
       return;
     }
@@ -467,7 +472,7 @@ void ascore_handshake_response(ascon_st *con)
   buffer_ptr+= 23;
 
 #ifdef HAVE_OPENSSL
-  if ((con->ssl.ssl != NULL) and (con->next_packet_type != ASCORE_PACKET_TYPE_HANDSHAKE_SSL))
+  if ((con->ssl.ssl != NULL) and (ascore_packet_queue_peek(con) != ASCORE_PACKET_TYPE_HANDSHAKE_SSL))
   {
     /* for SSL we do a short handshake ending here in plain text,
      * no user/password sent.
@@ -476,17 +481,18 @@ void ascore_handshake_response(ascon_st *con)
      * user/pass encrypted
      */
     ascore_send_data(con, con->write_buffer, (size_t)(buffer_ptr - (unsigned char*)con->write_buffer));
-    con->next_packet_type= ASCORE_PACKET_TYPE_HANDSHAKE_SSL;
+    ascore_packet_queue_push(con, ASCORE_PACKET_TYPE_HANDSHAKE_SSL);
     ascore_handshake_response(con);
     return;
   }
 
-  if ((con->ssl.ssl != NULL) and (con->next_packet_type == ASCORE_PACKET_TYPE_HANDSHAKE_SSL))
+  if ((con->ssl.ssl != NULL) and (ascore_packet_queue_peek(con) == ASCORE_PACKET_TYPE_HANDSHAKE_SSL))
   {
     /* second entry into handshake for SSL, this response and all other send /
      * receives should be encrypted from now on
      */
     con->ssl.enabled= true;
+    ascore_packet_queue_pop(con);
   }
 #endif
 
@@ -526,7 +532,7 @@ void ascore_handshake_response(ascon_st *con)
   buffer_ptr[0]= '\0';
   buffer_ptr++;
   ascore_send_data(con, con->write_buffer, (size_t)(buffer_ptr - (unsigned char*)con->write_buffer));
-  con->next_packet_type= ASCORE_PACKET_TYPE_RESPONSE;
+  ascore_packet_queue_push(con, ASCORE_PACKET_TYPE_RESPONSE);
 }
 
 asret_t scramble_password(ascon_st *con, unsigned char *buffer)

@@ -209,7 +209,9 @@ struct ascon_st
   uint8_t charset;
   struct result_t result;
   ascore_command_status_t command_status;
-  ascore_packet_type_t next_packet_type;
+  ascore_packet_type_t *next_packet_queue;
+  size_t next_packet_queue_size;
+  size_t next_packet_queue_used;
   char *uncompressed_buffer;
   size_t uncompressed_buffer_len;
   char *compressed_buffer;
@@ -295,7 +297,9 @@ struct ascon_st
     server_errno(0),
     charset(0),
     command_status(ASCORE_COMMAND_STATUS_NONE),
-    next_packet_type(ASCORE_PACKET_TYPE_NONE),
+    next_packet_queue(NULL),
+    next_packet_queue_size(0),
+    next_packet_queue_used(0),
     uncompressed_buffer(NULL),
     uncompressed_buffer_len(0),
     compressed_buffer(NULL),

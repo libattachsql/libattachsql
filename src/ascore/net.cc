@@ -77,7 +77,7 @@ void ascore_ssl_data_check(ascon_st *con)
           con->local_errcode= ASRET_NET_SSL_ERROR;
           asdebug("SSL write fail: %d", error);
           con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
-          con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
+          con->next_packet_queue_used= 0;
           con->status= ASCORE_CON_STATUS_SSL_ERROR;
           snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE - 1, "SSL write fail: %s", ERR_reason_error_string(ERR_get_error()));
           con->errmsg[ASCORE_ERROR_BUFFER_SIZE - 1]= '\0';
@@ -102,7 +102,7 @@ void ascore_ssl_data_check(ascon_st *con)
       con->local_errcode= ASRET_NET_WRITE_ERROR;
       asdebug("Write fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
       con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
-      con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
+      con->next_packet_queue_used= 0;
     }
   }
 }
@@ -121,7 +121,7 @@ void ascore_ssl_handle_error(ascon_st *con, int result)
     asdebug("SSL fail: %d, %s", error, ERR_error_string(errcode, NULL));
     con->status= ASCORE_CON_STATUS_SSL_ERROR;
     con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
-    con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
+    con->next_packet_queue_used= 0;
     snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE - 1, "SSL read/write fail: %s", ERR_reason_error_string(errcode));
     con->errmsg[ASCORE_ERROR_BUFFER_SIZE - 1]= '\0';
   }
@@ -211,7 +211,7 @@ void ascore_send_data(ascon_st *con, char *data, size_t length)
       con->local_errcode= ASRET_NET_WRITE_ERROR;
       asdebug("Write fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
       con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
-      con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
+      con->next_packet_queue_used= 0;
   }
 }
 
@@ -243,7 +243,7 @@ void ascore_send_compressed_packet(ascon_st *con, char *data, size_t length, uin
       con->local_errcode= ASRET_OUT_OF_MEMORY_ERROR;
       asdebug("Uncompressed buffer realloc failure");
       con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
-      con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
+      con->next_packet_queue_used= 0;
       return;
     }
     con->uncompressed_buffer= realloc_buffer;
@@ -283,7 +283,7 @@ void ascore_send_compressed_packet(ascon_st *con, char *data, size_t length, uin
         con->local_errcode= ASRET_OUT_OF_MEMORY_ERROR;
         asdebug("Compressed buffer realloc failure");
         con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
-        con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
+        con->next_packet_queue_used= 0;
         return;
       }
       con->compressed_buffer= realloc_buffer;
@@ -296,7 +296,7 @@ void ascore_send_compressed_packet(ascon_st *con, char *data, size_t length, uin
       con->local_errcode= ASRET_COMPRESSION_FAILURE;
       asdebug("Compression failure");
       con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
-      con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
+      con->next_packet_queue_used= 0;
       return;
     }
     ascore_pack_int3(con->compressed_packet_header, compressed_length);
@@ -341,7 +341,7 @@ void ascore_send_compressed_packet(ascon_st *con, char *data, size_t length, uin
     con->local_errcode= ASRET_NET_WRITE_ERROR;
     asdebug("Write fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
     con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
-    con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
+    con->next_packet_queue_used= 0;
   }
 }
 #endif
@@ -351,7 +351,7 @@ void on_write(uv_write_t *req, int status)
   ascon_st *con= (ascon_st*)req->handle->data;
   asdebug("Write callback, status: %d", status);
 
-  if (con->next_packet_type == ASCORE_PACKET_TYPE_NONE)
+  if (ascore_packet_queue_peek(con) == ASCORE_PACKET_TYPE_NONE)
   {
     con->status= ASCORE_CON_STATUS_IDLE;
     con->command_status= ASCORE_COMMAND_STATUS_EOF;
@@ -361,7 +361,7 @@ void on_write(uv_write_t *req, int status)
     con->local_errcode= ASRET_NET_WRITE_ERROR;
     asdebug("Write fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
     con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
-    con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
+    con->next_packet_queue_used= 0;
     con->status= ASCORE_CON_STATUS_NET_ERROR;
     snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "Net write failure: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
     uv_check_stop(&con->uv_objects.check);
@@ -380,7 +380,7 @@ void ascore_read_data_cb(uv_stream_t* tcp, ssize_t read_size, const uv_buf_t buf
     con->local_errcode= ASRET_NET_READ_ERROR;
     asdebug("Read fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
     con->command_status= ASCORE_COMMAND_STATUS_READ_FAILED;
-    con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
+    con->next_packet_queue_used= 0;
     con->status= ASCORE_CON_STATUS_NET_ERROR;
     snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "Net read failure: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
     uv_check_stop(&con->uv_objects.check);
@@ -463,7 +463,7 @@ bool ascore_con_decompress_read_buffer(ascon_st *con)
     asdebug("Compressed packet out of sequence!");
     con->local_errcode= ASRET_PACKET_OUT_OF_SEQUENCE;
     con->command_status= ASCORE_COMMAND_STATUS_READ_FAILED;
-    con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
+    con->next_packet_queue_used= 0;
     return true;
   }
   uncompressed_packet_size= ascore_unpack_int3(con->read_buffer_compress->buffer_read_ptr+4);
@@ -501,7 +501,7 @@ bool ascore_con_decompress_read_buffer(ascon_st *con)
       asdebug("Decompression error: %d", res);
       con->local_errcode= ASRET_COMPRESSION_FAILURE;
       con->command_status= ASCORE_COMMAND_STATUS_READ_FAILED;
-      con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
+      con->next_packet_queue_used= 0;
       return true;
     }
     con->read_buffer_compress->buffer_read_ptr+= compressed_packet_size;
@@ -534,7 +534,8 @@ bool ascore_con_process_packets(ascon_st *con)
   }
 #endif
 
-  while (con->next_packet_type != ASCORE_PACKET_TYPE_NONE)
+  ascore_packet_type_t next_packet_type;
+  while ((next_packet_type= ascore_packet_queue_peek(con)) != ASCORE_PACKET_TYPE_NONE)
   {
     // Packet header is 4 bytes, if we don't have that, then we don't have enough
     data_size= ascore_buffer_unread_data(con->read_buffer);
@@ -555,10 +556,11 @@ bool ascore_con_process_packets(ascon_st *con)
     }
 
     // If initial read handshake packet_number is 0, so don't increment
-    if (con->next_packet_type != ASCORE_PACKET_TYPE_HANDSHAKE)
+    if (next_packet_type != ASCORE_PACKET_TYPE_HANDSHAKE)
     {
       con->packet_number++;
     }
+    ascore_packet_queue_pop(con);
     // Fourth byte is packet number
     asdebug("Got packet %d, expected %d", con->read_buffer->buffer_read_ptr[3], con->packet_number);
     if (con->packet_number != con->read_buffer->buffer_read_ptr[3])
@@ -566,13 +568,13 @@ bool ascore_con_process_packets(ascon_st *con)
       asdebug("Packet out of sequence!");
       con->local_errcode= ASRET_PACKET_OUT_OF_SEQUENCE;
       con->command_status= ASCORE_COMMAND_STATUS_READ_FAILED;
-      con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
+      con->next_packet_queue_used= 0;
       return true;
     }
     con->read_buffer->buffer_read_ptr+= 4;
     con->read_buffer->packet_end_ptr= con->read_buffer->buffer_read_ptr + packet_len;
     asdebug_hex(con->read_buffer->buffer_read_ptr, packet_len);
-    switch(con->next_packet_type)
+    switch(next_packet_type)
     {
       case ASCORE_PACKET_TYPE_NONE:
         // Shoudn't happen
@@ -622,7 +624,6 @@ void ascore_packet_read_row(ascon_st *con)
   asdebug("Row read");
   con->result.row_data= con->read_buffer->buffer_read_ptr;
   con->result.row_length= con->packet_size;
-  con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
   con->command_status= ASCORE_COMMAND_STATUS_ROW_IN_BUFFER;
   con->status= ASCORE_CON_STATUS_IDLE;
 }
@@ -674,19 +675,18 @@ void ascore_packet_read_prepare_response(ascon_st *con)
     }
     if (con->stmt->param_count > 0)
     {
-      con->next_packet_type= ASCORE_PACKET_TYPE_PREPARE_PARAMETER;
+      ascore_packet_queue_push(con, ASCORE_PACKET_TYPE_PREPARE_PARAMETER);
       con->command_status= ASCORE_COMMAND_STATUS_READ_STMT_PARAM;
     }
     else if (con->stmt->column_count > 0)
     {
-      con->next_packet_type= ASCORE_PACKET_TYPE_PREPARE_COLUMN;
+      ascore_packet_queue_push(con, ASCORE_PACKET_TYPE_PREPARE_COLUMN);
       con->command_status= ASCORE_COMMAND_STATUS_READ_STMT_COLUMN;
     }
     else
     {
       con->command_status= ASCORE_COMMAND_STATUS_EOF;
       con->status= ASCORE_CON_STATUS_IDLE;
-      con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
       ascore_packet_read_end(con);
     }
     buffer->buffer_read_ptr+= (con->packet_size - data_read);
@@ -736,7 +736,6 @@ void ascore_packet_read_response(ascon_st *con)
       con->command_status= ASCORE_COMMAND_STATUS_EOF;
     }
     con->status= ASCORE_CON_STATUS_IDLE;
-    con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
     ascore_packet_read_end(con);
   }
   else if ((unsigned char)buffer->buffer_read_ptr[0] == 0xff)
@@ -763,7 +762,7 @@ void ascore_packet_read_response(ascon_st *con)
     {
       con->status= ASCORE_CON_STATUS_IDLE;
     }
-    con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
+    con->next_packet_queue_used= 0;
     con->command_status= ASCORE_COMMAND_STATUS_NONE;
     ascore_packet_read_end(con);
   }
@@ -779,7 +778,7 @@ void ascore_packet_read_response(ascon_st *con)
     if (con->command_status == ASCORE_COMMAND_STATUS_READ_COLUMN)
     {
       con->command_status= ASCORE_COMMAND_STATUS_READ_ROW;
-      con->next_packet_type= ASCORE_PACKET_TYPE_ROW;
+      ascore_packet_queue_push(con, ASCORE_PACKET_TYPE_ROW);
       ascore_buffer_packet_read_end(con->read_buffer);
     }
     else if (con->command_status == ASCORE_COMMAND_STATUS_READ_STMT_PARAM)
@@ -787,12 +786,11 @@ void ascore_packet_read_response(ascon_st *con)
       if (con->stmt->column_count > 0)
       {
         con->command_status= ASCORE_COMMAND_STATUS_READ_STMT_COLUMN;
-        con->next_packet_type= ASCORE_PACKET_TYPE_PREPARE_COLUMN;
+        ascore_packet_queue_push(con, ASCORE_PACKET_TYPE_PREPARE_COLUMN);
         ascore_buffer_packet_read_end(con->read_buffer);
       }
       else
       {
-        con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
         con->command_status= ASCORE_COMMAND_STATUS_EOF;
         con->status= ASCORE_CON_STATUS_IDLE;
         ascore_packet_read_end(con);
@@ -800,7 +798,6 @@ void ascore_packet_read_response(ascon_st *con)
     }
     else
     {
-      con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
       con->command_status= ASCORE_COMMAND_STATUS_EOF;
       con->status= ASCORE_CON_STATUS_IDLE;
       ascore_packet_read_end(con);
@@ -814,7 +811,7 @@ void ascore_packet_read_response(ascon_st *con)
     buffer->buffer_read_ptr+= bytes;
     con->result.columns= new (std::nothrow) column_t[con->result.column_count];
     ascore_buffer_packet_read_end(con->read_buffer);
-    con->next_packet_type= ASCORE_PACKET_TYPE_COLUMN;
+    ascore_packet_queue_push(con, ASCORE_PACKET_TYPE_COLUMN);
     con->command_status= ASCORE_COMMAND_STATUS_READ_COLUMN;
   }
 }
@@ -829,7 +826,11 @@ void ascore_packet_read_prepare_parameter(ascon_st *con)
   con->stmt->current_param++;
   if (con->stmt->current_param == con->stmt->param_count)
   {
-    con->next_packet_type= ASCORE_PACKET_TYPE_RESPONSE;
+    ascore_packet_queue_push(con, ASCORE_PACKET_TYPE_RESPONSE);
+  }
+  else
+  {
+    ascore_packet_queue_push(con, ASCORE_PACKET_TYPE_PREPARE_PARAMETER);
   }
 }
 
@@ -842,7 +843,11 @@ void ascore_packet_read_prepare_column(ascon_st *con)
   con->stmt->current_column++;
   if (con->stmt->current_column == con->stmt->column_count)
   {
-    con->next_packet_type= ASCORE_PACKET_TYPE_RESPONSE;
+    ascore_packet_queue_push(con, ASCORE_PACKET_TYPE_RESPONSE);
+  }
+  else
+  {
+    ascore_packet_queue_push(con, ASCORE_PACKET_TYPE_PREPARE_COLUMN);
   }
 }
 
@@ -856,7 +861,11 @@ void ascore_packet_read_column(ascon_st *con)
   con->result.current_column++;
   if (con->result.current_column == con->result.column_count)
   {
-    con->next_packet_type= ASCORE_PACKET_TYPE_RESPONSE;
+    ascore_packet_queue_push(con, ASCORE_PACKET_TYPE_RESPONSE);
+  }
+  else
+  {
+    ascore_packet_queue_push(con, ASCORE_PACKET_TYPE_COLUMN);
   }
 }
 
@@ -1025,4 +1034,54 @@ void ascore_run_uv_loop(ascon_st *con)
       uv_run(con->uv_objects.loop, UV_RUN_NOWAIT);
     }
   }
+}
+
+bool ascore_packet_queue_push(ascon_st *con, ascore_packet_type_t packet_type)
+{
+  asdebug("Push packet type: %d, count: %zu", packet_type, con->next_packet_queue_used+1);
+  ascore_packet_type_t *new_queue= NULL;
+  if (con->next_packet_queue_size == 0)
+  {
+    con->next_packet_queue= (ascore_packet_type_t*)malloc(sizeof(ascore_packet_type_t) * ASCORE_DEFAULT_PACKET_QUEUE_SIZE);
+    con->next_packet_queue_size= ASCORE_DEFAULT_PACKET_QUEUE_SIZE;
+    if (con->next_packet_queue == NULL)
+    {
+      return false;
+    }
+  }
+
+  if (con->next_packet_queue_used >= con->next_packet_queue_size)
+  {
+    new_queue= (ascore_packet_type_t*)realloc(con->next_packet_queue, con->next_packet_queue_size * 2);
+    if (new_queue == NULL)
+    {
+      return false;
+    }
+    con->next_packet_queue= new_queue;
+    con->next_packet_queue_size= con->next_packet_queue_size * 2;
+  }
+  con->next_packet_queue[con->next_packet_queue_used]= packet_type;
+  con->next_packet_queue_used++;
+  return true;
+}
+
+ascore_packet_type_t ascore_packet_queue_pop(ascon_st *con)
+{
+  if (con->next_packet_queue_used == 0)
+  {
+    return ASCORE_PACKET_TYPE_NONE;
+  }
+  con->next_packet_queue_used--;
+  asdebug("Pop packet type: %d, count: %zu", con->next_packet_queue[con->next_packet_queue_used], con->next_packet_queue_used);
+  return con->next_packet_queue[con->next_packet_queue_used];
+}
+
+ascore_packet_type_t ascore_packet_queue_peek(ascon_st *con)
+{
+  asdebug("Peek packet type");
+  if (con->next_packet_queue_used == 0)
+  {
+    return ASCORE_PACKET_TYPE_NONE;
+  }
+  return con->next_packet_queue[con->next_packet_queue_used-1];
 }

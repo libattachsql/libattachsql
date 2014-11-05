@@ -29,7 +29,6 @@ ascore_stmt_st *ascore_stmt_prepare(ascon_st *con, size_t length, const char *st
   {
     con->local_errcode= ASRET_OUT_OF_MEMORY_ERROR;
     con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
-    con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
     return NULL;
   }
 
@@ -194,7 +193,7 @@ bool ascore_stmt_execute(ascore_stmt_st *stmt)
         stmt->con->local_errcode= ASRET_BAD_STMT_PARAMETER;
         asdebug("Bad stmt parameter type provided: %d", param_data->type);
         stmt->con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
-        stmt->con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
+        stmt->con->next_packet_queue_used= 0;
         return false;
         break;
     }
@@ -227,7 +226,7 @@ bool ascore_stmt_check_buffer_size(ascore_stmt_st *stmt, size_t required)
       stmt->con->local_errcode= ASRET_OUT_OF_MEMORY_ERROR;
       asdebug("Exec buffer realloc failure");
       stmt->con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
-      stmt->con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
+      stmt->con->next_packet_queue_used= 0;
       return false;
     }
     stmt->exec_buffer= realloc_buffer;
@@ -239,7 +238,7 @@ bool ascore_stmt_check_buffer_size(ascore_stmt_st *stmt, size_t required)
 ascore_command_status_t ascore_stmt_fetch(ascore_stmt_st *stmt)
 {
   ascore_buffer_packet_read_end(stmt->con->read_buffer);
-  stmt->con->next_packet_type= ASCORE_PACKET_TYPE_STMT_ROW;
+  ascore_packet_queue_push(stmt->con, ASCORE_PACKET_TYPE_STMT_ROW);
   stmt->con->command_status= ASCORE_COMMAND_STATUS_READ_STMT_ROW;
   ascore_con_process_packets(stmt->con);
   return stmt->con->command_status;
