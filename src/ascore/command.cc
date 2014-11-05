@@ -34,7 +34,6 @@ ascore_command_status_t ascore_command_send_compressed(ascon_st *con, ascore_com
     }
     con->command_status= ASCORE_COMMAND_STATUS_SEND;
     con->status= ASCORE_CON_STATUS_BUSY;
-    ascore_run_uv_loop(con);
     return ASCORE_COMMAND_STATUS_SEND;
   }
   return con->command_status;
@@ -45,12 +44,6 @@ ascore_command_status_t ascore_command_send(ascon_st *con, ascore_command_t comm
 {
   uv_buf_t send_buffer[3];
   int ret;
-
-  if (con->status != ASCORE_CON_STATUS_IDLE)
-  {
-    /* Server not ready */
-    return con->command_status;
-  }
 
   /* Reset a bunch of internals */
   con->result.current_column= 0;
@@ -139,7 +132,6 @@ ascore_command_status_t ascore_command_send(ascon_st *con, ascore_command_t comm
   }
   con->command_status= ASCORE_COMMAND_STATUS_SEND;
   con->status= ASCORE_CON_STATUS_BUSY;
-  ascore_run_uv_loop(con);
   return ASCORE_COMMAND_STATUS_SEND;
 }
 
@@ -170,7 +162,6 @@ bool ascore_command_next_result(ascon_st *con)
     con->next_packet_type= ASCORE_PACKET_TYPE_RESPONSE;
     con->command_status= ASCORE_COMMAND_STATUS_READ_RESPONSE;
     con->status= ASCORE_CON_STATUS_BUSY;
-    ascore_run_uv_loop(con);
     return true;
   }
   return false;

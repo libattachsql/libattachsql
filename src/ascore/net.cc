@@ -368,11 +368,6 @@ void on_write(uv_write_t *req, int status)
     uv_close((uv_handle_t*)con->uv_objects.stream, NULL);
   }
   delete req;
-  /* Prevents libuv locking up in semi block when no reads are pending */
-  if (con->options.semi_block)
-  {
-    uv_stop(con->uv_objects.loop);
-  }
 }
 
 void ascore_read_data_cb(uv_stream_t* tcp, ssize_t read_size, const uv_buf_t buf)
