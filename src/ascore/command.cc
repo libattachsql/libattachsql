@@ -26,11 +26,11 @@ ascore_command_status_t ascore_command_send_compressed(ascon_st *con, ascore_com
   {
     if (command == ASCORE_COMMAND_STMT_PREPARE)
     {
-      con->next_packet_type= ASCORE_PACKET_TYPE_PREPARE_RESPONSE;
+      ascore_packet_queue_push(con, ASCORE_PACKET_TYPE_PREPARE_RESPONSE);
     }
     else
     {
-      con->next_packet_type= ASCORE_PACKET_TYPE_RESPONSE;
+      ascore_packet_queue_push(con, ASCORE_PACKET_TYPE_RESPONSE);
     }
     con->command_status= ASCORE_COMMAND_STATUS_SEND;
     con->status= ASCORE_CON_STATUS_BUSY;
@@ -112,7 +112,7 @@ ascore_command_status_t ascore_command_send(ascon_st *con, ascore_command_t comm
     con->local_errcode= ASRET_NET_WRITE_ERROR;
     asdebug("Write fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
     con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
-    con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
+    con->next_packet_queue_used= 0;
     con->local_errcode= ASRET_NET_WRITE_ERROR;
     snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "Query send failed: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
     return con->command_status;
@@ -120,15 +120,15 @@ ascore_command_status_t ascore_command_send(ascon_st *con, ascore_command_t comm
 
   if (command == ASCORE_COMMAND_STMT_PREPARE)
   {
-    con->next_packet_type= ASCORE_PACKET_TYPE_PREPARE_RESPONSE;
+    ascore_packet_queue_push(con, ASCORE_PACKET_TYPE_PREPARE_RESPONSE);
   }
   else if ((command == ASCORE_COMMAND_STMT_RESET) || (command == ASCORE_COMMAND_STMT_CLOSE))
   {
-    con->next_packet_type= ASCORE_PACKET_TYPE_NONE;
+    /*DO NOTHING*/
   }
   else
   {
-    con->next_packet_type= ASCORE_PACKET_TYPE_RESPONSE;
+    ascore_packet_queue_push(con, ASCORE_PACKET_TYPE_RESPONSE);
   }
   con->command_status= ASCORE_COMMAND_STATUS_SEND;
   con->status= ASCORE_CON_STATUS_BUSY;
@@ -138,7 +138,7 @@ ascore_command_status_t ascore_command_send(ascon_st *con, ascore_command_t comm
 ascore_command_status_t ascore_get_next_row(ascon_st *con)
 {
   ascore_buffer_packet_read_end(con->read_buffer);
-  con->next_packet_type= ASCORE_PACKET_TYPE_ROW;
+  ascore_packet_queue_push(con, ASCORE_PACKET_TYPE_ROW);
   con->command_status= ASCORE_COMMAND_STATUS_READ_ROW;
   ascore_con_process_packets(con);
   return con->command_status;
@@ -159,7 +159,7 @@ bool ascore_command_next_result(ascon_st *con)
     con->server_status= 0;
     con->warning_count= 0;
     con->server_errno= 0;
-    con->next_packet_type= ASCORE_PACKET_TYPE_RESPONSE;
+    ascore_packet_queue_push(con, ASCORE_PACKET_TYPE_RESPONSE);
     con->command_status= ASCORE_COMMAND_STATUS_READ_RESPONSE;
     con->status= ASCORE_CON_STATUS_BUSY;
     return true;

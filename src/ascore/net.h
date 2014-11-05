@@ -51,6 +51,12 @@ void ascore_packet_read_row(ascon_st *con);
 
 void ascore_run_uv_loop(ascon_st *con);
 
+bool ascore_packet_queue_push(ascon_st *con, ascore_packet_type_t packet_type);
+
+ascore_packet_type_t ascore_packet_queue_pop(ascon_st *con);
+
+ascore_packet_type_t ascore_packet_queue_peek(ascon_st *con);
+
 #ifdef HAVE_ZLIB
 void ascore_send_compressed_packet(ascon_st *con, char *data, size_t length, uint8_t command);
 #endif
