@@ -86,6 +86,11 @@ void ascore_con_destroy(ascon_st *con)
     free(con->compressed_buffer);
   }
 
+  if (con->next_packet_queue != NULL)
+  {
+    free(con->next_packet_queue);
+  }
+
 #ifdef HAVE_OPENSSL
   if (con->ssl.bio_buffer != NULL)
   {
