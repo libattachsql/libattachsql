@@ -122,7 +122,10 @@ void ascore_con_destroy(ascon_st *con)
   }
   if (not con->in_group)
   {
-    uv_loop_delete(con->uv_objects.loop);
+    if (con->uv_objects.loop != NULL)
+    {
+      uv_loop_delete(con->uv_objects.loop);
+    }
     delete con;
   }
 }
