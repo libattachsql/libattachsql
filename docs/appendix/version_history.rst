@@ -4,8 +4,8 @@ Version History
 Version 1.0
 -----------
 
-Version 1.0.1 GA (Not yet relesed)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Version 1.0.1 GA (2014-11-16)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * Removed libuv calls that were not needed (`Issue #139 <https://github.com/libattachsql/libattachsql/issues/139>`_)
 * Allow batched command sending which removes the need to stop the entire event loop when a command is sent (`Issue #140 <https://github.com/libattachsql/libattachsql/issues/140>`_)
