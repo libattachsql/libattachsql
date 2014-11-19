@@ -1029,7 +1029,7 @@ char *attachsql_statement_get_char(attachsql_connect_t *con, uint16_t column, si
       {
         return con->stmt_tmp_buffer;
       }
-      *length+= snprintf(con->stmt_tmp_buffer+(*length), ATTACHSQL_STMT_CHAR_BUFFER_SIZE-(*length), " %02" PRIu16 ":%02" PRIu8 ":%02" PRIu8, datetime.hour, datetime.minute, datetime.second);
+      *length+= snprintf(con->stmt_tmp_buffer+(*length), ATTACHSQL_STMT_CHAR_BUFFER_SIZE-(*length), " %02" PRIu8 ":%02" PRIu8 ":%02" PRIu8, datetime.hour, datetime.minute, datetime.second);
 
       if (datetime.microsecond)
       {

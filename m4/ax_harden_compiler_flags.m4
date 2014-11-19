@@ -51,7 +51,7 @@
 # -Wdeclaration-after-statement is counter to C99
 # _APPEND_COMPILE_FLAGS_ERROR([-pedantic])
 
-#serial 17
+#serial 18
 
 AC_DEFUN([_WARNINGS_AS_ERRORS],
     [AC_CACHE_CHECK([if all warnings into errors],[ac_cv_warnings_as_errors],
@@ -162,6 +162,7 @@ AC_DEFUN([_HARDEN_CC_COMPILER_FLAGS],
           _APPEND_COMPILE_FLAGS_ERROR([-Wunused-parameter])
           _APPEND_COMPILE_FLAGS_ERROR([-Wunused-local-typedefs])
           _APPEND_COMPILE_FLAGS_ERROR([-Wwrite-strings])
+          _APPEND_COMPILE_FLAGS_ERROR([-Wno-deprecated-declarations])
           _APPEND_COMPILE_FLAGS_ERROR([-fwrapv])
           _APPEND_COMPILE_FLAGS_ERROR([-pipe])
           AS_IF([test "x$MINGW" = xyes],
@@ -266,6 +267,7 @@ AC_DEFUN([_HARDEN_CXX_COMPILER_FLAGS],
           _APPEND_COMPILE_FLAGS_ERROR([-Wunused-local-typedefs])
           _APPEND_COMPILE_FLAGS_ERROR([-Wwrite-strings])
           _APPEND_COMPILE_FLAGS_ERROR([-Wformat-security])
+          _APPEND_COMPILE_FLAGS_ERROR([-Wno-deprecated-declarations])
           _APPEND_COMPILE_FLAGS_ERROR([-fwrapv])
           _APPEND_COMPILE_FLAGS_ERROR([-pipe])
           AS_IF([test "x$MINGW" = xyes],
