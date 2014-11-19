@@ -69,7 +69,7 @@ extern "C" {
   (__buffer)[7]= (uint8_t)(((__int) >> 56) & 0xFF); } while (0)
 
 #define ascore_unpack_int2(__buffer)               \
-            ((((uint8_t *)__buffer)[0]) |         \
+  (uint16_t)((((uint8_t *)__buffer)[0]) |         \
   ((uint16_t)(((uint8_t *)__buffer)[1]) << 8))
 #define ascore_unpack_int3(__buffer)               \
              (((uint8_t *)__buffer)[0] |          \
