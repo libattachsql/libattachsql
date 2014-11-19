@@ -124,6 +124,7 @@ AX_CHECK_OPENSSL([ax_cv_openssl=yes
                   ax_cv_openssl=no
                   AC_MSG_WARN(could not find openssl)])
 AX_ENDIAN
+AX_UNIVERSAL_BINARY
 AX_HEX_VERSION([LIBATTACHSQL],[$VERSION])
 AC_SUBST([RPM_RELEASE],[1])
 
