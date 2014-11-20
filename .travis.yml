@@ -25,7 +25,7 @@ env:
    - CI_SCRIPTS="$PROJECT_ROOT/.ci"
    - "MYSQL_SOCK=/var/run/mysqld/mysqld.sock"
   matrix:
-   - CI_TARGET=gcc
+   - CI_TARGET=gcc-distcheck
    - CI_TARGET=gcc-ia32
    - CI_TARGET=clang
    - CI_TARGET=clang-ia32
