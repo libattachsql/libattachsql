@@ -46,6 +46,7 @@ include docs/include.am
 include yatl/include.am
 
 dist_bin_SCRIPTS+= @GENERIC_CONFIG@
+DISTCLEANFILES+= @GENERIC_CONFIG@
 
 # Cleanup individual files in order to preserve uninstall/etc order
 maintainer-clean-local:
