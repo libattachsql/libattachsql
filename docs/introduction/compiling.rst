@@ -137,3 +137,5 @@ The build system for libAttachSQL has the capability to build RPMs.  To build RP
    ./configure
    make dist-rpm
 
+.. note::
+   The package ``redhat-rpm-config`` is required for building the RPM because this generates the debuginfo RPM.

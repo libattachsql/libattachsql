@@ -10,6 +10,7 @@ Version 1.0.2 GA (Not yet released)
 * Fixed compiler issues in Mac OS X 10.10 (`Issue #151 <https://github.com/libattachsql/libattachsql/issues/151>`_)
 * Added universal (x86 and x86_64) binary support for Mac OS X (`Issue #153 <https://github.com/libattachsql/libattachsql/issues/153>`_)
 * Fixed cleanup for distcheck (`Issue #155 <https://github.com/libattachsql/libattachsql/issues/155>`_)
+* Fixed debuginfo RPM building (`Issue #157 <https://github.com/libattachsql/libattachsql/issues/157>`_)
 
 Version 1.0.1 GA (2014-11-16)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
