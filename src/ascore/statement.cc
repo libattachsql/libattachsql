@@ -246,6 +246,10 @@ ascore_command_status_t ascore_stmt_fetch(ascore_stmt_st *stmt)
 
 void ascore_stmt_destroy(ascore_stmt_st *stmt)
 {
+  if (stmt == NULL)
+  {
+    return;
+  }
   if (stmt->column_count > 0)
   {
     delete[] stmt->columns;
