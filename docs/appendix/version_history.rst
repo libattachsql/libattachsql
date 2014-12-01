@@ -12,6 +12,7 @@ Version 1.0.2 GA (Not yet released)
 * Fixed cleanup for distcheck (`Issue #155 <https://github.com/libattachsql/libattachsql/issues/155>`_)
 * Fixed debuginfo RPM building (`Issue #157 <https://github.com/libattachsql/libattachsql/issues/157>`_)
 * Fixed crash on statement cleanup with unused connection (`Issue #159 <https://github.com/libattachsql/libattachsql/issues/159>`_)
+* Fixed incorrect column count check on prepared statement get_* functions (`Issue #162 <https://github.com/libattachsql/libattachsql/issues/162>`_)
 
 Version 1.0.1 GA (2014-11-16)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
