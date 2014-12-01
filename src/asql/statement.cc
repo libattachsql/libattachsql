@@ -412,7 +412,7 @@ int32_t attachsql_statement_get_int(attachsql_connect_t *con, uint16_t column, a
     return 0;
   }
 
-  if (column >= con->stmt->column_count)
+  if (column >= con->core_con->result.column_count)
   {
     attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Column %d does not exist", column);
     return 0;
@@ -495,7 +495,7 @@ uint32_t attachsql_statement_get_int_unsigned(attachsql_connect_t *con, uint16_t
     return 0;
   }
 
-  if (column >= con->stmt->column_count)
+  if (column >= con->core_con->result.column_count)
   {
     attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Column %d does not exist", column);
     return 0;
@@ -578,7 +578,7 @@ int64_t attachsql_statement_get_bigint(attachsql_connect_t *con, uint16_t column
     return 0;
   }
 
-  if (column >= con->stmt->column_count)
+  if (column >= con->core_con->result.column_count)
   {
     attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Column %d does not exist", column);
     return 0;
@@ -660,7 +660,7 @@ uint64_t attachsql_statement_get_bigint_unsigned(attachsql_connect_t *con, uint1
     return 0;
   }
 
-  if (column >= con->stmt->column_count)
+  if (column >= con->core_con->result.column_count)
   {
     attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Column %d does not exist", column);
     return 0;
@@ -742,7 +742,7 @@ double attachsql_statement_get_double(attachsql_connect_t *con, uint16_t column,
     return 0;
   }
 
-  if (column >= con->stmt->column_count)
+  if (column >= con->core_con->result.column_count)
   {
     attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Column %d does not exist", column);
     return 0;
@@ -824,7 +824,7 @@ float attachsql_statement_get_float(attachsql_connect_t *con, uint16_t column, a
     return 0;
   }
 
-  if (column >= con->stmt->column_count)
+  if (column >= con->core_con->result.column_count)
   {
     attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Column %d does not exist", column);
     return 0;
@@ -907,7 +907,7 @@ char *attachsql_statement_get_char(attachsql_connect_t *con, uint16_t column, si
     return NULL;
   }
 
-  if (column >= con->stmt->column_count)
+  if (column >= con->core_con->result.column_count)
   {
     attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Column %d does not exist", column);
     return NULL;
