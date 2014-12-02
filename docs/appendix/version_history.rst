@@ -4,8 +4,8 @@ Version History
 Version 1.0
 -----------
 
-Version 1.0.2 GA (Not yet released)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Version 1.0.2 GA (2014-12-02)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * Fixed compiler issues in Mac OS X 10.10 (`Issue #151 <https://github.com/libattachsql/libattachsql/issues/151>`_)
 * Added universal (x86 and x86_64) binary support for Mac OS X (`Issue #153 <https://github.com/libattachsql/libattachsql/issues/153>`_)
