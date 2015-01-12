@@ -124,11 +124,11 @@ AX_CHECK_OPENSSL([ax_cv_openssl=yes
                   ax_cv_openssl=no
                   AC_MSG_WARN(could not find openssl)])
 AX_ENDIAN
-AX_UNIVERSAL_BINARY
 AX_HEX_VERSION([LIBATTACHSQL],[$VERSION])
 AC_SUBST([RPM_RELEASE],[1])
 
 AX_HARDEN_COMPILER_FLAGS
+AX_UNIVERSAL_BINARY
 
 AC_DEFINE_UNQUOTED([C_COMPILER_VENDOR],["$ax_cv_c_compiler_vendor"],[Compiler vendor])
 AC_DEFINE_UNQUOTED([CXX_COMPILER_VENDOR],["$ax_cv_cxx_compiler_vendor"],[Compiler vendor])
