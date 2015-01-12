@@ -4,6 +4,12 @@ Version History
 Version 1.0
 -----------
 
+Version 1.0.3 GA (Not yet released)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Fixed compiling Mac universal in debug mode (`Issue #167 <https://github.com/libattachsql/libattachsql/issues/167>`_)
+* Fix test cases when MySQL is in a alternative timezone (`Issue #168 <https://github.com/libattachsql/libattachsql/issues/168>`_)
+
 Version 1.0.2 GA (2014-12-02)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

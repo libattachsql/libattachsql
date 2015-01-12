@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
   (void) argv;
   attachsql_connect_t *con;
   attachsql_error_t *error= NULL;
-  const char *data= "SELECT ? as a, ? as b, FROM_UNIXTIME(1196440219) as c";
+  const char *data= "SELECT ? as a, ? as b, CONVERT_TZ(FROM_UNIXTIME(1196440219),@@session.time_zone,'+00:00') as c";
   const char *data2= "hello world";
   const char *data3= "dlrow olleh";
   attachsql_return_t aret= ATTACHSQL_RETURN_NONE;
