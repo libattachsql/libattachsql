@@ -51,7 +51,7 @@
 # -Wdeclaration-after-statement is counter to C99
 # _APPEND_COMPILE_FLAGS_ERROR([-pedantic])
 
-#serial 18
+#serial 19
 
 AC_DEFUN([_WARNINGS_AS_ERRORS],
     [AC_CACHE_CHECK([if all warnings into errors],[ac_cv_warnings_as_errors],
@@ -278,7 +278,9 @@ AC_DEFUN([_HARDEN_CXX_COMPILER_FLAGS],
           _APPEND_COMPILE_FLAGS_ERROR([-Wlong-long])
 #         GCC 4.5 removed this.
 #         _APPEND_COMPILE_FLAGS_ERROR([-Wunreachable-code])
-
+# Disable c++11 long long warning for brew openssl on Mac
+         AS_IF([test "$ax_cv_c_compiler_vendor" = "clang"],[
+                 _APPEND_COMPILE_FLAGS_ERROR([-Wno-c++11-long-long])])
           AS_IF([test "x$ax_enable_debug" = xno],
           [AS_IF([test "x$ac_cv_vcs_checkout" = xyes],
             [AS_IF([test "x${host_os}" != "xmingw"],
