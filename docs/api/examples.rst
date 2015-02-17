@@ -1,6 +1,8 @@
 API Examples
 ============
 
+.. _basic-query-example:
+
 A Basic Query
 -------------
 
@@ -89,6 +91,8 @@ At the end of the program everything is cleaned up nicely:
    attachsql_query_close(con);
    attachsql_connect_destroy(con);
 
+.. _escaped-query-example:
+
 An Escaped Query
 ----------------
 
@@ -145,6 +149,8 @@ The resulting query generated before sending to the MySQL server is:
 
    SELECT * FROM t1 WHERE name = 'fred' AND age > 30;
 
+.. _buffered-results-example:
+
 Buffered Results
 ----------------
 
@@ -187,6 +193,7 @@ We can now loop through :c:func:`attachsql_query_buffer_row_get` to retrieve the
      printf("\n");
    }
 
+.. _prepared-statements-example:
 
 Prepared Statements
 -------------------
@@ -258,7 +265,9 @@ And finally instead of closing a query, we are closing a statement.
 
    attachsql_statement_close(con);
 
-Group Conncetions
+.. _group-connections-example:
+
+Group Connections
 -----------------
 
 libAttachSQL has the ability to group several connections into a single event loop.  This makes this more efficient for many connections on a single thread.  There is a slightly different access pattern for this which relies on callback.
