@@ -13,6 +13,24 @@ attachsql_error_free()
    .. versionadded:: 0.1.0
    .. versionchanged:: 0.5.0
 
+Example
+^^^^^^^
+
+.. code-block:: c
+
+   attachsql_connect_t *con= NULL;
+   attachsql_error_t *error= NULL;
+
+   // Note: we are not connecting here, just defining the connection
+   con= attachsql_connect_create("localhost", 3306, "test", "test", "testdb", &error);
+
+   if (error != NULL)
+   {
+     printf("Error occurred: %s\n", attachsql_error_message(error));
+     attachsql_error_free(error);
+     return -1;
+   }
+
 attachsql_error_code()
 ----------------------
 
@@ -24,6 +42,24 @@ attachsql_error_code()
    :returns: The error code
 
    .. versionadded:: 0.5.0
+
+Example
+^^^^^^^
+
+.. code-block:: c
+
+   attachsql_connect_t *con= NULL;
+   attachsql_error_t *error= NULL;
+
+   // Note: we are not connecting here, just defining the connection
+   con= attachsql_connect_create("localhost", 3306, "test", "test", "testdb", &error);
+
+   if (error != NULL)
+   {
+     printf("Error occurred, code: %d\n", attachsql_error_code(error));
+     attachsql_error_free(error);
+     return -1;
+   }
 
 attachsql_error_message()
 -------------------------
@@ -37,8 +73,26 @@ attachsql_error_message()
 
    .. versionadded:: 0.5.0
 
-attachsql_error_code()
-----------------------
+Example
+^^^^^^^
+
+.. code-block:: c
+
+   attachsql_connect_t *con= NULL;
+   attachsql_error_t *error= NULL;
+
+   // Note: we are not connecting here, just defining the connection
+   con= attachsql_connect_create("localhost", 3306, "test", "test", "testdb", &error);
+
+   if (error != NULL)
+   {
+     printf("Error occurred: %s\n", attachsql_error_message(error));
+     attachsql_error_free(error);
+     return -1;
+   }
+
+attachsql_error_sqlstate()
+--------------------------
 
 .. c:function:: char *attachsql_error_sqlstate(attachsql_error_t *err)
 
@@ -52,3 +106,20 @@ attachsql_error_code()
 
    .. versionadded:: 0.5.0
 
+Example
+^^^^^^^
+
+.. code-block:: c
+
+   attachsql_connect_t *con= NULL;
+   attachsql_error_t *error= NULL;
+
+   // Note: we are not connecting here, just defining the connection
+   con= attachsql_connect_create("localhost", 3306, "test", "test", "testdb", &error);
+
+   if (error != NULL)
+   {
+     printf("Error occurred, sqlstate: %5s\n", attachsql_error_sqlstate(error));
+     attachsql_error_free(error);
+     return -1;
+   }
