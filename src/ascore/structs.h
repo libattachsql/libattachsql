@@ -135,7 +135,6 @@ struct ascore_stmt_st
   ascon_st *con;
   uint32_t id;
   uint16_t column_count;
-  column_t *columns;
   uint16_t current_column;
   uint16_t param_count;
   column_t *params;
@@ -150,7 +149,6 @@ struct ascore_stmt_st
     con(NULL),
     id(0),
     column_count(0),
-    columns(NULL),
     current_column(0),
     param_count(0),
     params(NULL),
