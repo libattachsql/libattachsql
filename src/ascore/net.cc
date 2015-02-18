@@ -669,10 +669,6 @@ void ascore_packet_read_prepare_response(ascon_st *con)
       con->stmt->params= new (std::nothrow) column_t[con->stmt->param_count];
       con->stmt->param_data= new (std::nothrow) ascore_stmt_param_st[con->stmt->param_count];
     }
-    if (con->stmt->column_count)
-    {
-      con->stmt->columns= new (std::nothrow) column_t[con->stmt->column_count];
-    }
     if (con->stmt->param_count > 0)
     {
       ascore_packet_queue_push(con, ASCORE_PACKET_TYPE_PREPARE_PARAMETER);
@@ -836,10 +832,9 @@ void ascore_packet_read_prepare_parameter(ascon_st *con)
 
 void ascore_packet_read_prepare_column(ascon_st *con)
 {
-  asdebug("Prepare column packet callback");
-  column_t *column;
-  column= &con->stmt->columns[con->stmt->current_column];
-  ascore_packet_get_column(con, column);
+  /* Skipping these packets as they are useless */
+  asdebug("Prepare column packet callback (skipped)");
+  ascore_buffer_packet_read_end(con->read_buffer);
   con->stmt->current_column++;
   if (con->stmt->current_column == con->stmt->column_count)
   {
@@ -868,7 +863,6 @@ void ascore_packet_read_column(ascon_st *con)
     ascore_packet_queue_push(con, ASCORE_PACKET_TYPE_COLUMN);
   }
 }
-
 
 void ascore_packet_get_column(ascon_st *con, column_t *column)
 {

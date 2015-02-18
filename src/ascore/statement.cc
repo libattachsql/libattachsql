@@ -250,10 +250,6 @@ void ascore_stmt_destroy(ascore_stmt_st *stmt)
   {
     return;
   }
-  if (stmt->column_count > 0)
-  {
-    delete[] stmt->columns;
-  }
 
   if (stmt->param_count > 0)
   {
