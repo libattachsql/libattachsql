@@ -27,6 +27,11 @@ attachsql_query()
    .. versionadded:: 0.1.0
    .. versionchanged:: 0.5.0
 
+Example
+^^^^^^^
+
+See the following examples: :ref:`basic-query-example` and :ref:`escaped-query-example`
+
 attachsql_query_close()
 -----------------------
 
@@ -38,6 +43,19 @@ attachsql_query_close()
 
    .. versionadded:: 0.1.0
 
+Example
+^^^^^^^
+
+.. code-block:: c
+
+   attachsql_connect_t *con;
+
+   // Connect, send a query and process results
+   ...
+   attachsql_query_close(con);
+
+.. seealso:: :ref:`basic-query-example` example
+
 attachsql_query_column_count()
 ------------------------------
 
@@ -45,10 +63,36 @@ attachsql_query_column_count()
 
    Returns the number of columns in a query result
 
+   .. note:: at least the first row must be received to access this metadata
+
    :param con: The connection object the query is on
    :returns: The column count or ``0`` if there is no active query
 
    .. versionadded:: 0.1.0
+
+Example
+^^^^^^^
+
+.. code-block:: c
+
+   attachsql_connect_t *con;
+   uint16_t columns;
+
+   con= attachsql_connect_create("localhost", 3306, "test", "test", "testdb", NULL);
+   attachsql_query(con, strlen(query), query, 0, NULL, &error);
+
+   while ((ret != ATTACHSQL_RETURN_EOF) && (error == NULL))
+   {
+     ret= attachsql_connect_poll(con, &error);
+     if (ret != ATTACHSQL_RETURN_ROW_READY)
+     {
+       continue;
+     }
+     columns= attachsql_query_column_count(con);
+     ...
+
+
+.. seealso:: :ref:`basic-query-example` example
 
 attachsql_query_column_get()
 ----------------------------
@@ -57,11 +101,29 @@ attachsql_query_column_get()
 
    Gets column information for a specified column from a given query
 
+   .. note:: The resulting struct is free'd automatically when :c:func:`attachsql_query_close` is called.  The user should not attempt to free it.
+
    :param con: The connection object the query is on
    :param column: The column number to retrieve
    :returns: The column data or :c:type:`NULL` if there is no such column
 
    .. versionadded:: 0.1.0
+
+Example
+^^^^^^^
+
+.. code-block:: c
+
+   attachsql_connect_t *con;
+   attachsql_query_column_st *column_data;
+
+   con= attachsql_connect_create("localhost", 3306, "test", "test", "testdb", NULL);
+   attachsql_query(con, strlen(query), query, 0, NULL, &error);
+   // Poll here until first row in result is ready
+   ...
+   column_data= attachsql_query_column_get(con, 0);
+   printf("Table: %s, Column: %s\n", column_data->table, column_data->column);
+
 
 attachsql_query_row_get()
 -------------------------
@@ -82,6 +144,11 @@ attachsql_query_row_get()
 
    .. versionadded:: 0.1.0
 
+Example
+^^^^^^^
+
+See :ref:`basic-query-example` example
+
 attachsql_query_row_next()
 --------------------------
 
@@ -99,6 +166,31 @@ attachsql_query_row_next()
 
    .. versionadded:: 0.1.0
 
+Example
+^^^^^^^
+
+.. code-block:: c
+
+   attachsql_connect_t *con;
+   attachsql_error_t *error= NULL;
+   // Connect and execute query
+   ...
+   while ((ret != ATTACHSQL_RETURN_EOF) && (error == NULL))
+   {
+     ret= attachsql_connect_poll(con, &error);
+     if (ret != ATTACHSQL_RETURN_ROW_READY)
+     {
+       continue;
+     }
+     row= attachsql_query_row_get(con, &error);
+     columns= attachsql_query_column_count(con);
+     // Do something with the row
+     ...
+     attachsql_query_row_next(con);
+   }
+
+.. seealso:: :ref:`basic-query-example` example
+
 attachsql_connection_last_insert_id()
 -------------------------------------
 
@@ -110,6 +202,19 @@ attachsql_connection_last_insert_id()
    :returns: The insert ID or ``0`` if there was none
 
    .. versionadded:: 0.1.0
+
+Example
+^^^^^^^
+
+.. code-block:: c
+
+   attachsql_connect_t *con;
+   uint64_t insert_id;
+   // Execute a query
+   ...
+   attachsql_query_close(con);
+
+   insert_id= attachsql_connection_last_insert_id(con);
 
 attachsql_query_affected_rows()
 -------------------------------
@@ -123,6 +228,19 @@ attachsql_query_affected_rows()
 
    .. versionadded:: 0.1.0
 
+Example
+^^^^^^^
+
+.. code-block:: c
+
+   attachsql_connect_t *con;
+   uint64_t affected_rows;
+   // Execute a query
+   ...
+
+   affected_rows= attachsql_query_affected_rows(con);
+   attachsql_query_close(con);
+
 attachsql_query_warning_count()
 -------------------------------
 
@@ -135,6 +253,20 @@ attachsql_query_warning_count()
 
    .. versionadded:: 0.1.0
 
+Example
+^^^^^^^
+
+.. code-block:: c
+
+   attachsql_connect_t *con;
+   uint32_t warning_count;
+   // Execute a query
+   ...
+
+   warning_count= attachsql_query_warning_count(con);
+   attachsql_query_close(con);
+
+
 attachsql_query_info()
 ----------------------
 
@@ -142,10 +274,26 @@ attachsql_query_info()
 
    Returns a string of information on the previous query.
 
+   .. note:: this is freed internally when the connection is destroyed and should not be freed by the application.
+
    :param con: The connection object the query was on
    :returns: A string of the info or :c:type:`NULL` if there is none
 
    .. versionadded:: 0.1.0
+
+Example
+^^^^^^^
+
+.. code-block:: c
+
+   attachsql_connect_t *con;
+   const char *query_info;
+   // Execute a query
+   ...
+
+   query_info= attachsql_query_info(con);
+   printf("%s\n", query_info);
+   attachsql_query_close(con);
 
 attachsql_query_next_result()
 -----------------------------
@@ -158,6 +306,57 @@ attachsql_query_next_result()
    :returns: ``ATTACHSQL_RETURN_PROCESSING`` for more results, ``ATTACHSQL_RETURN_EOF`` for no more results.
 
    .. versionadded:: 0.1.0
+
+Example
+^^^^^^^
+
+.. code-block:: c
+
+   attachsql_connect_t *con;
+   attachsql_error_t *error= NULL;
+   const char *data= "SHOW PROCESSLIST; SHOW PROCESSLIST";
+   attachsql_return_t aret= ATTACHSQL_RETURN_NONE;
+   attachsql_query_row_st *row;
+   uint16_t columns, col;
+
+   con= attachsql_connect_create("localhost", 3306, "test", "test", "", NULL);
+   attachsql_connect_set_option(con, ATTACHSQL_OPTION_MULTI_STATEMENTS, NULL);
+   attachsql_query(con, strlen(data), data, 0, NULL, &error);
+   while(aret != ATTACHSQL_RETURN_EOF)
+   {
+     aret= attachsql_connect_poll(con, &error);
+     if (aret == ATTACHSQL_RETURN_ROW_READY)
+     {
+       row= attachsql_query_row_get(con, &error);
+       columns= attachsql_query_column_count(con);
+       for (col=0; col < columns; col++)
+       {
+         printf("Column: %d, Length: %zu, Data: %.*s ", col, row[col].length, (int)row[col].length, row[col].data);
+       }
+       attachsql_query_row_next(con);
+       printf("\n");
+     }
+   }
+   attachsql_query_close(con);
+   aret= attachsql_query_next_result(con);
+   while(aret != ATTACHSQL_RETURN_EOF)
+   {
+     aret= attachsql_connect_poll(con, &error);
+     if (aret == ATTACHSQL_RETURN_ROW_READY)
+     {
+       row= attachsql_query_row_get(con, &error);
+       columns= attachsql_query_column_count(con);
+       for (col=0; col < columns; col++)
+       {
+         printf("Column: %d, Length: %zu, Data: %.*s ", col, row[col].length, (int)row[col].length, row[col].data);
+       }
+       attachsql_query_row_next(con);
+       printf("\n");
+     }
+   }
+   attachsql_query_close(con);
+   attachsql_query_next_result(con);
+   attachsql_connect_destroy(con);
 
 attachsql_query_buffer_rows()
 -----------------------------
@@ -175,6 +374,21 @@ attachsql_query_buffer_rows()
 
    .. versionadded:: 0.2.0
 
+Example
+^^^^^^^
+
+.. code-block:: c
+
+   attachsql_connect_t *con= NULL;
+   attachsql_error_t *error= NULL;
+   const char *query= "SELECT * FROM t1 WHERE name='fred'";
+
+   con= attachsql_connect_create("localhost", 3306, "test", "test", "testdb", NULL);
+   attachsql_query_buffer_rows(con, true);
+   attachsql_query(con, strlen(query), query, 0, NULL, &error);
+
+.. seealso:: :ref:`buffered-results-example` example
+
 attachsql_query_row_count()
 ---------------------------
 
@@ -186,6 +400,34 @@ attachsql_query_row_count()
    :returns: The number of rows or 0 if not possible
 
    .. versionadded:: 0.2.0
+
+Example
+^^^^^^^
+
+.. code-block:: c
+
+   attachsql_connect_t *con;
+   attachsql_error_t *error= NULL;
+   const char *query= "SELECT * FROM t1 WHERE name='fred'";
+   uint64_t row_count;
+
+   con= attachsql_connect_create("localhost", 3306, "test", "test", "testdb", NULL);
+   attachsql_query_buffer_rows(con, true);
+   attachsql_query(con, strlen(query), query, 0, NULL, &error);
+
+   while ((ret != ATTACHSQL_RETURN_EOF) && (error == NULL))
+   {
+     ret= attachsql_connect_poll(con, &error);
+   }
+   if (error != NULL)
+   {
+     printf("Error occurred: %s", attachsql_error_message(error));
+     return 1;
+   }
+   row_count= attachsql_query_row_count(con);
+   ...
+
+.. seealso:: :ref:`buffered-results-example` example
 
 attachsql_query_buffer_row_get()
 --------------------------------
@@ -199,6 +441,11 @@ attachsql_query_buffer_row_get()
 
    .. versionadded:: 0.2.0
 
+Example
+^^^^^^^
+
+See :ref:`buffered-results-example` example
+
 attachsql_query_row_get_offset()
 --------------------------------
 
@@ -211,3 +458,41 @@ attachsql_query_row_get_offset()
    :returns: An array of row data, the number of elements in the array can be found with :c:func:`attachsql_query_column_count`
 
    .. versionadded:: 0.2.0
+
+Example
+^^^^^^^
+
+.. code-block:: c
+
+   attachsql_connect_t *con= NULL;
+   attachsql_error_t *error= NULL;
+   const char *query= "SELECT * FROM t1 WHERE name='fred'";
+   attachsql_return_t ret= ATTACHSQL_RETURN_NONE;
+   attachsql_query_row_st *row;
+   uint16_t columns, current_column;
+
+   con= attachsql_connect_create("localhost", 3306, "test", "test", "testdb", NULL);
+   attachsql_query_buffer_rows(con, true);
+   attachsql_query(con, strlen(query), query, 0, NULL, &error);
+
+   while ((ret != ATTACHSQL_RETURN_EOF) && (error == NULL))
+   {
+     ret= attachsql_connect_poll(con, &error);
+   }
+   if (error != NULL)
+   {
+     printf("Error occurred: %s", attachsql_error_message(error));
+     return 1;
+   }
+
+   columns= attachsql_query_column_count(con);
+   // Get row 2 (the third row in a result set)
+   row= attachsql_query_buffer_row_get(con, 2);
+   for (current_column= 0; current_column < columns; current_column++)
+   {
+     printf("%.*s ", (int)row[current_column].length, row[current_column].data);
+   }
+   printf("\n");
+   attachsql_query_close(con);
+   attachsql_connect_destroy(con);
+

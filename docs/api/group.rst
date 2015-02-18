@@ -13,6 +13,25 @@ attachsql_group_create()
 
    .. versionadded:: 0.9.0
 
+Example
+^^^^^^^
+
+.. code-block:: c
+
+   attachsql_group_t *group= NULL;
+   attachsql_error_t *error= NULL;
+
+   group= attachsql_group_create(&error);
+
+   if (error != NULL)
+   {
+     printf("Error occurred: %s\n", attachsql_error_message(error));
+     attachsql_error_free(error);
+     return -1;
+   }
+
+.. seealso:: :ref:`group-connections-example` example
+
 attachsql_group_destroy()
 -------------------------
 
@@ -26,6 +45,23 @@ attachsql_group_destroy()
    :param group: The group object to destroy
 
    .. versionadded:: 0.9.0
+
+Example
+^^^^^^^
+
+.. code-block:: c
+
+   attachsql_group_t *group= NULL;
+   attachsql_error_t *error= NULL;
+
+   group= attachsql_group_create(&error);
+
+   // Do stuff with the group
+   ...
+
+   attachsql_group_destroy(group);
+
+.. seealso:: :ref:`group-connections-example` example
 
 attachsql_group_add_connection()
 --------------------------------
@@ -46,6 +82,24 @@ attachsql_group_add_connection()
 
    .. versionadded:: 0.9.0
 
+Example
+^^^^^^^
+
+.. code-block:: c
+
+   attachsql_connect_t *con1= NULL;
+   attachsql_group_t *group= NULL;
+   attachsql_error_t *error= NULL;
+
+   group= attachsql_group_create(NULL);
+   con1= attachsql_connect_create("localhost", 3306, "test", "test", "testdb", NULL);
+   attachsql_group_add_connection(group, con1, &error);
+
+   // Do things with the group here
+   ...
+
+.. seealso:: :ref:`group-connections-example` example
+
 attachsql_group_run()
 ---------------------
 
@@ -59,3 +113,8 @@ attachsql_group_run()
    :param group: The connection group to run
 
    .. versionadded:: 0.9.0
+
+Example
+^^^^^^^
+
+See the :ref:`group-connections-example` example
