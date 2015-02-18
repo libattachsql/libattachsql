@@ -10,7 +10,7 @@ Version 1.0.3 GA (Not yet released)
 * Fixed compiling Mac universal in debug mode (`Issue #167 <https://github.com/libattachsql/libattachsql/issues/167>`_)
 * Fixed test cases when MySQL is in a alternative timezone (`Issue #168 <https://github.com/libattachsql/libattachsql/issues/168>`_)
 * Fixed self-signed certificates in test suite (`Issue #170 <https://github.com/libattachsql/libattachsql/issues/170>`_)
-* Fixed Ubuntu 12.04 test verbosity breaking Travis CI (`Issue #170 <https://github.com/libattachsql/libattachsql/issues/174>`_)
+* Fixed Ubuntu 12.04 test verbosity breaking Travis CI (`Issue #174 <https://github.com/libattachsql/libattachsql/issues/174>`_)
 * Fixed expired SSL certificates in test suite (`Issue #176 <https://github.com/libattachsql/libattachsql/issues/176>`_)
 * Added many examples to the documentation (`Issue #172 <https://github.com/libattachsql/libattachsql/issues/172>`_)
 
