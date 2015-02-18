@@ -10,4 +10,4 @@ export CPPFLAGS="-m32"
 export LDFLAGS="-m32"
 autoreconf -fi
 ./configure --enable-debug
-make check
+make check 2>/dev/null
