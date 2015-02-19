@@ -4,8 +4,8 @@ Version History
 Version 1.0
 -----------
 
-Version 1.0.3 GA (Not yet released)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Version 1.0.3 GA (2015-02-19)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * Fixed compiling Mac universal in debug mode (`Issue #167 <https://github.com/libattachsql/libattachsql/issues/167>`_)
 * Fixed test cases when MySQL is in a alternative timezone (`Issue #168 <https://github.com/libattachsql/libattachsql/issues/168>`_)
@@ -13,7 +13,7 @@ Version 1.0.3 GA (Not yet released)
 * Fixed Ubuntu 12.04 test verbosity breaking Travis CI (`Issue #174 <https://github.com/libattachsql/libattachsql/issues/174>`_)
 * Fixed expired SSL certificates in test suite (`Issue #176 <https://github.com/libattachsql/libattachsql/issues/176>`_)
 * Added many examples to the documentation (`Issue #172 <https://github.com/libattachsql/libattachsql/issues/172>`_)
-
+* Slightly improved performance of prepared statement prepare phase (`Issue #166 <https://github.com/libattachsql/libattachsql/issues/166>`_)
 
 Version 1.0.2 GA (2014-12-02)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
