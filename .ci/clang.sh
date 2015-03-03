@@ -4,4 +4,5 @@ CC="clang"
 CXX="clang++"
 autoreconf -fi
 ./configure --enable-debug
+make
 make check 2>/dev/null

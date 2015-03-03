@@ -3,4 +3,5 @@ sudo apt-get remove -y zlib1g-dev libssl-dev
 
 autoreconf -fi
 ./configure --enable-debug
+make
 make check 2>/dev/null
