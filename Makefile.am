@@ -38,7 +38,7 @@ TESTS+= ${check_PROGRAMS}
 include m4/include.am
 include src/ascore/include.am
 include src/asql/include.am
-include libattachsql-1.0/include.am
+include libattachsql-2.0/include.am
 include tests/include.am
 include examples/include.am
 include rpm/include.mk

@@ -294,7 +294,7 @@ struct ascon_st
     warning_count(0),
     server_errno(0),
     charset(0),
-    command_status(ASCORE_COMMAND_STATUS_NONE),
+    command_status(ASCORE_COMMAND_STATUS_EOF),
     next_packet_queue(NULL),
     next_packet_queue_size(0),
     next_packet_queue_used(0),

@@ -190,8 +190,6 @@ ENUMs
    +------------------------------------+--------------------------------------------------------------------+
    | ``ATTACHSQL_RETURN_CONNECTING``    | Connection/handshake currently in-progress                         |
    +------------------------------------+--------------------------------------------------------------------+
-   | ``ATTACHSQL_RETURN_IDLE``          | Connection is idle and waiting for a command                       |
-   +------------------------------------+--------------------------------------------------------------------+
    | ``ATTACHSQL_RETURN_PROCESSING``    | The query is currently processing                                  |
    +------------------------------------+--------------------------------------------------------------------+
    | ``ATTACHSQL_RETURN_ROW_READY``     | A row is ready for retrieval from the buffer                       |
