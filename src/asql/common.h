@@ -21,7 +21,7 @@
 #include <cstddef>
 #endif
 
-#include <libattachsql-1.0/attachsql.h>
+#include <libattachsql-2.0/attachsql.h>
 #include "src/asql/structs_internal.h"
 #include "src/asql/error_internal.h"
 

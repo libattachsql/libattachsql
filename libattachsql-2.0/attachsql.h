@@ -30,13 +30,13 @@ typedef uint16_t in_port_t;
 #endif
 
 /* These four need to go first, in this order */
-#include <libattachsql-1.0/visibility.h>
-#include <libattachsql-1.0/constants.h>
-#include <libattachsql-1.0/structs.h>
-#include <libattachsql-1.0/error.h>
+#include <libattachsql-2.0/visibility.h>
+#include <libattachsql-2.0/constants.h>
+#include <libattachsql-2.0/structs.h>
+#include <libattachsql-2.0/error.h>
 
-#include <libattachsql-1.0/connect.h>
-#include <libattachsql-1.0/group.h>
-#include <libattachsql-1.0/query.h>
-#include <libattachsql-1.0/statement.h>
-#include <libattachsql-1.0/utility.h>
+#include <libattachsql-2.0/connect.h>
+#include <libattachsql-2.0/group.h>
+#include <libattachsql-2.0/query.h>
+#include <libattachsql-2.0/statement.h>
+#include <libattachsql-2.0/utility.h>
