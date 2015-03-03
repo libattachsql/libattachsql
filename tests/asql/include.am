@@ -98,6 +98,16 @@ endif
 check_PROGRAMS+= t/asql/connect_error
 noinst_PROGRAMS+= t/asql/connect_error
 
+t_asql_connect_SOURCES= tests/asql/connect.cc
+t_asql_connect_LDADD= src/asql/libattachsql.la
+if BUILD_WIN32
+t_asql_connect_LDADD+= -lws2_32
+t_asql_connect_LDADD+= -lpsapi
+t_asql_connect_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/asql/connect
+noinst_PROGRAMS+= t/asql/connect
+
 t_asql_statement_SOURCES= tests/asql/statement.cc
 t_asql_statement_LDADD= src/asql/libattachsql.la
 if BUILD_WIN32
@@ -208,3 +218,12 @@ endif
 check_PROGRAMS+= t/asql/query_ssl_compress
 noinst_PROGRAMS+= t/asql/query_ssl_compress
 
+t_asql_transaction_SOURCES= tests/asql/transaction.cc
+t_asql_transaction_LDADD= src/asql/libattachsql.la
+if BUILD_WIN32
+t_asql_transaction_LDADD+= -lws2_32
+t_asql_transaction_LDADD+= -lpsapi
+t_asql_transaction_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/asql/transaction
+noinst_PROGRAMS+= t/asql/transaction

@@ -17,7 +17,7 @@
 
 #include <yatl/lite.h>
 #include "version.h"
-#include <libattachsql-1.0/attachsql.h>
+#include <libattachsql-2.0/attachsql.h>
 
 int main(int argc, char *argv[])
 {

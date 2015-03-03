@@ -759,7 +759,7 @@ void ascore_packet_read_response(ascon_st *con)
       con->status= ASCORE_CON_STATUS_IDLE;
     }
     con->next_packet_queue_used= 0;
-    con->command_status= ASCORE_COMMAND_STATUS_NONE;
+    con->command_status= ASCORE_COMMAND_STATUS_EOF;
     ascore_packet_read_end(con);
   }
   else if ((unsigned char)buffer->buffer_read_ptr[0] == 0xfe)

@@ -194,7 +194,7 @@ attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_er
           con->callback_fn(con, ATTACHSQL_EVENT_EOF, con->callback_context, NULL);
         }
         con->all_rows_buffered= true;
-        con->core_con->command_status= ASCORE_COMMAND_STATUS_NONE;
+        con->core_con->command_status= ASCORE_COMMAND_STATUS_EOF;
         return ATTACHSQL_RETURN_EOF;
       }
       else if (con->core_con->command_status == ASCORE_COMMAND_STATUS_ROW_IN_BUFFER)
@@ -222,8 +222,14 @@ attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_er
         {
           return attachsql_connect_query(con, error);
         }
+        else
+        {
+          return ATTACHSQL_RETURN_EOF;
+        }
       }
-      return ATTACHSQL_RETURN_IDLE;
+      /* If we hit here something went wrong */
+      assert(0);
+      return ATTACHSQL_RETURN_EOF;
       break;
     case ASCORE_CON_STATUS_NET_ERROR:
       attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_SERVER_LOST, ATTACHSQL_ERROR_LEVEL_ERROR, "08006", con->core_con->errmsg);

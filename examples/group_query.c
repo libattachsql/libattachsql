@@ -15,7 +15,7 @@
  *
  */
 
-#include <libattachsql-1.0/attachsql.h>
+#include <libattachsql-2.0/attachsql.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
