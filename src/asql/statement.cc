@@ -143,11 +143,6 @@ bool attachsql_statement_set_unsigned_bigint(attachsql_connect_t *con, uint16_t 
   return attachsql_statement_set_param(con, ASCORE_COLUMN_TYPE_LONGLONG, param, 0, &value, true, error);
 }
 
-bool attachsql_statement_set_float(attachsql_connect_t *con, uint16_t param, float value, attachsql_error_t **error)
-{
-  return attachsql_statement_set_param(con, ASCORE_COLUMN_TYPE_FLOAT, param, 0, &value, false, error);
-}
-
 bool attachsql_statement_set_double(attachsql_connect_t *con, uint16_t param, double value, attachsql_error_t **error)
 {
   return attachsql_statement_set_param(con, ASCORE_COLUMN_TYPE_DOUBLE, param, 0, &value, false, error);
@@ -809,89 +804,6 @@ double attachsql_statement_get_double(attachsql_connect_t *con, uint16_t column,
   /* Should never hit here, but lets make compilers happy */
   return 0;
 }
-
-float attachsql_statement_get_float(attachsql_connect_t *con, uint16_t column, attachsql_error_t **error)
-{
-  if (con == NULL)
-  {
-    attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Connection parameter not valid");
-    return 0;
-  }
-
-  if (con->stmt_row == NULL)
-  {
-    attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Statement row has not been processed");
-    return 0;
-  }
-
-  if (column >= con->core_con->result.column_count)
-  {
-    attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Column %d does not exist", column);
-    return 0;
-  }
-
-  attachsql_stmt_row_st *column_data= &con->stmt_row[column];
-  switch (column_data->type)
-  {
-    case ASCORE_COLUMN_TYPE_TINY:
-      return (float)column_data->data[0];
-      break;
-    case ASCORE_COLUMN_TYPE_YEAR:
-    case ASCORE_COLUMN_TYPE_SHORT:
-      return (float)ascore_unpack_int2(column_data->data);
-      break;
-    case ASCORE_COLUMN_TYPE_LONG:
-      return (float)ascore_unpack_int4(column_data->data);
-      break;
-    case ASCORE_COLUMN_TYPE_LONGLONG:
-      return (float)ascore_unpack_int8(column_data->data);
-      break;
-    case ASCORE_COLUMN_TYPE_FLOAT:
-      float f;
-      memcpy(&f, column_data->data, 4);
-      return f;
-      break;
-    case ASCORE_COLUMN_TYPE_DOUBLE:
-      double d;
-      memcpy(&d, column_data->data, 8);
-      return (float)d;
-      break;
-    case ASCORE_COLUMN_TYPE_NULL:
-      return 0;
-      break;
-    case ASCORE_COLUMN_TYPE_INT24:
-      return (float)ascore_unpack_int3(column_data->data);
-      break;
-
-    case ASCORE_COLUMN_TYPE_DECIMAL:
-    case ASCORE_COLUMN_TYPE_TIMESTAMP:
-    case ASCORE_COLUMN_TYPE_DATE:
-    case ASCORE_COLUMN_TYPE_TIME:
-    case ASCORE_COLUMN_TYPE_DATETIME:
-    case ASCORE_COLUMN_TYPE_NEWDATE:
-    case ASCORE_COLUMN_TYPE_VARCHAR:
-    case ASCORE_COLUMN_TYPE_BIT:
-    case ASCORE_COLUMN_TYPE_TIMESTAMP2:
-    case ASCORE_COLUMN_TYPE_DATETIME2:
-    case ASCORE_COLUMN_TYPE_TIME2:
-    case ASCORE_COLUMN_TYPE_NEWDECIMAL:
-    case ASCORE_COLUMN_TYPE_ENUM:
-    case ASCORE_COLUMN_TYPE_SET:
-    case ASCORE_COLUMN_TYPE_TINY_BLOB:
-    case ASCORE_COLUMN_TYPE_MEDIUM_BLOB:
-    case ASCORE_COLUMN_TYPE_LONG_BLOB:
-    case ASCORE_COLUMN_TYPE_BLOB:
-    case ASCORE_COLUMN_TYPE_VARSTRING:
-    case ASCORE_COLUMN_TYPE_STRING:
-    case ASCORE_COLUMN_TYPE_GEOMETRY:
-      attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Cannot convert to int");
-      return 0;
-      break;
-  }
-  /* Should never hit here, but lets make compilers happy */
-  return 0;
-}
-
 
 char *attachsql_statement_get_char(attachsql_connect_t *con, uint16_t column, size_t *length, attachsql_error_t **error)
 {

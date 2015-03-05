@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
       ASSERT_FALSE_(true, "Error exists: %d", attachsql_error_code(error));
     }
   }
-  attachsql_statement_set_float(con, 0, 3.14159, NULL);
+  attachsql_statement_set_double(con, 0, 3.14159, NULL);
   attachsql_statement_set_datetime(con, 1, 2014, 10, 6, 21, 50, 20, 324560, NULL);
   attachsql_statement_execute(con, &error);
   aret= ATTACHSQL_RETURN_NONE;
@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
       size_t len;
       char *col_data= attachsql_statement_get_char(con, 1, &len, &error);
       printf("Column 0: %.*s\n", (int)len, col_data);
-      printf("Column 1: %f\n", attachsql_statement_get_float(con, 0, &error));
+      printf("Column 1: %f\n", attachsql_statement_get_double(con, 0, &error));
       ASSERT_STREQL_("2014-10-06 21:50:20.324560", col_data, len, "Column 0 result match fail");
       col_data= attachsql_statement_get_char(con, 0, &len, &error);
       ASSERT_STREQL_("3.14159", col_data, 7, "Column 0 str conversion fail");

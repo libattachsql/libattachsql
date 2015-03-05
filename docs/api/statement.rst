@@ -327,42 +327,6 @@ Example
    uint64_t age= 32;
    attachsql_statement_set_unsigned_bigint(con, 1, age, NULL);
 
-attachsql_statement_set_float()
--------------------------------
-
-.. c:function:: bool attachsql_statement_set_float(attachsql_connect_t *con, uint16_t param, float value, attachsql_error_t **error)
-
-   Sets a float value for a given parameter
-
-   :param con: The connection the statement is on
-   :param param: The parameter to set (starting at 0)
-   :param value: The value for the parameter
-   :param error: A pointer to a pointer of an error object which is created if an error occurs
-   :returns: ``true`` on success or ``false`` on failure
-
-   .. versionadded:: 0.4.0
-   .. versionchanged:: 0.5.0
-
-Example
-^^^^^^^
-
-.. code-block:: c
-
-   attachsql_connect_t *con= NULL;
-   attachsql_error_t *error= NULL;
-   const char *query= "SELECT * FROM t1 WHERE type = ? AND length > ?";
-   attachsql_return_t ret= ATTACHSQL_RETURN_NONE;
-
-   con= attachsql_connect_create("localhost", 3306, "test", "test", "testdb", NULL);
-   attachsql_statement_prepare(con, strlen(query), query, &error);
-   while((ret != ATTACHSQL_RETURN_EOF) && (error == NULL))
-   {
-     ret= attachsql_connect_poll(con, &error);
-   }
-
-   float length= 3.6;
-   attachsql_statement_set_unsigned_bigint(con, 1, length, NULL);
-
 attachsql_statement_set_double()
 --------------------------------
 
@@ -859,59 +823,6 @@ Example
      char *name_data= attachsql_statement_get_char(con, 1, &len, &error);
      printf("Name: %.*s, ", (int)len, name_data);
      printf("Age: %d\n", attachsql_statement_get_int(con, 2, &error));
-     attachsql_statement_row_next(con);
-   }
-
-attachsql_statement_get_float()
--------------------------------
-
-.. c:function:: float attachsql_statement_get_float(attachsql_connect_t *con, uint16_t column, attachsql_error_t **error)
-
-   Retrieves a float value from a column of a result set.  Converting a non-float where possible.  An error condition will occur if conversion is not possible.
-
-   :param con: The connection the statement is on
-   :param column: The column number to retrieve data from (starting at 0)
-   :param error: A pointer to a pointer of an error object which is created if an error occurs
-   :returns: The float value (or 0 upon error)
-
-   .. versionadded:: 0.4.0
-
-Example
-^^^^^^^
-
-.. code-block:: c
-
-   attachsql_connect_t *con= NULL;
-   attachsql_error_t *error= NULL;
-   const char *query= "SELECT * FROM t1 WHERE type = ? AND size > ?";
-   attachsql_return_t ret= ATTACHSQL_RETURN_NONE;
-
-   con= attachsql_connect_create("localhost", 3306, "test", "test", "testdb", NULL);
-   attachsql_statement_prepare(con, strlen(query), query, &error);
-   while((ret != ATTACHSQL_RETURN_EOF) && (error == NULL))
-   {
-     ret= attachsql_connect_poll(con, &error);
-   }
-
-   const char *type= "pole";
-   uint32_t size= 6.5;
-   attachsql_statement_set_string(con, 0, strlen(type), type, NULL);
-   attachsql_statement_set_int(con, 1, size, NULL);
-   attachsql_statement_execute(con, &error);
-   ret= ATTACHSQL_RETURN_NONE;
-   while ((ret != ATTACHSQL_RETURN_EOF) && (error == NULL))
-   {
-     ret= attachsql_connect_poll(con, &error);
-     if (ret != ATTACHSQL_RETURN_ROW_READY)
-     {
-       continue;
-     }
-     attachsql_statement_row_get(con, &error);
-     printf("ID: %d, ", attachsql_statement_get_int(con, 0, &error));
-     size_t len;
-     char *type_data= attachsql_statement_get_char(con, 1, &len, &error);
-     printf("Type: %.*s, ", (int)len, type_data);
-     printf("Size: %f\n", attachsql_statement_get_float(con, 2, &error));
      attachsql_statement_row_next(con);
    }
 
