@@ -16,6 +16,8 @@ libattachsql
 * Waffle.io: |waffle|
 * Read The Docs status: |docs|
 
+**The "master" branch has an unstable API, please us the v1.0 branch for a stable API**
+
 Compiling
 ---------
 
