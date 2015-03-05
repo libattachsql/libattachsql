@@ -49,9 +49,6 @@ ASQL_API
 bool attachsql_statement_set_unsigned_bigint(attachsql_connect_t *con, uint16_t param, uint64_t value, attachsql_error_t **error);
 
 ASQL_API
-bool attachsql_statement_set_float(attachsql_connect_t *con, uint16_t param, float value, attachsql_error_t **error);
-
-ASQL_API
 bool attachsql_statement_set_double(attachsql_connect_t *con, uint16_t param, double value, attachsql_error_t **error);
 
 ASQL_API
@@ -86,9 +83,6 @@ uint64_t attachsql_statement_get_bigint_unsigned(attachsql_connect_t *con, uint1
 
 ASQL_API
 double attachsql_statement_get_double(attachsql_connect_t *con, uint16_t column, attachsql_error_t **error);
-
-ASQL_API
-float attachsql_statement_get_float(attachsql_connect_t *con, uint16_t column, attachsql_error_t **error);
 
 ASQL_API
 char *attachsql_statement_get_char(attachsql_connect_t *con, uint16_t column, size_t *length, attachsql_error_t **error);

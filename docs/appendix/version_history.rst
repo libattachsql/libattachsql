@@ -8,6 +8,7 @@ Version 2.0.0 Beta (Not yet released)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * Removed the IDLE return state, it was causing confusion and the EOF state did the same (`Issue #179 <https://github.com/libattachsql/libattachsql/issues/179>`_)
+* Removed ``attachsql_statement_set_float()`` and ``attachsql_statement_get_float()``.  The double functions should be used instead (`Issue #181 <https://github.com/libattachsql/libattachsql/issues/181>`_)
 
 Version 1.0
 -----------
@@ -124,7 +125,7 @@ Incompatible changes
   * :c:func:`attachsql_statement_set_unsigned_int`
   * :c:func:`attachsql_statement_set_bigint`
   * :c:func:`attachsql_statement_set_unsigned_bigint`
-  * :c:func:`attachsql_statement_set_float`
+  * ``attachsql_statement_set_float()``
   * :c:func:`attachsql_statement_set_double`
   * :c:func:`attachsql_statement_set_string`
   * :c:func:`attachsql_statement_set_binary`
