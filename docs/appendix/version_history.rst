@@ -125,7 +125,7 @@ Incompatible changes
   * :c:func:`attachsql_statement_set_unsigned_int`
   * :c:func:`attachsql_statement_set_bigint`
   * :c:func:`attachsql_statement_set_unsigned_bigint`
-  * :c:func:`attachsql_statement_set_float`
+  * ``attachsql_statement_set_float()``
   * :c:func:`attachsql_statement_set_double`
   * :c:func:`attachsql_statement_set_string`
   * :c:func:`attachsql_statement_set_binary`
