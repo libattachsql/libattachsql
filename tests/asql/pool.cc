@@ -67,20 +67,20 @@ int main(int argc, char *argv[])
   (void) argc;
   (void) argv;
   attachsql_connect_t *con[3];
-  attachsql_group_t *group;
+  attachsql_pool_t *pool;
   attachsql_error_t *error= NULL;
   const char *data= "SHOW PROCESSLIST";
   uint8_t con_no[3]= {0, 1, 2};
 
-  group= attachsql_group_create(NULL);
+  pool= attachsql_pool_create(NULL);
   con[0]= attachsql_connect_create("localhost", 3306, "test", "test", "", NULL);
-  attachsql_group_add_connection(group, con[0], &error);
+  attachsql_pool_add_connection(pool, con[0], &error);
   attachsql_connect_set_callback(con[0], callbk, &con_no[0]);
   con[1]= attachsql_connect_create("localhost", 3306, "test", "test", "", NULL);
-  attachsql_group_add_connection(group, con[1], &error);
+  attachsql_pool_add_connection(pool, con[1], &error);
   attachsql_connect_set_callback(con[1], callbk, &con_no[1]);
   con[2]= attachsql_connect_create("localhost", 3306, "test", "test", "", NULL);
-  attachsql_group_add_connection(group, con[2], &error);
+  attachsql_pool_add_connection(pool, con[2], &error);
   attachsql_connect_set_callback(con[2], callbk, &con_no[2]);
   attachsql_query(con[0], strlen(data), data, 0, NULL, &error);
   attachsql_query(con[1], strlen(data), data, 0, NULL, &error);
@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
 
   while((not done[0]) || (not done[1]) || (not done[2]))
   {
-    attachsql_group_run(group);
+    attachsql_pool_run(pool);
   }
-  attachsql_group_destroy(group);
+  attachsql_pool_destroy(pool);
 }

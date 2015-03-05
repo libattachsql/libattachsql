@@ -173,8 +173,8 @@ typedef enum attachsql_error_codes_t attachsql_error_codes_t;
 
 typedef struct attachsql_error_t attachsql_error_t;
 
-struct attachsql_group_t;
-typedef struct attachsql_group_t attachsql_group_t;
+struct attachsql_pool_t;
+typedef struct attachsql_pool_t attachsql_pool_t;
 
 enum attachsql_column_flags_t
 {

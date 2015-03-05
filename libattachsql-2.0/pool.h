@@ -22,16 +22,16 @@ extern "C" {
 #endif
 
 ASQL_API
-attachsql_group_t *attachsql_group_create(attachsql_error_t **error);
+attachsql_pool_t *attachsql_pool_create(attachsql_error_t **error);
 
 ASQL_API
-void attachsql_group_destroy(attachsql_group_t *group);
+void attachsql_pool_destroy(attachsql_pool_t *pool);
 
 ASQL_API
-void attachsql_group_add_connection(attachsql_group_t *group, attachsql_connect_t *con, attachsql_error_t **error);
+void attachsql_pool_add_connection(attachsql_pool_t *pool, attachsql_connect_t *con, attachsql_error_t **error);
 
 ASQL_API
-void attachsql_group_run(attachsql_group_t *group);
+void attachsql_pool_run(attachsql_pool_t *pool);
 
 #ifdef __cplusplus
 }

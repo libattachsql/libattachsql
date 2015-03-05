@@ -1017,7 +1017,7 @@ void ascore_packet_get_column(ascon_st *con, column_t *column)
 
 void ascore_run_uv_loop(ascon_st *con)
 {
-  if (!con->in_group)
+  if (!con->in_pool)
   {
     if (con->options.semi_block)
     {

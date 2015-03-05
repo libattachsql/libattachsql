@@ -115,12 +115,12 @@ void ascore_con_destroy(ascon_st *con)
   {
     uv_check_stop(&con->uv_objects.check);
     uv_close((uv_handle_t*)con->uv_objects.stream, NULL);
-    if (not con->in_group)
+    if (not con->in_pool)
     {
       uv_run(con->uv_objects.loop, UV_RUN_DEFAULT);
     }
   }
-  if (not con->in_group)
+  if (not con->in_pool)
   {
     if (con->uv_objects.loop != NULL)
     {
@@ -205,7 +205,7 @@ ascore_con_status_t ascore_connect(ascon_st *con)
     return con->status;
   }
 
-  if (not con->in_group)
+  if (not con->in_pool)
   {
     con->uv_objects.loop= uv_loop_new();
   }
