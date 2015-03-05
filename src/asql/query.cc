@@ -26,7 +26,7 @@ bool attachsql_query(attachsql_connect_t *con, size_t length, const char *statem
   size_t buffer_pos= 0;
   size_t out_len;
   uint16_t param;
-  ascore_command_status_t ret;
+  attachsql_command_status_t ret;
 
   if (con == NULL)
   {
@@ -44,7 +44,7 @@ bool attachsql_query(attachsql_connect_t *con, size_t length, const char *statem
   /* No parameters so we can send now */
   if (parameter_count == 0)
   {
-    if (con->core_con->status == ASCORE_CON_STATUS_NOT_CONNECTED)
+    if (con->status == ATTACHSQL_CON_STATUS_NOT_CONNECTED)
     {
       con->query_buffer= (char*)statement;
       con->query_buffer_length= length;
@@ -52,10 +52,10 @@ bool attachsql_query(attachsql_connect_t *con, size_t length, const char *statem
       con->query_buffer_statement= false;
       return attachsql_connect(con, error);
     }
-    ret= ascore_command_send(con->core_con, ASCORE_COMMAND_QUERY, (char*)statement, length);
-    if (ret == ASCORE_COMMAND_STATUS_SEND_FAILED)
+    ret= attachsql_command_send(con, ATTACHSQL_COMMAND_QUERY, (char*)statement, length);
+    if (ret == ATTACHSQL_COMMAND_STATUS_SEND_FAILED)
     {
-      attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_SERVER_GONE, ATTACHSQL_ERROR_LEVEL_ERROR, "08006", con->core_con->errmsg);
+      attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_SERVER_GONE, ATTACHSQL_ERROR_LEVEL_ERROR, "08006", con->errmsg);
       return false;
     }
     return true;
@@ -114,7 +114,7 @@ bool attachsql_query(attachsql_connect_t *con, size_t length, const char *statem
         case ATTACHSQL_ESCAPE_TYPE_CHAR:
           con->query_buffer[buffer_pos] = '\'';
           buffer_pos++;
-          if (con->core_con->server_status & ASCORE_SERVER_STATUS_NO_BACKSLASH_ESCAPES)
+          if (con->server_status & ATTACHSQL_SERVER_STATUS_NO_BACKSLASH_ESCAPES)
           {
             buffer_pos+= attachsql_query_no_backslash_escape_data(&con->query_buffer[buffer_pos], (char*)parameters[param].data, parameters[param].length);
           }
@@ -126,7 +126,7 @@ bool attachsql_query(attachsql_connect_t *con, size_t length, const char *statem
           buffer_pos++;
           break;
         case ATTACHSQL_ESCAPE_TYPE_CHAR_LIKE:
-          if (con->core_con->server_status & ASCORE_SERVER_STATUS_NO_BACKSLASH_ESCAPES)
+          if (con->server_status & ATTACHSQL_SERVER_STATUS_NO_BACKSLASH_ESCAPES)
           {
             buffer_pos+= attachsql_query_no_backslash_escape_data(&con->query_buffer[buffer_pos], (char*)parameters[param].data, parameters[param].length);
           }
@@ -169,14 +169,14 @@ bool attachsql_query(attachsql_connect_t *con, size_t length, const char *statem
 
   con->query_buffer_length= buffer_pos;
   con->query_buffer_statement= false;
-  if (con->core_con->status == ASCORE_CON_STATUS_NOT_CONNECTED)
+  if (con->status == ATTACHSQL_CON_STATUS_NOT_CONNECTED)
   {
     return attachsql_connect(con, error);
   }
-  ret= ascore_command_send(con->core_con, ASCORE_COMMAND_QUERY, con->query_buffer, con->query_buffer_length);
-  if (ret == ASCORE_COMMAND_STATUS_SEND_FAILED)
+  ret= attachsql_command_send(con, ATTACHSQL_COMMAND_QUERY, con->query_buffer, con->query_buffer_length);
+  if (ret == ATTACHSQL_COMMAND_STATUS_SEND_FAILED)
   {
-    attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_SERVER_GONE, ATTACHSQL_ERROR_LEVEL_ERROR, "08006", con->core_con->errmsg);
+    attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_SERVER_GONE, ATTACHSQL_ERROR_LEVEL_ERROR, "08006", con->errmsg);
     return false;
   }
   return true;
@@ -281,12 +281,12 @@ void attachsql_query_close(attachsql_connect_t *con)
   }
   con->row= NULL;
   /* We are still in query if there are more results */
-  if (not (con->core_con->server_status & ASCORE_SERVER_STATUS_MORE_RESULTS))
+  if (not (con->server_status & ATTACHSQL_SERVER_STATUS_MORE_RESULTS))
   {
     con->in_query= false;
   }
 
-  ascore_command_free(con->core_con);
+  attachsql_command_free(con);
   if (con->row_buffer_alloc_size > 0)
   {
     for (uint64_t row_pos= 0; row_pos < con->row_buffer_count; row_pos++)
@@ -308,7 +308,7 @@ uint16_t attachsql_query_column_count(attachsql_connect_t *con)
     return 0;
   }
 
-  return con->core_con->result.column_count;
+  return con->result.column_count;
 }
 
 attachsql_query_column_st *attachsql_query_column_get(attachsql_connect_t *con, uint16_t column)
@@ -320,7 +320,7 @@ attachsql_query_column_st *attachsql_query_column_get(attachsql_connect_t *con, 
   {
     return 0;
   }
-  column_count= con->core_con->result.column_count;
+  column_count= con->result.column_count;
 
   if ((column > column_count) or (column < 1))
   {
@@ -332,7 +332,7 @@ attachsql_query_column_st *attachsql_query_column_get(attachsql_connect_t *con, 
     con->columns= new attachsql_query_column_st[column_count];
     for (current_col= 0; current_col < column_count; current_col++)
     {
-      core_column= &con->core_con->result.columns[current_col];
+      core_column= &con->result.columns[current_col];
       con->columns[current_col].schema= core_column->schema;
       con->columns[current_col].table= core_column->table;
       con->columns[current_col].origin_table= core_column->origin_table;
@@ -368,13 +368,13 @@ attachsql_query_row_st *attachsql_query_row_get(attachsql_connect_t *con, attach
     return NULL;
   }
 
-  if (con->core_con->command_status != ASCORE_COMMAND_STATUS_ROW_IN_BUFFER)
+  if (con->command_status != ATTACHSQL_COMMAND_STATUS_ROW_IN_BUFFER)
   {
     attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_NO_DATA, ATTACHSQL_ERROR_LEVEL_ERROR, "02000", "No more data to retreive");
     return NULL;
   }
 
-  total_columns= con->core_con->result.column_count;
+  total_columns= con->result.column_count;
   if (con->row == NULL)
   {
     con->row= new (std::nothrow) attachsql_query_row_st[total_columns];
@@ -386,10 +386,10 @@ attachsql_query_row_st *attachsql_query_row_get(attachsql_connect_t *con, attach
     return NULL;
   }
 
-  raw_row= con->core_con->result.row_data;
+  raw_row= con->result.row_data;
   for (column= 0; column < total_columns; column++)
   {
-    length= ascore_unpack_length(raw_row, &bytes, NULL);
+    length= attachsql_unpack_length(raw_row, &bytes, NULL);
     raw_row+= bytes;
     con->row[column].length= (size_t)length;
     con->row[column].data= raw_row;
@@ -409,7 +409,7 @@ void attachsql_query_row_next(attachsql_connect_t *con)
   {
     return;
   }
-  ascore_get_next_row(con->core_con);
+  attachsql_get_next_row(con);
 }
 
 uint64_t attachsql_connection_last_insert_id(attachsql_connect_t *con)
@@ -419,7 +419,7 @@ uint64_t attachsql_connection_last_insert_id(attachsql_connect_t *con)
     return 0;
   }
 
-  return con->core_con->insert_id;
+  return con->insert_id;
 }
 
 uint64_t attachsql_query_affected_rows(attachsql_connect_t *con)
@@ -429,7 +429,7 @@ uint64_t attachsql_query_affected_rows(attachsql_connect_t *con)
     return 0;
   }
 
-  return con->core_con->affected_rows;
+  return con->affected_rows;
 }
 
 const char *attachsql_query_info(attachsql_connect_t *con)
@@ -439,7 +439,7 @@ const char *attachsql_query_info(attachsql_connect_t *con)
     return NULL;
   }
 
-  return con->core_con->server_message;
+  return con->server_message;
 }
 
 uint32_t attachsql_query_warning_count(attachsql_connect_t *con)
@@ -449,7 +449,7 @@ uint32_t attachsql_query_warning_count(attachsql_connect_t *con)
     return 0;
   }
 
-  return con->core_con->warning_count;
+  return con->warning_count;
 }
 
 attachsql_return_t attachsql_query_next_result(attachsql_connect_t *con)
@@ -459,7 +459,7 @@ attachsql_return_t attachsql_query_next_result(attachsql_connect_t *con)
     return ATTACHSQL_RETURN_ERROR;
   }
 
-  if (ascore_command_next_result(con->core_con))
+  if (attachsql_command_next_result(con))
   {
     return ATTACHSQL_RETURN_PROCESSING;
   }
@@ -524,7 +524,7 @@ attachsql_return_t attachsql_query_row_buffer(attachsql_connect_t *con, attachsq
       con->row_buffer= realloc_buffer;
     }
 
-    total_columns= con->core_con->result.column_count;
+    total_columns= con->result.column_count;
     row= new (std::nothrow) attachsql_query_row_st[total_columns];
 
     if (row == NULL)
@@ -533,10 +533,10 @@ attachsql_return_t attachsql_query_row_buffer(attachsql_connect_t *con, attachsq
       return ATTACHSQL_RETURN_ERROR;
     }
 
-    raw_row= con->core_con->result.row_data;
+    raw_row= con->result.row_data;
     for (column= 0; column < total_columns; column++)
     {
-      length= ascore_unpack_length(raw_row, &bytes, NULL);
+      length= attachsql_unpack_length(raw_row, &bytes, NULL);
       raw_row+= bytes;
       row[column].length= (size_t)length;
       row[column].data= raw_row;
@@ -545,8 +545,8 @@ attachsql_return_t attachsql_query_row_buffer(attachsql_connect_t *con, attachsq
 
     con->row_buffer[con->row_buffer_count]= row;
     con->row_buffer_count++;
-    ascore_get_next_row(con->core_con);
-  } while (ascore_con_process_packets(con->core_con) and (con->core_con->status != ASCORE_CON_STATUS_IDLE));
+    attachsql_get_next_row(con);
+  } while (attachsql_con_process_packets(con) and (con->status != ATTACHSQL_CON_STATUS_IDLE));
   return ATTACHSQL_RETURN_PROCESSING;
 }
 

@@ -25,19 +25,19 @@
  * error or NULL it is reflected in 'status'.
  * Requires 'bytes' to be pre-allocated (status can be NULL to not use it).
  */
-uint64_t ascore_unpack_length(char *buffer, uint8_t *bytes, ascore_pack_status_t *status)
+uint64_t attachsql_unpack_length(char *buffer, uint8_t *bytes, attachsql_pack_status_t *status)
 {
-  ascore_pack_status_t unused_status;
+  attachsql_pack_status_t unused_status;
   if (status == NULL)
   {
     status= &unused_status;
   }
   if ((bytes == NULL) || (buffer == NULL))
   {
-    *status= ASCORE_PACK_INVALID_ARGUMENT;
+    *status= ATTACHSQL_PACK_INVALID_ARGUMENT;
     return 0;
   }
-  *status= ASCORE_PACK_OK;
+  *status= ATTACHSQL_PACK_OK;
 
   if ((unsigned char)buffer[0] < 0xfb)
   {
@@ -47,30 +47,30 @@ uint64_t ascore_unpack_length(char *buffer, uint8_t *bytes, ascore_pack_status_t
   else if ((unsigned char)buffer[0] == 0xfb)
   {
     *bytes= 1;
-    *status= ASCORE_PACK_NULL;
+    *status= ATTACHSQL_PACK_NULL;
     return 0;
   }
   else if ((unsigned char)buffer[0] == 0xfc)
   {
     *bytes= 3;
-    return ascore_unpack_int2(buffer + 1);
+    return attachsql_unpack_int2(buffer + 1);
   }
   else if ((unsigned char)buffer[0] == 0xfd)
   {
     *bytes= 4;
-    return ascore_unpack_int3(buffer + 1);
+    return attachsql_unpack_int3(buffer + 1);
   }
   else
   {
     *bytes= 9;
-    return ascore_unpack_int8(buffer + 1);
+    return attachsql_unpack_int8(buffer + 1);
   }
   // If you get here, your compiler doesn't love you
 }
 
-char *ascore_pack_data(char *buffer, size_t length, char *data)
+char *attachsql_pack_data(char *buffer, size_t length, char *data)
 {
-  buffer= ascore_pack_length(buffer, length);
+  buffer= attachsql_pack_length(buffer, length);
   if (length > 0)
   {
     memcpy(buffer, data, length);
@@ -80,7 +80,7 @@ char *ascore_pack_data(char *buffer, size_t length, char *data)
   return buffer;
 }
 
-char *ascore_pack_length(char *buffer, size_t length)
+char *attachsql_pack_length(char *buffer, size_t length)
 {
   if (length <= 0xfa)
   {
@@ -91,28 +91,28 @@ char *ascore_pack_length(char *buffer, size_t length)
   {
     buffer[0]= 0xfc;
     buffer++;
-    ascore_pack_int2(buffer, length);
+    attachsql_pack_int2(buffer, length);
     buffer+= 2;
   }
   else if (length <= 0xffffff)
   {
     buffer[0]= 0xfd;
     buffer++;
-    ascore_pack_int3(buffer, length);
+    attachsql_pack_int3(buffer, length);
     buffer+= 3;
   }
   else
   {
     buffer[0]= 0xfe;
     buffer++;
-    ascore_pack_int8(buffer, (uint64_t)length);
+    attachsql_pack_int8(buffer, (uint64_t)length);
     buffer+= 8;
   }
 
   return buffer;
 }
 
-char *ascore_pack_datetime(char *buffer, ascore_datetime_st *datetime, bool date_only)
+char *attachsql_pack_datetime(char *buffer, attachsql_datetime_st *datetime, bool date_only)
 {
   uint8_t length= 0;
 
@@ -120,7 +120,7 @@ char *ascore_pack_datetime(char *buffer, ascore_datetime_st *datetime, bool date
   {
     if (datetime->microsecond > 0)
     {
-      ascore_pack_int4(buffer+8, datetime->microsecond);
+      attachsql_pack_int4(buffer+8, datetime->microsecond);
       length= 11;
     }
 
@@ -144,7 +144,7 @@ char *ascore_pack_datetime(char *buffer, ascore_datetime_st *datetime, bool date
       (datetime->month > 0) or
       (datetime->day > 0))
   {
-    ascore_pack_int2(buffer+1, datetime->year);
+    attachsql_pack_int2(buffer+1, datetime->year);
     buffer[3]= (char) datetime->month;
     buffer[4]= (char) datetime->day;
     if (length == 0)
@@ -158,12 +158,12 @@ char *ascore_pack_datetime(char *buffer, ascore_datetime_st *datetime, bool date
   return (buffer + length + 1);
 }
 
-void ascore_unpack_datetime(char *buffer, size_t length, ascore_datetime_st *datetime)
+void attachsql_unpack_datetime(char *buffer, size_t length, attachsql_datetime_st *datetime)
 {
   if (length)
   {
     datetime->is_negative= false;
-    datetime->year= ascore_unpack_int2(buffer);
+    datetime->year= attachsql_unpack_int2(buffer);
     datetime->month= buffer[2];
     datetime->day= buffer[3];
     if (length > 4)
@@ -173,35 +173,35 @@ void ascore_unpack_datetime(char *buffer, size_t length, ascore_datetime_st *dat
       datetime->second= buffer[6];
       if (length > 7)
       {
-        datetime->microsecond= ascore_unpack_int4(&buffer[7]);
+        datetime->microsecond= attachsql_unpack_int4(&buffer[7]);
       }
     }
   }
 }
 
-void ascore_unpack_time(char *buffer, size_t length, ascore_datetime_st *datetime)
+void attachsql_unpack_time(char *buffer, size_t length, attachsql_datetime_st *datetime)
 {
   if (length)
   {
     datetime->is_negative= buffer[0];
-    datetime->day= ascore_unpack_int4(&buffer[1]);
+    datetime->day= attachsql_unpack_int4(&buffer[1]);
     datetime->hour= buffer[5];
     datetime->minute= buffer[6];
     datetime->second= buffer[7];
     if (length > 8)
     {
-      datetime->microsecond= ascore_unpack_int4(&buffer[8]);
+      datetime->microsecond= attachsql_unpack_int4(&buffer[8]);
     }
   }
 }
 
-char *ascore_pack_time(char *buffer, ascore_datetime_st *time)
+char *attachsql_pack_time(char *buffer, attachsql_datetime_st *time)
 {
   uint8_t length= 0;
 
   if (time->microsecond > 0)
   {
-    ascore_pack_int4(buffer+9, time->microsecond);
+    attachsql_pack_int4(buffer+9, time->microsecond);
     length= 12;
   }
 
@@ -211,7 +211,7 @@ char *ascore_pack_time(char *buffer, ascore_datetime_st *time)
       (time->second > 0))
   {
     buffer[1]= time->is_negative;
-    ascore_pack_int4(buffer+2, time->day);
+    attachsql_pack_int4(buffer+2, time->day);
     buffer[6]= (char) time->hour;
     buffer[7]= (char) time->minute;
     buffer[8]= (char) time->second;

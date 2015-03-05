@@ -21,43 +21,43 @@
 #include "command.h"
 #include "net.h"
 
-ascore_stmt_st *ascore_stmt_prepare(ascon_st *con, size_t length, const char *statement)
+attachsql_stmt_st *attachsql_stmt_prepare(attachsql_connect_t *con, size_t length, const char *statement)
 {
-  con->stmt= new (std::nothrow) ascore_stmt_st;
+  con->stmt= new (std::nothrow) attachsql_stmt_st;
 
   if (con->stmt == NULL)
   {
     con->local_errcode= ASRET_OUT_OF_MEMORY_ERROR;
-    con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
+    con->command_status= ATTACHSQL_COMMAND_STATUS_SEND_FAILED;
     return NULL;
   }
 
   con->stmt->con= con;
   asdebug("Sending MySQL prepare");
-  ascore_command_send(con, ASCORE_COMMAND_STMT_PREPARE, (char*)statement, length);
+  attachsql_command_send(con, ATTACHSQL_COMMAND_STMT_PREPARE, (char*)statement, length);
   return con->stmt;
 }
 
-bool ascore_stmt_execute(ascore_stmt_st *stmt)
+bool attachsql_stmt_execute(attachsql_stmt_st *stmt)
 {
   char *buffer_pos= NULL;
   uint16_t param_count= 0;
 
   /* Need minimum of 2K plus a bit extra for packet header */
-  if (not ascore_stmt_check_buffer_size(stmt, 2060))
+  if (not attachsql_stmt_check_buffer_size(stmt, 2060))
   {
     return false;
   }
   buffer_pos= stmt->exec_buffer;
 
   /* statement ID */
-  ascore_pack_int4(buffer_pos, stmt->id);
+  attachsql_pack_int4(buffer_pos, stmt->id);
   buffer_pos+= 4;
   /* cursor flags */
-  buffer_pos[0]= ASCORE_STMT_CURSOR_NONE;
+  buffer_pos[0]= ATTACHSQL_STMT_CURSOR_NONE;
   buffer_pos++;
   /* iteration count (always 1) */
-  ascore_pack_int4(buffer_pos, 1);
+  attachsql_pack_int4(buffer_pos, 1);
   buffer_pos+= 4;
   /* NULL bitmask */
   if (stmt->param_count > 0)
@@ -67,7 +67,7 @@ bool ascore_stmt_execute(ascore_stmt_st *stmt)
     param_count= stmt->param_count;
     for (uint16_t param= 0; param < stmt->param_count; param++)
     {
-      if (stmt->param_data[param].type == ASCORE_COLUMN_TYPE_NULL)
+      if (stmt->param_data[param].type == ATTACHSQL_COLUMN_TYPE_NULL)
       {
         buffer_pos[param/8] |= (1 << (param % 8));
         param_count--;
@@ -89,18 +89,18 @@ bool ascore_stmt_execute(ascore_stmt_st *stmt)
   buffer_pos+= (param_count * 2);
   for (uint16_t param= 0; param < stmt->param_count; param++)
   {
-    ascore_stmt_param_st *param_data= &stmt->param_data[param];
+    attachsql_stmt_param_st *param_data= &stmt->param_data[param];
 
     uint16_t type= (uint16_t)param_data->type;
-    if (type == ASCORE_COLUMN_TYPE_NULL)
+    if (type == ATTACHSQL_COLUMN_TYPE_NULL)
     {
       continue;
     }
     if (param_data->is_unsigned)
     {
-      type|= ASCORE_STMT_PARAM_UNSIGNED_BIT;
+      type|= ATTACHSQL_STMT_PARAM_UNSIGNED_BIT;
     }
-    ascore_pack_int2(&param_type_pos[param * 2], type);
+    attachsql_pack_int2(&param_type_pos[param * 2], type);
 
     /* Long data skipped */
     if (param_data->is_long_data)
@@ -108,12 +108,12 @@ bool ascore_stmt_execute(ascore_stmt_st *stmt)
       continue;
     }
 
-    /* Check buffer for at least ascore_datetime_st bytes
+    /* Check buffer for at least attachsql_datetime_st bytes
      * restore pointers too
      */
     param_bytes= param_type_pos - stmt->exec_buffer;
     buffer_bytes= buffer_pos - stmt->exec_buffer;
-    if (not ascore_stmt_check_buffer_size(stmt, sizeof(ascore_datetime_st)))
+    if (not attachsql_stmt_check_buffer_size(stmt, sizeof(attachsql_datetime_st)))
     {
       return false;
     }
@@ -122,90 +122,87 @@ bool ascore_stmt_execute(ascore_stmt_st *stmt)
 
     switch (param_data->type)
     {
-      case ASCORE_COLUMN_TYPE_TINY:
+      case ATTACHSQL_COLUMN_TYPE_TINY:
         buffer_pos[0]= param_data->data.tinyint_data;
         buffer_pos++;
         break;
-      case ASCORE_COLUMN_TYPE_SHORT:
-        ascore_pack_int2(buffer_pos, param_data->data.smallint_data);
+      case ATTACHSQL_COLUMN_TYPE_SHORT:
+        attachsql_pack_int2(buffer_pos, param_data->data.smallint_data);
         buffer_pos+= 2;
         break;
-      case ASCORE_COLUMN_TYPE_LONG:
-        ascore_pack_int4(buffer_pos, param_data->data.int_data);
+      case ATTACHSQL_COLUMN_TYPE_LONG:
+        attachsql_pack_int4(buffer_pos, param_data->data.int_data);
         buffer_pos+= 4;
         break;
-      case ASCORE_COLUMN_TYPE_LONGLONG:
-        ascore_pack_int8(buffer_pos, param_data->data.bigint_data);
+      case ATTACHSQL_COLUMN_TYPE_LONGLONG:
+        attachsql_pack_int8(buffer_pos, param_data->data.bigint_data);
         buffer_pos+= 8;
         break;
-      case ASCORE_COLUMN_TYPE_FLOAT:
+      case ATTACHSQL_COLUMN_TYPE_FLOAT:
         memcpy(buffer_pos, &param_data->data.float_data, 4);
         buffer_pos+= 4;
         break;
-      case ASCORE_COLUMN_TYPE_DOUBLE:
+      case ATTACHSQL_COLUMN_TYPE_DOUBLE:
         memcpy(buffer_pos, &param_data->data.double_data, 8);
         buffer_pos+= 8;
         break;
-      case ASCORE_COLUMN_TYPE_TIME:
-        buffer_pos= ascore_pack_time(buffer_pos, param_data->data.datetime_data);
+      case ATTACHSQL_COLUMN_TYPE_TIME:
+        buffer_pos= attachsql_pack_time(buffer_pos, param_data->data.datetime_data);
         break;
-      case ASCORE_COLUMN_TYPE_DATE:
-        buffer_pos= ascore_pack_datetime(buffer_pos, param_data->data.datetime_data, true);
+      case ATTACHSQL_COLUMN_TYPE_DATE:
+        buffer_pos= attachsql_pack_datetime(buffer_pos, param_data->data.datetime_data, true);
         break;
-      case ASCORE_COLUMN_TYPE_DATETIME:
-      case ASCORE_COLUMN_TYPE_TIMESTAMP:
-        buffer_pos= ascore_pack_datetime(buffer_pos, param_data->data.datetime_data, false);
+      case ATTACHSQL_COLUMN_TYPE_DATETIME:
+      case ATTACHSQL_COLUMN_TYPE_TIMESTAMP:
+        buffer_pos= attachsql_pack_datetime(buffer_pos, param_data->data.datetime_data, false);
         break;
-      case ASCORE_COLUMN_TYPE_STRING:
-      case ASCORE_COLUMN_TYPE_BLOB:
+      case ATTACHSQL_COLUMN_TYPE_STRING:
+      case ATTACHSQL_COLUMN_TYPE_BLOB:
         /* check buffer for size */
         param_bytes= param_type_pos - stmt->exec_buffer;
         buffer_bytes= buffer_pos - stmt->exec_buffer;
-        if (not ascore_stmt_check_buffer_size(stmt, param_data->length))
+        if (not attachsql_stmt_check_buffer_size(stmt, param_data->length))
         {
           return false;
         }
         param_type_pos= stmt->exec_buffer + param_bytes;
         buffer_pos= stmt->exec_buffer + buffer_bytes;
-        buffer_pos= ascore_pack_data(buffer_pos, param_data->length, param_data->data.string_data);
+        buffer_pos= attachsql_pack_data(buffer_pos, param_data->length, param_data->data.string_data);
         break;
-      case ASCORE_COLUMN_TYPE_NULL:
+      case ATTACHSQL_COLUMN_TYPE_NULL:
         /* Already handled in the NULL bitmask we should not get here */
       /* The following should never happen, but are listed to make compilers happy bunnies */
-      case ASCORE_COLUMN_TYPE_INT24:
-      case ASCORE_COLUMN_TYPE_YEAR:
-      case ASCORE_COLUMN_TYPE_NEWDATE:
-      case ASCORE_COLUMN_TYPE_VARCHAR:
-      case ASCORE_COLUMN_TYPE_BIT:
-      case ASCORE_COLUMN_TYPE_TIMESTAMP2:
-      case ASCORE_COLUMN_TYPE_DATETIME2:
-      case ASCORE_COLUMN_TYPE_TIME2:
-      case ASCORE_COLUMN_TYPE_NEWDECIMAL:
-      case ASCORE_COLUMN_TYPE_ENUM:
-      case ASCORE_COLUMN_TYPE_SET:
-      case ASCORE_COLUMN_TYPE_TINY_BLOB:
-      case ASCORE_COLUMN_TYPE_MEDIUM_BLOB:
-      case ASCORE_COLUMN_TYPE_LONG_BLOB:
-      case ASCORE_COLUMN_TYPE_VARSTRING:
-      case ASCORE_COLUMN_TYPE_GEOMETRY:
-      case ASCORE_COLUMN_TYPE_DECIMAL:
+      case ATTACHSQL_COLUMN_TYPE_INT24:
+      case ATTACHSQL_COLUMN_TYPE_YEAR:
+      case ATTACHSQL_COLUMN_TYPE_VARCHAR:
+      case ATTACHSQL_COLUMN_TYPE_BIT:
+      case ATTACHSQL_COLUMN_TYPE_NEWDECIMAL:
+      case ATTACHSQL_COLUMN_TYPE_ENUM:
+      case ATTACHSQL_COLUMN_TYPE_SET:
+      case ATTACHSQL_COLUMN_TYPE_TINY_BLOB:
+      case ATTACHSQL_COLUMN_TYPE_MEDIUM_BLOB:
+      case ATTACHSQL_COLUMN_TYPE_LONG_BLOB:
+      case ATTACHSQL_COLUMN_TYPE_VARSTRING:
+      case ATTACHSQL_COLUMN_TYPE_GEOMETRY:
+      case ATTACHSQL_COLUMN_TYPE_DECIMAL:
+      case ATTACHSQL_COLUMN_TYPE_ERROR:
       default:
         stmt->con->local_errcode= ASRET_BAD_STMT_PARAMETER;
         asdebug("Bad stmt parameter type provided: %d", param_data->type);
-        stmt->con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
+        stmt->con->command_status= ATTACHSQL_COMMAND_STATUS_SEND_FAILED;
         stmt->con->next_packet_queue_used= 0;
         return false;
         break;
     }
   }
-  if (ascore_command_send(stmt->con, ASCORE_COMMAND_STMT_EXECUTE, stmt->exec_buffer, buffer_pos - stmt->exec_buffer) != ASCORE_COMMAND_STATUS_SEND)
+  if (attachsql_command_send(stmt->con, ATTACHSQL_COMMAND_STMT_EXECUTE, stmt->exec_buffer, buffer_pos - stmt->exec_buffer) != ATTACHSQL_COMMAND_STATUS_SEND)
   {
     return false;
   }
   return true;
 }
 
-bool ascore_stmt_check_buffer_size(ascore_stmt_st *stmt, size_t required)
+bool attachsql_stmt_check_buffer_size(attachsql_stmt_st *stmt, size_t required)
 {
   char *realloc_buffer= NULL;
 
@@ -214,7 +211,7 @@ bool ascore_stmt_check_buffer_size(ascore_stmt_st *stmt, size_t required)
     size_t new_size= 0;
     if (stmt->exec_buffer_length == 0)
     {
-      new_size= ASCORE_STMT_EXEC_DEFAULT_SIZE;
+      new_size= ATTACHSQL_STMT_EXEC_DEFAULT_SIZE;
     }
     else
     {
@@ -225,7 +222,7 @@ bool ascore_stmt_check_buffer_size(ascore_stmt_st *stmt, size_t required)
     {
       stmt->con->local_errcode= ASRET_OUT_OF_MEMORY_ERROR;
       asdebug("Exec buffer realloc failure");
-      stmt->con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
+      stmt->con->command_status= ATTACHSQL_COMMAND_STATUS_SEND_FAILED;
       stmt->con->next_packet_queue_used= 0;
       return false;
     }
@@ -235,16 +232,16 @@ bool ascore_stmt_check_buffer_size(ascore_stmt_st *stmt, size_t required)
   return true;
 }
 
-ascore_command_status_t ascore_stmt_fetch(ascore_stmt_st *stmt)
+attachsql_command_status_t attachsql_stmt_fetch(attachsql_stmt_st *stmt)
 {
-  ascore_buffer_packet_read_end(stmt->con->read_buffer);
-  ascore_packet_queue_push(stmt->con, ASCORE_PACKET_TYPE_STMT_ROW);
-  stmt->con->command_status= ASCORE_COMMAND_STATUS_READ_STMT_ROW;
-  ascore_con_process_packets(stmt->con);
+  attachsql_buffer_packet_read_end(stmt->con->read_buffer);
+  attachsql_packet_queue_push(stmt->con, ATTACHSQL_PACKET_TYPE_STMT_ROW);
+  stmt->con->command_status= ATTACHSQL_COMMAND_STATUS_READ_STMT_ROW;
+  attachsql_con_process_packets(stmt->con);
   return stmt->con->command_status;
 }
 
-void ascore_stmt_destroy(ascore_stmt_st *stmt)
+void attachsql_stmt_destroy(attachsql_stmt_st *stmt)
 {
   if (stmt == NULL)
   {
@@ -275,27 +272,27 @@ void ascore_stmt_destroy(ascore_stmt_st *stmt)
 
   stmt->con->stmt= NULL;
   stmt->con->write_buffer_extra= 4;
-  ascore_command_free(stmt->con);
-  ascore_pack_int4(&stmt->con->write_buffer[1], stmt->id);
-  ascore_command_send(stmt->con, ASCORE_COMMAND_STMT_CLOSE, NULL, 0);
+  attachsql_command_free(stmt->con);
+  attachsql_pack_int4(&stmt->con->write_buffer[1], stmt->id);
+  attachsql_command_send(stmt->con, ATTACHSQL_COMMAND_STMT_CLOSE, NULL, 0);
   delete stmt;
 }
 
-ascore_command_status_t ascore_stmt_reset(ascore_stmt_st *stmt)
+attachsql_command_status_t attachsql_stmt_reset(attachsql_stmt_st *stmt)
 {
   stmt->con->write_buffer_extra= 4;
-  ascore_pack_int4(&stmt->con->write_buffer[1], stmt->id);
+  attachsql_pack_int4(&stmt->con->write_buffer[1], stmt->id);
 
-  return ascore_command_send(stmt->con, ASCORE_COMMAND_STMT_RESET, NULL, 0);
+  return attachsql_command_send(stmt->con, ATTACHSQL_COMMAND_STMT_RESET, NULL, 0);
 }
 
-ascore_command_status_t ascore_stmt_send_long_data(ascore_stmt_st *stmt, uint16_t param, size_t length, char *data)
+attachsql_command_status_t attachsql_stmt_send_long_data(attachsql_stmt_st *stmt, uint16_t param, size_t length, char *data)
 {
   stmt->con->write_buffer_extra= 6;
-  ascore_pack_int4(&stmt->con->write_buffer[1], stmt->id);
-  ascore_pack_int2(&stmt->con->write_buffer[5], param);
+  attachsql_pack_int4(&stmt->con->write_buffer[1], stmt->id);
+  attachsql_pack_int2(&stmt->con->write_buffer[5], param);
 
-  return ascore_command_send(stmt->con, ASCORE_COMMAND_STMT_SEND_LONG_DATA, data, length);
+  return attachsql_command_send(stmt->con, ATTACHSQL_COMMAND_STMT_SEND_LONG_DATA, data, length);
 }
 
 

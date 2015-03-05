@@ -23,7 +23,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-buffer_st *ascore_buffer_create()
+buffer_st *attachsql_buffer_create()
 {
   buffer_st *buffer;
 
@@ -33,7 +33,7 @@ buffer_st *ascore_buffer_create()
     return NULL;
   }
 
-  buffer->buffer= (char*)malloc(ASCORE_DEFAULT_BUFFER_SIZE);
+  buffer->buffer= (char*)malloc(ATTACHSQL_DEFAULT_BUFFER_SIZE);
   if (buffer->buffer == NULL)
   {
     delete buffer;
@@ -42,18 +42,18 @@ buffer_st *ascore_buffer_create()
 
   buffer->buffer_read_ptr= buffer->buffer;
   buffer->buffer_write_ptr= buffer->buffer;
-  buffer->buffer_size= ASCORE_DEFAULT_BUFFER_SIZE;
+  buffer->buffer_size= ATTACHSQL_DEFAULT_BUFFER_SIZE;
 
   return buffer;
 }
 
-void ascore_buffer_free(buffer_st *buffer)
+void attachsql_buffer_free(buffer_st *buffer)
 {
   free(buffer->buffer);
   delete buffer;
 }
 
-size_t ascore_buffer_get_available(buffer_st *buffer)
+size_t attachsql_buffer_get_available(buffer_st *buffer)
 {
   if (buffer == NULL)
   {
@@ -62,14 +62,14 @@ size_t ascore_buffer_get_available(buffer_st *buffer)
   return buffer->buffer_size - ((size_t)(buffer->buffer_read_ptr - buffer->buffer) + buffer->buffer_used);
 }
 
-asret_t ascore_buffer_increase(buffer_st *buffer)
+asret_t attachsql_buffer_increase(buffer_st *buffer)
 {
   if (buffer == NULL)
   {
     return ASRET_PARAMETER_ERROR;
   }
 
-  size_t buffer_available= ascore_buffer_get_available(buffer);
+  size_t buffer_available= attachsql_buffer_get_available(buffer);
 
   /* if the we have lots of stale data just shift
    * algorithm for this at the moment is if only half the buffer is available
@@ -111,18 +111,18 @@ asret_t ascore_buffer_increase(buffer_st *buffer)
 }
 
 /* Moves the write pointer and returns the amount of unread data in the buffer */
-void ascore_buffer_move_write_ptr(buffer_st *buffer, size_t len)
+void attachsql_buffer_move_write_ptr(buffer_st *buffer, size_t len)
 {
   buffer->buffer_write_ptr+= len;
   buffer->buffer_used+= len;
 }
 
-size_t ascore_buffer_unread_data(buffer_st *buffer)
+size_t attachsql_buffer_unread_data(buffer_st *buffer)
 {
   return (size_t)(buffer->buffer_write_ptr - buffer->buffer_read_ptr);
 }
 
-void ascore_buffer_packet_read_end(buffer_st *buffer)
+void attachsql_buffer_packet_read_end(buffer_st *buffer)
 {
   // If the buffer is now empty, reset it.  Otherwise make sure the read ptr
   // points to the end of the packet.  Should maybe move this to buffer.cc

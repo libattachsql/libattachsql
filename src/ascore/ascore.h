@@ -19,6 +19,8 @@
 
 #include <stdint.h>
 
+#include <libattachsql-2.0/attachsql.h>
+
 /* These two need to go first, in this order */
 #include "src/ascore/constants.h"
 #include "src/ascore/structs.h"

@@ -26,7 +26,7 @@
 extern "C" {
 #endif
 
-#define ASCORE_DEFAULT_BUFFER_SIZE 1024*1024
+#define ATTACHSQL_DEFAULT_BUFFER_SIZE 1024*1024
 
 struct buffer_st
 {
@@ -47,13 +47,13 @@ struct buffer_st
   { }
 };
 
-buffer_st *ascore_buffer_create();
-void ascore_buffer_free(buffer_st *buffer);
-size_t ascore_buffer_get_available(buffer_st *buffer);
-asret_t ascore_buffer_increase(buffer_st *buffer);
-void ascore_buffer_move_write_ptr(buffer_st *buffer, size_t len);
-size_t ascore_buffer_unread_data(buffer_st *buffer);
-void ascore_buffer_packet_read_end(buffer_st *buffer);
+buffer_st *attachsql_buffer_create();
+void attachsql_buffer_free(buffer_st *buffer);
+size_t attachsql_buffer_get_available(buffer_st *buffer);
+asret_t attachsql_buffer_increase(buffer_st *buffer);
+void attachsql_buffer_move_write_ptr(buffer_st *buffer, size_t len);
+size_t attachsql_buffer_unread_data(buffer_st *buffer);
+void attachsql_buffer_packet_read_end(buffer_st *buffer);
 
 #ifdef __cplusplus
 }

@@ -24,19 +24,19 @@
 extern "C" {
 #endif
 
-ascore_stmt_st *ascore_stmt_prepare(ascon_st *con, size_t length, const char *statement);
+attachsql_stmt_st *attachsql_stmt_prepare(attachsql_connect_t *con, size_t length, const char *statement);
 
-bool ascore_stmt_execute(ascore_stmt_st *stmt);
+bool attachsql_stmt_execute(attachsql_stmt_st *stmt);
 
-bool ascore_stmt_check_buffer_size(ascore_stmt_st *stmt, size_t required);
+bool attachsql_stmt_check_buffer_size(attachsql_stmt_st *stmt, size_t required);
 
-ascore_command_status_t ascore_stmt_fetch(ascore_stmt_st *stmt);
+attachsql_command_status_t attachsql_stmt_fetch(attachsql_stmt_st *stmt);
 
-void ascore_stmt_destroy(ascore_stmt_st *stmt);
+void attachsql_stmt_destroy(attachsql_stmt_st *stmt);
 
-ascore_command_status_t ascore_stmt_reset(ascore_stmt_st *stmt);
+attachsql_command_status_t attachsql_stmt_reset(attachsql_stmt_st *stmt);
 
-ascore_command_status_t ascore_stmt_send_long_data(ascore_stmt_st *stmt, uint16_t param, size_t length, char *data);
+attachsql_command_status_t attachsql_stmt_send_long_data(attachsql_stmt_st *stmt, uint16_t param, size_t length, char *data);
 
 #ifdef __cplusplus
 }

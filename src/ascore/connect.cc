@@ -26,11 +26,11 @@
 # include <openssl/ssl.h>
 #endif
 
-ascon_st *ascore_con_create(const char *host, in_port_t port, const char *user, const char *pass, const char *schema)
+attachsql_connect_t *attachsql_con_create(const char *host, in_port_t port, const char *user, const char *pass, const char *schema)
 {
-  ascon_st *con;
+  attachsql_connect_t *con;
 
-  con = new (std::nothrow) ascon_st;
+  con = new (std::nothrow) attachsql_connect_t;
   if (con == NULL)
   {
     return NULL;
@@ -38,20 +38,20 @@ ascon_st *ascore_con_create(const char *host, in_port_t port, const char *user, 
 
   con->host= host;
   con->port= port;
-  if ((user == NULL) or (strlen(user) > ASCORE_MAX_USER_SIZE))
+  if ((user == NULL) or (strlen(user) > ATTACHSQL_MAX_USER_SIZE))
   {
     con->local_errcode= ASRET_USER_TOO_LONG;
-    con->status= ASCORE_CON_STATUS_PARAMETER_ERROR;
+    con->status= ATTACHSQL_CON_STATUS_PARAMETER_ERROR;
     return con;
   }
   con->user= user;
   // We don't really care how long pass is since we itterate though it during
   // SHA1 passes.  Needs to be nul terminated.  NULL is also acceptable.
   con->pass= pass;
-  if ((schema == NULL) or (strlen(schema) > ASCORE_MAX_SCHEMA_SIZE))
+  if ((schema == NULL) or (strlen(schema) > ATTACHSQL_MAX_SCHEMA_SIZE))
   {
     con->local_errcode= ASRET_SCHEMA_TOO_LONG;
-    con->status= ASCORE_CON_STATUS_PARAMETER_ERROR;
+    con->status= ATTACHSQL_CON_STATUS_PARAMETER_ERROR;
     return con;
   }
   con->schema= schema;
@@ -59,7 +59,7 @@ ascon_st *ascore_con_create(const char *host, in_port_t port, const char *user, 
   return con;
 }
 
-void ascore_con_destroy(ascon_st *con)
+void attachsql_con_destroy(attachsql_connect_t *con)
 {
   if (con == NULL)
   {
@@ -68,12 +68,12 @@ void ascore_con_destroy(ascon_st *con)
 
   if (con->read_buffer != NULL)
   {
-    ascore_buffer_free(con->read_buffer);
+    attachsql_buffer_free(con->read_buffer);
   }
 
   if (con->read_buffer_compress != NULL)
   {
-    ascore_buffer_free(con->read_buffer_compress);
+    attachsql_buffer_free(con->read_buffer_compress);
   }
 
   if (con->uncompressed_buffer != NULL)
@@ -98,7 +98,7 @@ void ascore_con_destroy(ascon_st *con)
   }
   if (con->ssl.write_buffer != NULL)
   {
-    ascore_buffer_free(con->ssl.write_buffer);
+    attachsql_buffer_free(con->ssl.write_buffer);
   }
   /* This frees BIOs as well */
   if (con->ssl.ssl != NULL)
@@ -111,7 +111,7 @@ void ascore_con_destroy(ascon_st *con)
   }
 #endif
   // On a net error we already closed the connection
-  if ((con->uv_objects.stream != NULL) and (con->status != ASCORE_CON_STATUS_NET_ERROR))
+  if ((con->uv_objects.stream != NULL) and (con->status != ATTACHSQL_CON_STATUS_NET_ERROR))
   {
     uv_check_stop(&con->uv_objects.check);
     uv_close((uv_handle_t*)con->uv_objects.stream, NULL);
@@ -132,15 +132,15 @@ void ascore_con_destroy(ascon_st *con)
 
 void on_resolved(uv_getaddrinfo_t *resolver, int status, struct addrinfo *res)
 {
-  ascon_st *con= (ascon_st *)resolver->data;
+  attachsql_connect_t *con= (attachsql_connect_t *)resolver->data;
 
   asdebug("Resolver callback");
   if (status != 0)
   {
     asdebug("DNS lookup failure: %s", uv_err_name(uv_last_error(resolver->loop)));
-    con->status= ASCORE_CON_STATUS_CONNECT_FAILED;
+    con->status= ATTACHSQL_CON_STATUS_CONNECT_FAILED;
     con->local_errcode= ASRET_DNS_ERROR;
-    snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "DNS lookup failure: %s", uv_err_name(uv_last_error(resolver->loop)));
+    snprintf(con->errmsg, ATTACHSQL_ERROR_BUFFER_SIZE, "DNS lookup failure: %s", uv_err_name(uv_last_error(resolver->loop)));
     return;
   }
   char addr[17] = {'\0'};
@@ -155,44 +155,44 @@ void on_resolved(uv_getaddrinfo_t *resolver, int status, struct addrinfo *res)
   uv_freeaddrinfo(res);
 }
 
-ascore_con_status_t ascore_con_poll(ascon_st *con)
+attachsql_con_status_t attachsql_con_poll(attachsql_connect_t *con)
 {
   //asdebug("Connection poll");
   if (con == NULL)
   {
-    return ASCORE_CON_STATUS_PARAMETER_ERROR;
+    return ATTACHSQL_CON_STATUS_PARAMETER_ERROR;
   }
 
-  if ((con->status == ASCORE_CON_STATUS_NOT_CONNECTED) or (con->status == ASCORE_CON_STATUS_CONNECT_FAILED) or (con->status == ASCORE_CON_STATUS_IDLE) or (con->status == ASCORE_CON_STATUS_SSL_ERROR))
+  if ((con->status == ATTACHSQL_CON_STATUS_NOT_CONNECTED) or (con->status == ATTACHSQL_CON_STATUS_CONNECT_FAILED) or (con->status == ATTACHSQL_CON_STATUS_IDLE) or (con->status == ATTACHSQL_CON_STATUS_SSL_ERROR))
   {
     return con->status;
   }
 #ifdef HAVE_OPENSSL
   if (con->ssl.handshake_done)
   {
-    ascore_ssl_run(con);
+    attachsql_ssl_run(con);
   }
 #endif
-  ascore_run_uv_loop(con);
+  attachsql_run_uv_loop(con);
 
   return con->status;
 }
 
-void ascore_check_for_data_cb(uv_check_t *handle, int status)
+void attachsql_check_for_data_cb(uv_check_t *handle, int status)
 {
   (void) status;
   asdebug("Check called");
-  struct ascon_st *con= (struct ascon_st*)handle->data;
-  ascore_con_process_packets(con);
+  struct attachsql_connect_t *con= (struct attachsql_connect_t*)handle->data;
+  attachsql_con_process_packets(con);
 }
 
-ascore_con_status_t ascore_connect(ascon_st *con)
+attachsql_con_status_t attachsql_do_connect(attachsql_connect_t *con)
 {
   int ret;
 
   if (con == NULL)
   {
-    return ASCORE_CON_STATUS_PARAMETER_ERROR;
+    return ATTACHSQL_CON_STATUS_PARAMETER_ERROR;
   }
 
   con->uv_objects.hints.ai_family = PF_INET;
@@ -200,7 +200,7 @@ ascore_con_status_t ascore_connect(ascon_st *con)
   con->uv_objects.hints.ai_protocol = IPPROTO_TCP;
   con->uv_objects.hints.ai_flags = 0;
 
-  if (con->status != ASCORE_CON_STATUS_NOT_CONNECTED)
+  if (con->status != ATTACHSQL_CON_STATUS_NOT_CONNECTED)
   {
     return con->status;
   }
@@ -213,28 +213,28 @@ ascore_con_status_t ascore_connect(ascon_st *con)
   {
     asdebug("Loop initalize failure");
     con->local_errcode= ASRET_OUT_OF_MEMORY_ERROR;
-    snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "Loop initialization failure, either out of memory or out of file descripitors (usually the latter)");
-    con->status= ASCORE_CON_STATUS_CONNECT_FAILED;
+    snprintf(con->errmsg, ATTACHSQL_ERROR_BUFFER_SIZE, "Loop initialization failure, either out of memory or out of file descripitors (usually the latter)");
+    con->status= ATTACHSQL_CON_STATUS_CONNECT_FAILED;
     return con->status;
   }
 
   snprintf(con->str_port, 6, "%d", con->port);
   // If port is 0 and no explicit option set then assume we mean UDS
   // instead of TCP
-  if (con->options.protocol == ASCORE_CON_PROTOCOL_UNKNOWN)
+  if (con->options.protocol == ATTACHSQL_CON_PROTOCOL_UNKNOWN)
   {
     if (con->port == 0)
     {
-      con->options.protocol= ASCORE_CON_PROTOCOL_UDS;
+      con->options.protocol= ATTACHSQL_CON_PROTOCOL_UDS;
     }
     else
     {
-      con->options.protocol= ASCORE_CON_PROTOCOL_TCP;
+      con->options.protocol= ATTACHSQL_CON_PROTOCOL_TCP;
     }
   }
   switch(con->options.protocol)
   {
-    case ASCORE_CON_PROTOCOL_TCP:
+    case ATTACHSQL_CON_PROTOCOL_TCP:
       asdebug("TCP connection");
       asdebug("Async DNS lookup: %s", con->host);
       con->uv_objects.resolver.data= con;
@@ -243,25 +243,25 @@ ascore_con_status_t ascore_connect(ascon_st *con)
       {
         asdebug("DNS lookup fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
         con->local_errcode= ASRET_DNS_ERROR;
-        snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "DNS lookup failure: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
-        con->status= ASCORE_CON_STATUS_CONNECT_FAILED;
+        snprintf(con->errmsg, ATTACHSQL_ERROR_BUFFER_SIZE, "DNS lookup failure: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
+        con->status= ATTACHSQL_CON_STATUS_CONNECT_FAILED;
         return con->status;
       }
-      con->status= ASCORE_CON_STATUS_CONNECTING;
-      ascore_run_uv_loop(con);
+      con->status= ATTACHSQL_CON_STATUS_CONNECTING;
+      attachsql_run_uv_loop(con);
       break;
-    case ASCORE_CON_PROTOCOL_UDS:
+    case ATTACHSQL_CON_PROTOCOL_UDS:
       asdebug("UDS connection");
       uv_pipe_init(con->uv_objects.loop, &con->uv_objects.socket.uds, 1);
       con->uv_objects.socket.uds.data= con;
       con->uv_objects.connect_req.data= (void*) &con->uv_objects.socket.uds;
-      con->status= ASCORE_CON_STATUS_CONNECTING;
+      con->status= ATTACHSQL_CON_STATUS_CONNECTING;
       uv_pipe_connect(&con->uv_objects.connect_req, &con->uv_objects.socket.uds, con->host, on_connect);
-      ascore_run_uv_loop(con);
+      attachsql_run_uv_loop(con);
       break;
-    case ASCORE_CON_PROTOCOL_UNKNOWN:
+    case ATTACHSQL_CON_PROTOCOL_UNKNOWN:
       asdebug("Unknown protocol, this shouldn't happen");
-      con->status= ASCORE_CON_STATUS_CONNECT_FAILED;
+      con->status= ATTACHSQL_CON_STATUS_CONNECT_FAILED;
   }
 
   return con->status;
@@ -270,31 +270,31 @@ ascore_con_status_t ascore_connect(ascon_st *con)
 
 void on_connect(uv_connect_t *req, int status)
 {
-  ascon_st *con= (ascon_st*)req->handle->data;
+  attachsql_connect_t *con= (attachsql_connect_t*)req->handle->data;
   asdebug("Connect event callback");
   if (status != 0)
   {
     asdebug("Connect fail: %s", uv_err_name(uv_last_error(req->handle->loop)));
     con->local_errcode= ASRET_CONNECT_ERROR;
-    con->status= ASCORE_CON_STATUS_CONNECT_FAILED;
-    snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "Connection failed: %s", uv_err_name(uv_last_error(req->handle->loop)));
+    con->status= ATTACHSQL_CON_STATUS_CONNECT_FAILED;
+    snprintf(con->errmsg, ATTACHSQL_ERROR_BUFFER_SIZE, "Connection failed: %s", uv_err_name(uv_last_error(req->handle->loop)));
     return;
   }
   asdebug("Connection succeeded!");
-  ascore_packet_queue_push(con, ASCORE_PACKET_TYPE_HANDSHAKE);
+  attachsql_packet_queue_push(con, ATTACHSQL_PACKET_TYPE_HANDSHAKE);
   // maybe move the set con->stream to connect function
   con->uv_objects.stream= (uv_stream_t*)req->data;
   uv_check_init(con->uv_objects.loop, &con->uv_objects.check);
   con->uv_objects.check.data= con;
-  uv_check_start(&con->uv_objects.check, ascore_check_for_data_cb);
-  uv_read_start((uv_stream_t*)req->data, on_alloc, ascore_read_data_cb);
+  uv_check_start(&con->uv_objects.check, attachsql_check_for_data_cb);
+  uv_read_start((uv_stream_t*)req->data, on_alloc, attachsql_read_data_cb);
 }
 
 uv_buf_t on_alloc(uv_handle_t *client, size_t suggested_size)
 {
   size_t buffer_free;
   uv_buf_t buf;
-  ascon_st *con= (ascon_st*) client->data;
+  attachsql_connect_t *con= (attachsql_connect_t*) client->data;
 
 #ifdef HAVE_OPENSSL
   if (con->ssl.handshake_done && (con->ssl.bio_buffer_size < suggested_size))
@@ -310,7 +310,7 @@ uv_buf_t on_alloc(uv_handle_t *client, size_t suggested_size)
     {
       con->local_errcode= ASRET_OUT_OF_MEMORY_ERROR;
       asdebug("SSL buffer realloc failure");
-      con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
+      con->command_status= ATTACHSQL_COMMAND_STATUS_SEND_FAILED;
       con->next_packet_queue_used= 0;
     }
   }
@@ -323,14 +323,14 @@ uv_buf_t on_alloc(uv_handle_t *client, size_t suggested_size)
     if (con->read_buffer == NULL)
     {
       asdebug("Creating read buffer");
-      con->read_buffer= ascore_buffer_create();
+      con->read_buffer= attachsql_buffer_create();
     }
-    buffer_free= ascore_buffer_get_available(con->read_buffer);
+    buffer_free= attachsql_buffer_get_available(con->read_buffer);
     if (buffer_free < suggested_size)
     {
       asdebug("Enlarging buffer, free: %zd, requested: %zd", buffer_free, suggested_size);
-      ascore_buffer_increase(con->read_buffer);
-      buffer_free= ascore_buffer_get_available(con->read_buffer);
+      attachsql_buffer_increase(con->read_buffer);
+      buffer_free= attachsql_buffer_get_available(con->read_buffer);
     }
     buf.base= con->read_buffer->buffer_write_ptr;
     buf.len= buffer_free;
@@ -342,14 +342,14 @@ uv_buf_t on_alloc(uv_handle_t *client, size_t suggested_size)
     if (con->read_buffer_compress == NULL)
     {
       asdebug("Creating compressed read buffer");
-      con->read_buffer_compress= ascore_buffer_create();
+      con->read_buffer_compress= attachsql_buffer_create();
     }
-    buffer_free= ascore_buffer_get_available(con->read_buffer_compress);
+    buffer_free= attachsql_buffer_get_available(con->read_buffer_compress);
     if (buffer_free < suggested_size)
     {
       asdebug("Enlarging compress buffer, free: %zd, requested: %zd", buffer_free, suggested_size);
-      ascore_buffer_increase(con->read_buffer_compress);
-      buffer_free= ascore_buffer_get_available(con->read_buffer_compress);
+      attachsql_buffer_increase(con->read_buffer_compress);
+      buffer_free= attachsql_buffer_get_available(con->read_buffer_compress);
     }
     buf.base= con->read_buffer_compress->buffer_write_ptr;
     buf.len= buffer_free;
@@ -366,7 +366,7 @@ uv_buf_t on_alloc(uv_handle_t *client, size_t suggested_size)
   return buf;
 }
 
-void ascore_packet_read_handshake(ascon_st *con)
+void attachsql_packet_read_handshake(attachsql_connect_t *con)
 {
   asdebug("Connect handshake packet");
   buffer_st *buffer= con->read_buffer;
@@ -374,7 +374,7 @@ void ascore_packet_read_handshake(ascon_st *con)
   // Rejection error before handshake
   if ((unsigned char)buffer->buffer_read_ptr[0] == 0xff)
   {
-    ascore_packet_read_response(con);
+    attachsql_packet_read_response(con);
   }
 
   // Protocol version
@@ -383,18 +383,18 @@ void ascore_packet_read_handshake(ascon_st *con)
     // Note that 255 is a special immediate auth fail case
     asdebug("Bad protocol version");
     con->local_errcode= ASRET_BAD_PROTOCOL;
-    snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "Incompatible protocol version");
+    snprintf(con->errmsg, ATTACHSQL_ERROR_BUFFER_SIZE, "Incompatible protocol version");
     return;
   }
 
   // Server version (null-terminated string)
   buffer->buffer_read_ptr++;
-  strncpy(con->server_version, buffer->buffer_read_ptr, ASCORE_MAX_SERVER_VERSION_LEN);
-  con->server_version[ASCORE_MAX_SERVER_VERSION_LEN - 1]= '\0';
+  strncpy(con->server_version, buffer->buffer_read_ptr, ATTACHSQL_MAX_SERVER_VERSION_LEN);
+  con->server_version[ATTACHSQL_MAX_SERVER_VERSION_LEN - 1]= '\0';
   buffer->buffer_read_ptr+= strlen(con->server_version) + 1;
 
   // Thread ID
-  con->thread_id= ascore_unpack_int4(buffer->buffer_read_ptr);
+  con->thread_id= attachsql_unpack_int4(buffer->buffer_read_ptr);
   buffer->buffer_read_ptr+= 4;
 
   // Scramble buffer and 1 byte filler
@@ -402,20 +402,20 @@ void ascore_packet_read_handshake(ascon_st *con)
   buffer->buffer_read_ptr+= 9;
 
   // Server capabilities
-  con->server_capabilities= (ascore_capabilities_t)ascore_unpack_int2(buffer->buffer_read_ptr);
+  con->server_capabilities= (attachsql_capabilities_t)attachsql_unpack_int2(buffer->buffer_read_ptr);
   buffer->buffer_read_ptr+= 2;
   // Check MySQL 4.1 protocol capability is on, we won't support old auth
-  if (not (con->server_capabilities & ASCORE_CAPABILITY_PROTOCOL_41))
+  if (not (con->server_capabilities & ATTACHSQL_CAPABILITY_PROTOCOL_41))
   {
     asdebug("MySQL <4.1 Auth not supported");
     con->local_errcode= ASRET_NO_OLD_AUTH;
-    snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "MySQL 4.1 protocol and higher required");
+    snprintf(con->errmsg, ATTACHSQL_ERROR_BUFFER_SIZE, "MySQL 4.1 protocol and higher required");
   }
 
   con->charset= buffer->buffer_read_ptr[0];
   buffer->buffer_read_ptr++;
 
-  con->server_status= ascore_unpack_int2(buffer->buffer_read_ptr);
+  con->server_status= attachsql_unpack_int2(buffer->buffer_read_ptr);
   // 13 byte filler and unrequired scramble length (until auth plugins)
   buffer->buffer_read_ptr+= 15;
 
@@ -424,13 +424,13 @@ void ascore_packet_read_handshake(ascon_st *con)
   buffer->buffer_read_ptr+= 13;
 
   // MySQL 5.5 onwards has more password plugin stuff here, ignore for now
-  ascore_packet_read_end(con);
+  attachsql_packet_read_end(con);
 
   // Create response packet
-  ascore_handshake_response(con);
+  attachsql_handshake_response(con);
 }
 
-void ascore_handshake_response(ascon_st *con)
+void attachsql_handshake_response(attachsql_connect_t *con)
 {
   unsigned char *buffer_ptr;
   uint32_t capabilities;
@@ -438,32 +438,32 @@ void ascore_handshake_response(ascon_st *con)
   asdebug("Sending handshake response");
   buffer_ptr= (unsigned char*)con->write_buffer;
 
-  capabilities= con->server_capabilities & ASCORE_CAPABILITY_CLIENT;
-  capabilities|= ASCORE_CAPABILITY_MULTI_RESULTS;
+  capabilities= con->server_capabilities & ATTACHSQL_CAPABILITY_CLIENT;
+  capabilities|= ATTACHSQL_CAPABILITY_MULTI_RESULTS;
   capabilities|= con->client_capabilities;
 
 #ifdef HAVE_OPENSSL
   if (con->ssl.ssl != NULL)
   {
-    if (not (con->server_capabilities & ASCORE_CAPABILITY_SSL))
+    if (not (con->server_capabilities & ATTACHSQL_CAPABILITY_SSL))
     {
       asdebug("SSL disabled on server");
       con->local_errcode= ASRET_NET_SSL_ERROR;
-      snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "SSL auth not supported enabled on server");
-      con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
+      snprintf(con->errmsg, ATTACHSQL_ERROR_BUFFER_SIZE, "SSL auth not supported enabled on server");
+      con->command_status= ATTACHSQL_COMMAND_STATUS_SEND_FAILED;
       con->next_packet_queue_used= 0;
-      con->status= ASCORE_CON_STATUS_CONNECT_FAILED;
+      con->status= ATTACHSQL_CON_STATUS_CONNECT_FAILED;
       return;
     }
-    capabilities |= ASCORE_CAPABILITY_SSL;
+    capabilities |= ATTACHSQL_CAPABILITY_SSL;
   }
 #endif
 
-  ascore_pack_int4(buffer_ptr, capabilities);
+  attachsql_pack_int4(buffer_ptr, capabilities);
   buffer_ptr+= 4;
 
   // Set max packet size to our buffer size for now
-  ascore_pack_int4(buffer_ptr, ASCORE_DEFAULT_BUFFER_SIZE);
+  attachsql_pack_int4(buffer_ptr, ATTACHSQL_DEFAULT_BUFFER_SIZE);
   buffer_ptr+= 4;
 
   // Change this when we support charsets
@@ -475,7 +475,7 @@ void ascore_handshake_response(ascon_st *con)
   buffer_ptr+= 23;
 
 #ifdef HAVE_OPENSSL
-  if ((con->ssl.ssl != NULL) and (ascore_packet_queue_peek(con) != ASCORE_PACKET_TYPE_HANDSHAKE_SSL))
+  if ((con->ssl.ssl != NULL) and (attachsql_packet_queue_peek(con) != ATTACHSQL_PACKET_TYPE_HANDSHAKE_SSL))
   {
     /* for SSL we do a short handshake ending here in plain text,
      * no user/password sent.
@@ -483,19 +483,19 @@ void ascore_handshake_response(ascon_st *con)
      * handshake happens next followed by a full MySQL handshake packet with
      * user/pass encrypted
      */
-    ascore_send_data(con, con->write_buffer, (size_t)(buffer_ptr - (unsigned char*)con->write_buffer));
-    ascore_packet_queue_push(con, ASCORE_PACKET_TYPE_HANDSHAKE_SSL);
-    ascore_handshake_response(con);
+    attachsql_send_data(con, con->write_buffer, (size_t)(buffer_ptr - (unsigned char*)con->write_buffer));
+    attachsql_packet_queue_push(con, ATTACHSQL_PACKET_TYPE_HANDSHAKE_SSL);
+    attachsql_handshake_response(con);
     return;
   }
 
-  if ((con->ssl.ssl != NULL) and (ascore_packet_queue_peek(con) == ASCORE_PACKET_TYPE_HANDSHAKE_SSL))
+  if ((con->ssl.ssl != NULL) and (attachsql_packet_queue_peek(con) == ATTACHSQL_PACKET_TYPE_HANDSHAKE_SSL))
   {
     /* second entry into handshake for SSL, this response and all other send /
      * receives should be encrypted from now on
      */
     con->ssl.enabled= true;
-    ascore_packet_queue_pop(con);
+    attachsql_packet_queue_pop(con);
   }
 #endif
 
@@ -534,11 +534,11 @@ void ascore_handshake_response(ascon_st *con)
   }
   buffer_ptr[0]= '\0';
   buffer_ptr++;
-  ascore_send_data(con, con->write_buffer, (size_t)(buffer_ptr - (unsigned char*)con->write_buffer));
-  ascore_packet_queue_push(con, ASCORE_PACKET_TYPE_RESPONSE);
+  attachsql_send_data(con, con->write_buffer, (size_t)(buffer_ptr - (unsigned char*)con->write_buffer));
+  attachsql_packet_queue_push(con, ATTACHSQL_PACKET_TYPE_RESPONSE);
 }
 
-asret_t scramble_password(ascon_st *con, unsigned char *buffer)
+asret_t scramble_password(attachsql_connect_t *con, unsigned char *buffer)
 {
   SHA1_CTX ctx;
   unsigned char stage1[SHA1_DIGEST_LENGTH];
@@ -574,16 +574,8 @@ asret_t scramble_password(ascon_st *con, unsigned char *buffer)
   return ASRET_OK;
 }
 
-void ascore_library_init(void)
-{
 #ifdef HAVE_OPENSSL
-  SSL_load_error_strings();
-  SSL_library_init();
-#endif
-}
-
-#ifdef HAVE_OPENSSL
-bool ascore_con_set_ssl(ascon_st *con, const char *key, const char *cert, const char *ca, const char *capath, const char *cipher, bool verify)
+bool attachsql_con_set_ssl(attachsql_connect_t *con, const char *key, const char *cert, const char *ca, const char *capath, const char *cipher, bool verify)
 {
   con->ssl.context= SSL_CTX_new(TLSv1_client_method());
 
@@ -591,16 +583,16 @@ bool ascore_con_set_ssl(ascon_st *con, const char *key, const char *cert, const 
   {
     if (SSL_CTX_set_cipher_list(con->ssl.context, cipher) != 1)
     {
-      strncpy(con->errmsg, "Error setting SSL cipher list", ASCORE_ERROR_BUFFER_SIZE - 1);
-      con->errmsg[ASCORE_ERROR_BUFFER_SIZE - 1]= '\0';
+      strncpy(con->errmsg, "Error setting SSL cipher list", ATTACHSQL_ERROR_BUFFER_SIZE - 1);
+      con->errmsg[ATTACHSQL_ERROR_BUFFER_SIZE - 1]= '\0';
       return false;
     }
   }
 
   if (SSL_CTX_load_verify_locations(con->ssl.context, ca, capath) != 1)
   {
-    strncpy(con->errmsg, "Error loading the SSL certificate authority file", ASCORE_ERROR_BUFFER_SIZE -1);
-    con->errmsg[ASCORE_ERROR_BUFFER_SIZE - 1]= '\0';
+    strncpy(con->errmsg, "Error loading the SSL certificate authority file", ATTACHSQL_ERROR_BUFFER_SIZE -1);
+    con->errmsg[ATTACHSQL_ERROR_BUFFER_SIZE - 1]= '\0';
     return false;
   }
 
@@ -608,8 +600,8 @@ bool ascore_con_set_ssl(ascon_st *con, const char *key, const char *cert, const 
   {
     if (SSL_CTX_use_certificate_file(con->ssl.context, cert, SSL_FILETYPE_PEM) != 1)
     {
-      strncpy(con->errmsg, "Error loading the SSL certificate file", ASCORE_ERROR_BUFFER_SIZE - 1);
-      con->errmsg[ASCORE_ERROR_BUFFER_SIZE - 1]= '\0';
+      strncpy(con->errmsg, "Error loading the SSL certificate file", ATTACHSQL_ERROR_BUFFER_SIZE - 1);
+      con->errmsg[ATTACHSQL_ERROR_BUFFER_SIZE - 1]= '\0';
       return false;
     }
 
@@ -620,15 +612,15 @@ bool ascore_con_set_ssl(ascon_st *con, const char *key, const char *cert, const 
 
     if (SSL_CTX_use_PrivateKey_file(con->ssl.context, key, SSL_FILETYPE_PEM) != 1)
     {
-      strncpy(con->errmsg, "Cannot load the SSL key file", ASCORE_ERROR_BUFFER_SIZE - 1);
-      con->errmsg[ASCORE_ERROR_BUFFER_SIZE - 1]= '\0';
+      strncpy(con->errmsg, "Cannot load the SSL key file", ATTACHSQL_ERROR_BUFFER_SIZE - 1);
+      con->errmsg[ATTACHSQL_ERROR_BUFFER_SIZE - 1]= '\0';
       return false;
     }
 
     if (SSL_CTX_check_private_key(con->ssl.context) != 1)
     {
-      strncpy(con->errmsg, "Error validating the SSL private key", ASCORE_ERROR_BUFFER_SIZE - 1);
-      con->errmsg[ASCORE_ERROR_BUFFER_SIZE - 1]= '\0';
+      strncpy(con->errmsg, "Error validating the SSL private key", ATTACHSQL_ERROR_BUFFER_SIZE - 1);
+      con->errmsg[ATTACHSQL_ERROR_BUFFER_SIZE - 1]= '\0';
       return false;
     }
   }

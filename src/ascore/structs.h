@@ -32,6 +32,7 @@ typedef uint16_t in_port_t;
 #endif
 
 #include <uv.h>
+#include <libattachsql-2.0/attachsql.h>
 
 #ifdef HAVE_OPENSSL
 # include <openssl/ssl.h>
@@ -42,21 +43,37 @@ typedef uint16_t in_port_t;
 extern "C" {
 #endif
 
-typedef struct ascon_st ascon_st;
+typedef struct attachsql_connect_t attachsql_connect_t;
+
+#define ATTACHSQL_BUFFER_ROW_ALLOC_SIZE 100
+#define ATTACHSQL_STMT_CHAR_BUFFER_SIZE 40
+
+struct attachsql_stmt_row_st
+{
+  char *data;
+  size_t length;
+  attachsql_column_type_t type;
+
+  attachsql_stmt_row_st() :
+    data(NULL),
+    length(0),
+    type(ATTACHSQL_COLUMN_TYPE_NULL)
+  { }
+};
 
 struct column_t
 {
-  char schema[ASCORE_MAX_SCHEMA_SIZE];
-  char table[ASCORE_MAX_TABLE_SIZE];
-  char origin_table[ASCORE_MAX_TABLE_SIZE];
-  char column[ASCORE_MAX_COLUMN_SIZE];
-  char origin_column[ASCORE_MAX_COLUMN_SIZE];
+  char schema[ATTACHSQL_MAX_SCHEMA_SIZE];
+  char table[ATTACHSQL_MAX_TABLE_SIZE];
+  char origin_table[ATTACHSQL_MAX_TABLE_SIZE];
+  char column[ATTACHSQL_MAX_COLUMN_SIZE];
+  char origin_column[ATTACHSQL_MAX_COLUMN_SIZE];
   uint16_t charset;
   uint32_t length;
-  ascore_column_type_t type;
-  ascore_column_flags_t flags;
+  attachsql_column_type_t type;
+  attachsql_column_flags_t flags;
   uint8_t decimals;
-  char default_value[ASCORE_MAX_DEFAULT_VALUE_SIZE];
+  char default_value[ATTACHSQL_MAX_DEFAULT_VALUE_SIZE];
   size_t default_size;
 };
 
@@ -79,7 +96,7 @@ struct result_t
   { }
 };
 
-struct ascore_datetime_st
+struct attachsql_datetime_st
 {
   uint16_t year;
   uint8_t month;
@@ -90,7 +107,7 @@ struct ascore_datetime_st
   uint32_t microsecond;
   bool is_negative;
 
-  ascore_datetime_st ():
+  attachsql_datetime_st ():
     year(0),
     month(0),
     day(0),
@@ -102,9 +119,9 @@ struct ascore_datetime_st
   { }
 };
 
-struct ascore_stmt_param_st
+struct attachsql_stmt_param_st
 {
-  ascore_column_type_t type;
+  attachsql_column_type_t type;
   size_t length;
   bool is_long_data;
   bool is_unsigned;
@@ -117,12 +134,12 @@ struct ascore_stmt_param_st
     uint64_t bigint_data;
     float float_data;
     double double_data;
-    ascore_datetime_st *datetime_data;
+    attachsql_datetime_st *datetime_data;
     char *string_data;
   } data;
 
-  ascore_stmt_param_st() :
-    type(ASCORE_COLUMN_TYPE_NULL),
+  attachsql_stmt_param_st() :
+    type(ATTACHSQL_COLUMN_TYPE_NULL),
     length(0),
     is_long_data(false),
     is_unsigned(false),
@@ -130,22 +147,22 @@ struct ascore_stmt_param_st
   { }
 };
 
-struct ascore_stmt_st
+struct attachsql_stmt_st
 {
-  ascon_st *con;
+  attachsql_connect_t *con;
   uint32_t id;
   uint16_t column_count;
   uint16_t current_column;
   uint16_t param_count;
   column_t *params;
   uint16_t current_param;
-  ascore_stmt_state_t state;
+  attachsql_stmt_state_t state;
   char *exec_buffer;
   size_t exec_buffer_length;
-  ascore_stmt_param_st *param_data;
+  attachsql_stmt_param_st *param_data;
   bool new_bind;
 
-  ascore_stmt_st():
+  attachsql_stmt_st():
     con(NULL),
     id(0),
     column_count(0),
@@ -153,7 +170,7 @@ struct ascore_stmt_st
     param_count(0),
     params(NULL),
     current_param(0),
-    state(ASCORE_STMT_STATE_NONE),
+    state(ATTACHSQL_STMT_STATE_NONE),
     exec_buffer(NULL),
     exec_buffer_length(0),
     param_data(NULL),
@@ -161,7 +178,7 @@ struct ascore_stmt_st
   { }
 };
 
-struct ascon_st
+struct attachsql_connect_t
 {
   const char *host;
   in_port_t port;
@@ -172,29 +189,29 @@ struct ascon_st
   struct options_t
   {
     bool compression;
-    ascore_con_protocol_t protocol;
+    attachsql_con_protocol_t protocol;
     bool semi_block;
 
     options_t() :
       compression(false),
-      protocol(ASCORE_CON_PROTOCOL_UNKNOWN),
+      protocol(ATTACHSQL_CON_PROTOCOL_UNKNOWN),
       semi_block(false)
     { }
   } options;
 
-  ascore_con_status_t status;
-  char errmsg[ASCORE_ERROR_BUFFER_SIZE];
+  attachsql_con_status_t status;
+  char errmsg[ATTACHSQL_ERROR_BUFFER_SIZE];
   asret_t local_errcode;
   buffer_st *read_buffer;
   buffer_st *read_buffer_compress;
-  char write_buffer[ASCORE_WRITE_BUFFER_SIZE];
+  char write_buffer[ATTACHSQL_WRITE_BUFFER_SIZE];
   uint8_t write_buffer_extra; /* for extra bytes in packet header due to prepared statement */
   uint8_t packet_number;
   uint32_t thread_id;
-  char server_version[ASCORE_MAX_SERVER_VERSION_LEN];
+  char server_version[ATTACHSQL_MAX_SERVER_VERSION_LEN];
   unsigned char scramble_buffer[20];
   char packet_header[4];
-  ascore_capabilities_t server_capabilities;
+  attachsql_capabilities_t server_capabilities;
   int client_capabilities;
   uint32_t packet_size;
   uint64_t affected_rows;
@@ -202,12 +219,12 @@ struct ascon_st
   uint16_t server_status;
   uint16_t warning_count;
   uint16_t server_errno;
-  char server_message[ASCORE_MAX_MESSAGE_LEN];
-  char sqlstate[ASCORE_SQLSTATE_SIZE];
+  char server_message[ATTACHSQL_MAX_MESSAGE_LEN];
+  char sqlstate[ATTACHSQL_SQLSTATE_SIZE];
   uint8_t charset;
   struct result_t result;
-  ascore_command_status_t command_status;
-  ascore_packet_type_t *next_packet_queue;
+  attachsql_command_status_t command_status;
+  attachsql_packet_type_t *next_packet_queue;
   size_t next_packet_queue_size;
   size_t next_packet_queue_used;
   char *uncompressed_buffer;
@@ -269,23 +286,43 @@ struct ascon_st
   } ssl;
 #endif
   bool in_statement;
-  ascore_stmt_st *stmt;
+  attachsql_stmt_st *stmt;
+  /* the following has been migrated during struct merge */
   bool in_pool;
+  attachsql_callback_fn *callback_fn;
+  void *callback_context;
+  char *query_buffer;
+  size_t query_buffer_length;
+  bool query_buffer_alloc;
+  bool query_buffer_statement;
+  bool in_query;
+  bool buffer_rows;
+  attachsql_query_column_st *columns;
+  attachsql_query_row_st *row;
+  attachsql_query_row_st **row_buffer;
+  uint64_t row_buffer_alloc_size;
+  uint64_t row_buffer_count;
+  uint64_t row_buffer_position;
+  bool all_rows_buffered;
+  attachsql_stmt_row_st *stmt_row;
+  char *stmt_null_bitmap;
+  uint16_t stmt_null_bitmap_length;
+  char stmt_tmp_buffer[ATTACHSQL_STMT_CHAR_BUFFER_SIZE];
 
-  ascon_st() :
+  attachsql_connect_t() :
     host(NULL),
     port(0),
     user(NULL),
     pass(NULL),
     schema(NULL),
-    status(ASCORE_CON_STATUS_NOT_CONNECTED),
+    status(ATTACHSQL_CON_STATUS_NOT_CONNECTED),
     local_errcode(ASRET_OK),
     read_buffer(NULL),
     read_buffer_compress(NULL),
     write_buffer_extra(0),
     packet_number(0),
     thread_id(0),
-    server_capabilities(ASCORE_CAPABILITY_NONE),
+    server_capabilities(ATTACHSQL_CAPABILITY_NONE),
     client_capabilities(0),
     packet_size(0),
     affected_rows(0),
@@ -294,7 +331,7 @@ struct ascon_st
     warning_count(0),
     server_errno(0),
     charset(0),
-    command_status(ASCORE_COMMAND_STATUS_EOF),
+    command_status(ATTACHSQL_COMMAND_STATUS_EOF),
     next_packet_queue(NULL),
     next_packet_queue_size(0),
     next_packet_queue_used(0),
@@ -305,7 +342,25 @@ struct ascon_st
     compressed_packet_number(0),
     in_statement(false),
     stmt(NULL),
-    in_pool(false)
+    in_pool(false),
+    callback_fn(NULL),
+    callback_context(NULL),
+    query_buffer(NULL),
+    query_buffer_length(0),
+    query_buffer_alloc(false),
+    query_buffer_statement(false),
+    in_query(false),
+    buffer_rows(false),
+    columns(NULL),
+    row(NULL),
+    row_buffer(NULL),
+    row_buffer_alloc_size(0),
+    row_buffer_count(0),
+    row_buffer_position(0),
+    all_rows_buffered(false),
+    stmt_row(NULL),
+    stmt_null_bitmap(NULL),
+    stmt_null_bitmap_length(0)
   {
     str_port[0]= '\0';
     errmsg[0]= '\0';
@@ -316,7 +371,38 @@ struct ascon_st
     sqlstate[0]= '\0';
     write_buffer[0]= '\0';
     compressed_packet_header[0]= '\0';
+    stmt_tmp_buffer[0]= '\0';
   }
+};
+
+struct attachsql_error_t
+{
+  int code;
+  char msg[ATTACHSQL_MESSAGE_SIZE];
+  char sqlstate[ATTACHSQL_SQLSTATE_SIZE];
+  attachsql_error_level_t level;
+
+  attachsql_error_t() :
+    code(0),
+    level(ATTACHSQL_ERROR_LEVEL_NOTICE)
+  {
+    msg[0]= '\0';
+    sqlstate[0]= '\0';
+  }
+};
+
+struct attachsql_pool_t
+{
+  attachsql_connect_t **connections;
+  size_t connection_count;
+  uv_loop_t *loop;
+
+  attachsql_pool_t() :
+    connections(NULL),
+    connection_count(0),
+    loop(NULL)
+  { }
+
 };
 
 #ifdef __cplusplus

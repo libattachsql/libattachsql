@@ -54,7 +54,6 @@ void attachsql_pool_destroy(attachsql_pool_t *pool)
   uv_loop_delete(pool->loop);
   for (connection= 0; connection < pool->connection_count; connection++)
   {
-    delete pool->connections[connection]->core_con;
     delete pool->connections[connection];
   }
   if (pool->connections != NULL)
@@ -79,8 +78,8 @@ void attachsql_pool_add_connection(attachsql_pool_t *pool, attachsql_connect_t *
   {
     pool->connections= tmp_cons;
     pool->connections[pool->connection_count]= con;
-    con->core_con->in_pool= true;
-    con->core_con->uv_objects.loop= pool->loop;
+    con->in_pool= true;
+    con->uv_objects.loop= pool->loop;
     pool->connection_count++;
   }
   else

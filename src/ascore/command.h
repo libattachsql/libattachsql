@@ -26,16 +26,16 @@ extern "C" {
 #endif
 
 #ifdef HAVE_ZLIB
-ascore_command_status_t ascore_command_send_compressed(ascon_st *con, ascore_command_t command, char *data, size_t length);
+attachsql_command_status_t attachsql_command_send_compressed(attachsql_connect_t *con, attachsql_command_t command, char *data, size_t length);
 #endif
 
-ascore_command_status_t ascore_command_send(ascon_st *con, ascore_command_t command, char *data, size_t length);
+attachsql_command_status_t attachsql_command_send(attachsql_connect_t *con, attachsql_command_t command, char *data, size_t length);
 
-ascore_command_status_t ascore_get_next_row(ascon_st *con);
+attachsql_command_status_t attachsql_get_next_row(attachsql_connect_t *con);
 
-bool ascore_command_next_result(ascon_st *con);
+bool attachsql_command_next_result(attachsql_connect_t *con);
 
-void ascore_command_free(ascon_st *con);
+void attachsql_command_free(attachsql_connect_t *con);
 
 #ifdef __cplusplus
 }

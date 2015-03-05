@@ -7,7 +7,6 @@ noinst_HEADERS+= src/asql/error_internal.h
 noinst_HEADERS+= src/asql/connect_internal.h
 noinst_HEADERS+= src/asql/query_internal.h
 noinst_HEADERS+= src/asql/statement_internal.h
-noinst_HEADERS+= src/asql/structs_internal.h
 
 lib_LTLIBRARIES+= src/asql/libattachsql.la
 src_asql_libattachsql_la_SOURCES=

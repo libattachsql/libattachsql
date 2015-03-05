@@ -26,26 +26,26 @@
 extern "C" {
 #endif
 
-enum ascore_pack_status_t
+enum attachsql_pack_status_t
 {
-  ASCORE_PACK_OK,
-  ASCORE_PACK_INVALID_ARGUMENT,
-  ASCORE_PACK_NULL
+  ATTACHSQL_PACK_OK,
+  ATTACHSQL_PACK_INVALID_ARGUMENT,
+  ATTACHSQL_PACK_NULL
 };
 
-uint64_t ascore_unpack_length(char *buffer, uint8_t *bytes, ascore_pack_status_t *status);
+uint64_t attachsql_unpack_length(char *buffer, uint8_t *bytes, attachsql_pack_status_t *status);
 
-char *ascore_pack_data(char *buffer, size_t length, char *data);
+char *attachsql_pack_data(char *buffer, size_t length, char *data);
 
-char *ascore_pack_length(char *buffer, size_t length);
+char *attachsql_pack_length(char *buffer, size_t length);
 
-char *ascore_pack_datetime(char *buffer, ascore_datetime_st *datetime, bool date_only);
+char *attachsql_pack_datetime(char *buffer, attachsql_datetime_st *datetime, bool date_only);
 
-char *ascore_pack_time(char *buffer, ascore_datetime_st *datetime);
+char *attachsql_pack_time(char *buffer, attachsql_datetime_st *datetime);
 
-void ascore_unpack_time(char *buffer, size_t length, ascore_datetime_st *datetime);
+void attachsql_unpack_time(char *buffer, size_t length, attachsql_datetime_st *datetime);
 
-void ascore_unpack_datetime(char *buffer, size_t length, ascore_datetime_st *datetime);
+void attachsql_unpack_datetime(char *buffer, size_t length, attachsql_datetime_st *datetime);
 
 #ifdef __cplusplus
 }

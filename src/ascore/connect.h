@@ -31,35 +31,33 @@
 extern "C" {
 #endif
 
-ascon_st *ascore_con_create(const char *host, in_port_t port, const char *user, const char *pass, const char *schema);
+attachsql_connect_t *attachsql_con_create(const char *host, in_port_t port, const char *user, const char *pass, const char *schema);
 
-ascore_con_status_t ascore_connect(ascon_st *con);
+attachsql_con_status_t attachsql_do_connect(attachsql_connect_t *con);
 
-ascore_con_status_t ascore_con_poll(ascon_st *con);
+attachsql_con_status_t attachsql_con_poll(attachsql_connect_t *con);
 
-void ascore_con_destroy(ascon_st *con);
+void attachsql_con_destroy(attachsql_connect_t *con);
 
 void on_resolved(uv_getaddrinfo_t *resolver, int status, struct addrinfo *res);
 
 void on_connect(uv_connect_t *req, int status);
 
-void ascore_packet_read_handshake(ascon_st *con);
+void attachsql_packet_read_handshake(attachsql_connect_t *con);
 
 uv_buf_t on_alloc(uv_handle_t *client, size_t suggested_size);
 
-asret_t scramble_password(ascon_st *con, unsigned char *buffer);
+asret_t scramble_password(attachsql_connect_t *con, unsigned char *buffer);
 
-void ascore_handshake_response(ascon_st *con);
-
-void ascore_library_init(void);
+void attachsql_handshake_response(attachsql_connect_t *con);
 
 #ifdef HAVE_OPENSSL
-bool ascore_con_set_ssl(ascon_st *con, const char *key, const char *cert, const char *ca, const char *capath, const char *cipher, bool verify);
+bool attachsql_con_set_ssl(attachsql_connect_t *con, const char *key, const char *cert, const char *ca, const char *capath, const char *cipher, bool verify);
 
-int ascore_ssl_buffer_write(ascon_st *con, uv_buf_t *buf, int buf_len);
+int attachsql_ssl_buffer_write(attachsql_connect_t *con, uv_buf_t *buf, int buf_len);
 #endif
 
-void ascore_check_for_data_cb(uv_check_t *handle, int status);
+void attachsql_check_for_data_cb(uv_check_t *handle, int status);
 
 #ifdef __cplusplus
 }

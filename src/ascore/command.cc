@@ -19,28 +19,28 @@
 #include "net.h"
 
 #ifdef HAVE_ZLIB
-ascore_command_status_t ascore_command_send_compressed(ascon_st *con, ascore_command_t command, char *data, size_t length)
+attachsql_command_status_t attachsql_command_send_compressed(attachsql_connect_t *con, attachsql_command_t command, char *data, size_t length)
 {
-  ascore_send_compressed_packet(con, data, length, command);
-  if (con->status == ASCORE_CON_STATUS_IDLE)
+  attachsql_send_compressed_packet(con, data, length, command);
+  if (con->status == ATTACHSQL_CON_STATUS_IDLE)
   {
-    if (command == ASCORE_COMMAND_STMT_PREPARE)
+    if (command == ATTACHSQL_COMMAND_STMT_PREPARE)
     {
-      ascore_packet_queue_push(con, ASCORE_PACKET_TYPE_PREPARE_RESPONSE);
+      attachsql_packet_queue_push(con, ATTACHSQL_PACKET_TYPE_PREPARE_RESPONSE);
     }
     else
     {
-      ascore_packet_queue_push(con, ASCORE_PACKET_TYPE_RESPONSE);
+      attachsql_packet_queue_push(con, ATTACHSQL_PACKET_TYPE_RESPONSE);
     }
-    con->command_status= ASCORE_COMMAND_STATUS_SEND;
-    con->status= ASCORE_CON_STATUS_BUSY;
-    return ASCORE_COMMAND_STATUS_SEND;
+    con->command_status= ATTACHSQL_COMMAND_STATUS_SEND;
+    con->status= ATTACHSQL_CON_STATUS_BUSY;
+    return ATTACHSQL_COMMAND_STATUS_SEND;
   }
   return con->command_status;
 }
 #endif
 
-ascore_command_status_t ascore_command_send(ascon_st *con, ascore_command_t command, char *data, size_t length)
+attachsql_command_status_t attachsql_command_send(attachsql_connect_t *con, attachsql_command_t command, char *data, size_t length)
 {
   uv_buf_t send_buffer[3];
   int ret;
@@ -57,14 +57,14 @@ ascore_command_status_t ascore_command_send(ascon_st *con, ascore_command_t comm
   con->local_errcode= ASRET_OK;
   con->errmsg[0]= '\0';
 
-  ascore_pack_int3(con->packet_header, length + 1 + con->write_buffer_extra);
+  attachsql_pack_int3(con->packet_header, length + 1 + con->write_buffer_extra);
   con->packet_number= 0;
   con->packet_header[3] = con->packet_number;
 
 #ifdef HAVE_ZLIB
-  if (con->client_capabilities & ASCORE_CAPABILITY_COMPRESS)
+  if (con->client_capabilities & ATTACHSQL_CAPABILITY_COMPRESS)
   {
-    return ascore_command_send_compressed(con, command, data, length);
+    return attachsql_command_send_compressed(con, command, data, length);
   }
 #endif
 
@@ -83,7 +83,7 @@ ascore_command_status_t ascore_command_send(ascon_st *con, ascore_command_t comm
 #ifdef HAVE_OPENSSL
     if (con->ssl.handshake_done)
     {
-      ret= ascore_ssl_buffer_write(con, send_buffer, 3);
+      ret= attachsql_ssl_buffer_write(con, send_buffer, 3);
     }
     else
 #endif
@@ -98,7 +98,7 @@ ascore_command_status_t ascore_command_send(ascon_st *con, ascore_command_t comm
 #ifdef HAVE_OPENSSL
     if (con->ssl.handshake_done)
     {
-      ret= ascore_ssl_buffer_write(con, send_buffer, 2);
+      ret= attachsql_ssl_buffer_write(con, send_buffer, 2);
     }
     else
 #endif
@@ -111,46 +111,46 @@ ascore_command_status_t ascore_command_send(ascon_st *con, ascore_command_t comm
   {
     con->local_errcode= ASRET_NET_WRITE_ERROR;
     asdebug("Write fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
-    con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
+    con->command_status= ATTACHSQL_COMMAND_STATUS_SEND_FAILED;
     con->next_packet_queue_used= 0;
     con->local_errcode= ASRET_NET_WRITE_ERROR;
-    snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "Query send failed: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
+    snprintf(con->errmsg, ATTACHSQL_ERROR_BUFFER_SIZE, "Query send failed: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
     return con->command_status;
   }
 
-  if (command == ASCORE_COMMAND_STMT_PREPARE)
+  if (command == ATTACHSQL_COMMAND_STMT_PREPARE)
   {
-    ascore_packet_queue_push(con, ASCORE_PACKET_TYPE_PREPARE_RESPONSE);
+    attachsql_packet_queue_push(con, ATTACHSQL_PACKET_TYPE_PREPARE_RESPONSE);
   }
-  else if ((command == ASCORE_COMMAND_STMT_RESET) || (command == ASCORE_COMMAND_STMT_CLOSE))
+  else if ((command == ATTACHSQL_COMMAND_STMT_RESET) || (command == ATTACHSQL_COMMAND_STMT_CLOSE))
   {
     /*DO NOTHING*/
   }
   else
   {
-    ascore_packet_queue_push(con, ASCORE_PACKET_TYPE_RESPONSE);
+    attachsql_packet_queue_push(con, ATTACHSQL_PACKET_TYPE_RESPONSE);
   }
-  con->command_status= ASCORE_COMMAND_STATUS_SEND;
-  con->status= ASCORE_CON_STATUS_BUSY;
-  return ASCORE_COMMAND_STATUS_SEND;
+  con->command_status= ATTACHSQL_COMMAND_STATUS_SEND;
+  con->status= ATTACHSQL_CON_STATUS_BUSY;
+  return ATTACHSQL_COMMAND_STATUS_SEND;
 }
 
-ascore_command_status_t ascore_get_next_row(ascon_st *con)
+attachsql_command_status_t attachsql_get_next_row(attachsql_connect_t *con)
 {
-  ascore_buffer_packet_read_end(con->read_buffer);
-  ascore_packet_queue_push(con, ASCORE_PACKET_TYPE_ROW);
-  con->command_status= ASCORE_COMMAND_STATUS_READ_ROW;
-  ascore_con_process_packets(con);
+  attachsql_buffer_packet_read_end(con->read_buffer);
+  attachsql_packet_queue_push(con, ATTACHSQL_PACKET_TYPE_ROW);
+  con->command_status= ATTACHSQL_COMMAND_STATUS_READ_ROW;
+  attachsql_con_process_packets(con);
   return con->command_status;
 }
 
-bool ascore_command_next_result(ascon_st *con)
+bool attachsql_command_next_result(attachsql_connect_t *con)
 {
   if (con == NULL)
   {
     return false;
   }
-  if (con->server_status & ASCORE_SERVER_STATUS_MORE_RESULTS)
+  if (con->server_status & ATTACHSQL_SERVER_STATUS_MORE_RESULTS)
   {
     /* Reset a bunch of internals */
     con->result.current_column= 0;
@@ -159,15 +159,15 @@ bool ascore_command_next_result(ascon_st *con)
     con->server_status= 0;
     con->warning_count= 0;
     con->server_errno= 0;
-    ascore_packet_queue_push(con, ASCORE_PACKET_TYPE_RESPONSE);
-    con->command_status= ASCORE_COMMAND_STATUS_READ_RESPONSE;
-    con->status= ASCORE_CON_STATUS_BUSY;
+    attachsql_packet_queue_push(con, ATTACHSQL_PACKET_TYPE_RESPONSE);
+    con->command_status= ATTACHSQL_COMMAND_STATUS_READ_RESPONSE;
+    con->status= ATTACHSQL_CON_STATUS_BUSY;
     return true;
   }
   return false;
 }
 
-void ascore_command_free(ascon_st *con)
+void attachsql_command_free(attachsql_connect_t *con)
 {
   if (con->result.columns != NULL)
   {

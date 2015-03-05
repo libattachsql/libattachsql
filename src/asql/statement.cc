@@ -23,7 +23,7 @@
 
 bool attachsql_statement_prepare(attachsql_connect_t *con, size_t length, const char *statement, attachsql_error_t **error)
 {
-  if (con->core_con->status == ASCORE_CON_STATUS_NOT_CONNECTED)
+  if (con->status == ATTACHSQL_CON_STATUS_NOT_CONNECTED)
   {
     con->query_buffer= (char*)statement;
     con->query_buffer_length= length;
@@ -31,7 +31,7 @@ bool attachsql_statement_prepare(attachsql_connect_t *con, size_t length, const 
     con->query_buffer_statement= true;
     return attachsql_connect(con, error);
   }
-  con->stmt= ascore_stmt_prepare(con->core_con, length, statement);
+  con->stmt= attachsql_stmt_prepare(con, length, statement);
   if (con->stmt == NULL)
   {
     attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_ALLOC, ATTACHSQL_ERROR_LEVEL_ERROR, "82100", "Allocation failure for statement object");
@@ -53,10 +53,10 @@ bool attachsql_statement_execute(attachsql_connect_t *con, attachsql_error_t **e
     return false;
   }
   /* Free anything left over from last exec */
-  ascore_command_free(con->core_con);
-  if (not ascore_stmt_execute(con->stmt))
+  attachsql_command_free(con);
+  if (not attachsql_stmt_execute(con->stmt))
   {
-    if (con->core_con->local_errcode == ASRET_BAD_STMT_PARAMETER)
+    if (con->local_errcode == ASRET_BAD_STMT_PARAMETER)
     {
       attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Bad parameter bound to statement");
       return false;
@@ -83,9 +83,9 @@ bool attachsql_statement_reset(attachsql_connect_t *con, attachsql_error_t **err
     return false;
   }
 
-  if (ascore_stmt_reset(con->stmt) == ASCORE_COMMAND_STATUS_SEND_FAILED)
+  if (attachsql_stmt_reset(con->stmt) == ATTACHSQL_COMMAND_STATUS_SEND_FAILED)
   {
-    attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_SERVER_GONE, ATTACHSQL_ERROR_LEVEL_ERROR, "08006", con->core_con->errmsg);
+    attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_SERVER_GONE, ATTACHSQL_ERROR_LEVEL_ERROR, "08006", con->errmsg);
     return false;
   }
 
@@ -105,9 +105,9 @@ bool attachsql_statement_send_long_data(attachsql_connect_t *con, uint16_t param
     return false;
   }
 
-  if (ascore_stmt_send_long_data(con->stmt, param, length, data) == ASCORE_COMMAND_STATUS_SEND_FAILED)
+  if (attachsql_stmt_send_long_data(con->stmt, param, length, data) == ATTACHSQL_COMMAND_STATUS_SEND_FAILED)
   {
-    attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_SERVER_GONE, ATTACHSQL_ERROR_LEVEL_ERROR, "08006", con->core_con->errmsg);
+    attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_SERVER_GONE, ATTACHSQL_ERROR_LEVEL_ERROR, "08006", con->errmsg);
     return false;
   }
 
@@ -125,42 +125,42 @@ uint16_t attachsql_statement_get_param_count(attachsql_connect_t *con)
 
 bool attachsql_statement_set_int(attachsql_connect_t *con, uint16_t param, int32_t value, attachsql_error_t **error)
 {
-  return attachsql_statement_set_param(con, ASCORE_COLUMN_TYPE_LONG, param, 0, &value, false, error);
+  return attachsql_statement_set_param(con, ATTACHSQL_COLUMN_TYPE_LONG, param, 0, &value, false, error);
 }
 
 bool attachsql_statement_set_unsigned_int(attachsql_connect_t *con, uint16_t param, uint32_t value, attachsql_error_t **error)
 {
-  return attachsql_statement_set_param(con, ASCORE_COLUMN_TYPE_LONG, param, 0, &value, true, error);
+  return attachsql_statement_set_param(con, ATTACHSQL_COLUMN_TYPE_LONG, param, 0, &value, true, error);
 }
 
 bool attachsql_statement_set_bigint(attachsql_connect_t *con, uint16_t param, int64_t value, attachsql_error_t **error)
 {
-  return attachsql_statement_set_param(con, ASCORE_COLUMN_TYPE_LONGLONG, param, 0, &value, false, error);
+  return attachsql_statement_set_param(con, ATTACHSQL_COLUMN_TYPE_LONGLONG, param, 0, &value, false, error);
 }
 
 bool attachsql_statement_set_unsigned_bigint(attachsql_connect_t *con, uint16_t param, uint64_t value, attachsql_error_t **error)
 {
-  return attachsql_statement_set_param(con, ASCORE_COLUMN_TYPE_LONGLONG, param, 0, &value, true, error);
+  return attachsql_statement_set_param(con, ATTACHSQL_COLUMN_TYPE_LONGLONG, param, 0, &value, true, error);
 }
 
 bool attachsql_statement_set_double(attachsql_connect_t *con, uint16_t param, double value, attachsql_error_t **error)
 {
-  return attachsql_statement_set_param(con, ASCORE_COLUMN_TYPE_DOUBLE, param, 0, &value, false, error);
+  return attachsql_statement_set_param(con, ATTACHSQL_COLUMN_TYPE_DOUBLE, param, 0, &value, false, error);
 }
 
 bool attachsql_statement_set_string(attachsql_connect_t *con, uint16_t param, size_t length, const char *value, attachsql_error_t **error)
 {
-  return attachsql_statement_set_param(con, ASCORE_COLUMN_TYPE_STRING, param, length, value, false, error);
+  return attachsql_statement_set_param(con, ATTACHSQL_COLUMN_TYPE_STRING, param, length, value, false, error);
 }
 
 bool attachsql_statement_set_binary(attachsql_connect_t *con, uint16_t param, size_t length, const char *value, attachsql_error_t **error)
 {
-  return attachsql_statement_set_param(con, ASCORE_COLUMN_TYPE_BLOB, param, length, value, false, error);
+  return attachsql_statement_set_param(con, ATTACHSQL_COLUMN_TYPE_BLOB, param, length, value, false, error);
 }
 
 bool attachsql_statement_set_null(attachsql_connect_t *con, uint16_t param, attachsql_error_t **error)
 {
-  return attachsql_statement_set_param(con, ASCORE_COLUMN_TYPE_NULL, param, 0, NULL, false, error);
+  return attachsql_statement_set_param(con, ATTACHSQL_COLUMN_TYPE_NULL, param, 0, NULL, false, error);
 }
 
 bool attachsql_statement_set_datetime(attachsql_connect_t *con, uint16_t param, uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second, uint32_t microsecond, attachsql_error_t **error)
@@ -176,7 +176,7 @@ bool attachsql_statement_set_datetime(attachsql_connect_t *con, uint16_t param, 
     attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Param %d does not exist", param);
     return false;
   }
-  con->stmt->param_data[param].data.datetime_data= new ascore_datetime_st;
+  con->stmt->param_data[param].data.datetime_data= new attachsql_datetime_st;
   con->stmt->param_data[param].datetime_alloc= true;
   con->stmt->param_data[param].data.datetime_data->year= year;
   con->stmt->param_data[param].data.datetime_data->month= month;
@@ -185,7 +185,7 @@ bool attachsql_statement_set_datetime(attachsql_connect_t *con, uint16_t param, 
   con->stmt->param_data[param].data.datetime_data->minute= minute;
   con->stmt->param_data[param].data.datetime_data->second= second;
   con->stmt->param_data[param].data.datetime_data->microsecond= microsecond;
-  con->stmt->param_data[param].type= ASCORE_COLUMN_TYPE_DATETIME;
+  con->stmt->param_data[param].type= ATTACHSQL_COLUMN_TYPE_DATETIME;
 
   return true;
 }
@@ -203,19 +203,19 @@ bool attachsql_statement_set_time(attachsql_connect_t *con, uint16_t param, uint
     attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Param %d does not exist", param);
     return false;
   }
-  con->stmt->param_data[param].data.datetime_data= new ascore_datetime_st;
+  con->stmt->param_data[param].data.datetime_data= new attachsql_datetime_st;
   con->stmt->param_data[param].datetime_alloc= false;
   con->stmt->param_data[param].data.datetime_data->hour= hour;
   con->stmt->param_data[param].data.datetime_data->minute= minute;
   con->stmt->param_data[param].data.datetime_data->second= second;
   con->stmt->param_data[param].data.datetime_data->microsecond= microsecond;
   con->stmt->param_data[param].data.datetime_data->is_negative= is_negative;
-  con->stmt->param_data[param].type= ASCORE_COLUMN_TYPE_TIME;
+  con->stmt->param_data[param].type= ATTACHSQL_COLUMN_TYPE_TIME;
 
   return true;
 }
 
-bool attachsql_statement_set_param(attachsql_connect_t *con, ascore_column_type_t type, uint16_t param, size_t length, const void *value, bool is_unsigned, attachsql_error_t **error)
+bool attachsql_statement_set_param(attachsql_connect_t *con, attachsql_column_type_t type, uint16_t param, size_t length, const void *value, bool is_unsigned, attachsql_error_t **error)
 {
   if ((con == NULL) || (con->stmt == NULL))
   {
@@ -231,59 +231,56 @@ bool attachsql_statement_set_param(attachsql_connect_t *con, ascore_column_type_
 
   switch (type)
   {
-    case ASCORE_COLUMN_TYPE_LONG:
+    case ATTACHSQL_COLUMN_TYPE_LONG:
       con->stmt->param_data[param].data.int_data= *(uint32_t*)value;
       con->stmt->param_data[param].is_unsigned= is_unsigned;
       con->stmt->param_data[param].type= type;
       break;
-    case ASCORE_COLUMN_TYPE_LONGLONG:
+    case ATTACHSQL_COLUMN_TYPE_LONGLONG:
       con->stmt->param_data[param].data.bigint_data= *(uint64_t*)value;
       con->stmt->param_data[param].is_unsigned= is_unsigned;
       con->stmt->param_data[param].type= type;
       break;
-    case ASCORE_COLUMN_TYPE_FLOAT:
+    case ATTACHSQL_COLUMN_TYPE_FLOAT:
       con->stmt->param_data[param].data.float_data= *(float*)value;
       con->stmt->param_data[param].is_unsigned= false;
       con->stmt->param_data[param].type= type;
       break;
-    case ASCORE_COLUMN_TYPE_DOUBLE:
+    case ATTACHSQL_COLUMN_TYPE_DOUBLE:
       con->stmt->param_data[param].data.double_data= *(double*)value;
       con->stmt->param_data[param].is_unsigned= false;
       con->stmt->param_data[param].type= type;
       break;
-    case ASCORE_COLUMN_TYPE_STRING:
-    case ASCORE_COLUMN_TYPE_BLOB:
+    case ATTACHSQL_COLUMN_TYPE_STRING:
+    case ATTACHSQL_COLUMN_TYPE_BLOB:
       con->stmt->param_data[param].data.string_data= (char*)value;
       con->stmt->param_data[param].length= length;
       con->stmt->param_data[param].type= type;
       break;
-    case ASCORE_COLUMN_TYPE_NULL:
+    case ATTACHSQL_COLUMN_TYPE_NULL:
       con->stmt->param_data[param].type= type;;
       break;
     /* the following won't happen, but this will keep the compiler happy */
-    case ASCORE_COLUMN_TYPE_DECIMAL:
-    case ASCORE_COLUMN_TYPE_TINY:
-    case ASCORE_COLUMN_TYPE_SHORT:
-    case ASCORE_COLUMN_TYPE_TIMESTAMP:
-    case ASCORE_COLUMN_TYPE_INT24:
-    case ASCORE_COLUMN_TYPE_DATE:
-    case ASCORE_COLUMN_TYPE_TIME:
-    case ASCORE_COLUMN_TYPE_DATETIME:
-    case ASCORE_COLUMN_TYPE_YEAR:
-    case ASCORE_COLUMN_TYPE_NEWDATE:
-    case ASCORE_COLUMN_TYPE_VARCHAR:
-    case ASCORE_COLUMN_TYPE_BIT:
-    case ASCORE_COLUMN_TYPE_TIMESTAMP2:
-    case ASCORE_COLUMN_TYPE_DATETIME2:
-    case ASCORE_COLUMN_TYPE_TIME2:
-    case ASCORE_COLUMN_TYPE_NEWDECIMAL:
-    case ASCORE_COLUMN_TYPE_ENUM:
-    case ASCORE_COLUMN_TYPE_SET:
-    case ASCORE_COLUMN_TYPE_TINY_BLOB:
-    case ASCORE_COLUMN_TYPE_MEDIUM_BLOB:
-    case ASCORE_COLUMN_TYPE_LONG_BLOB:
-    case ASCORE_COLUMN_TYPE_VARSTRING:
-    case ASCORE_COLUMN_TYPE_GEOMETRY:
+    case ATTACHSQL_COLUMN_TYPE_DECIMAL:
+    case ATTACHSQL_COLUMN_TYPE_TINY:
+    case ATTACHSQL_COLUMN_TYPE_SHORT:
+    case ATTACHSQL_COLUMN_TYPE_TIMESTAMP:
+    case ATTACHSQL_COLUMN_TYPE_INT24:
+    case ATTACHSQL_COLUMN_TYPE_DATE:
+    case ATTACHSQL_COLUMN_TYPE_TIME:
+    case ATTACHSQL_COLUMN_TYPE_DATETIME:
+    case ATTACHSQL_COLUMN_TYPE_YEAR:
+    case ATTACHSQL_COLUMN_TYPE_VARCHAR:
+    case ATTACHSQL_COLUMN_TYPE_BIT:
+    case ATTACHSQL_COLUMN_TYPE_NEWDECIMAL:
+    case ATTACHSQL_COLUMN_TYPE_ENUM:
+    case ATTACHSQL_COLUMN_TYPE_SET:
+    case ATTACHSQL_COLUMN_TYPE_TINY_BLOB:
+    case ATTACHSQL_COLUMN_TYPE_MEDIUM_BLOB:
+    case ATTACHSQL_COLUMN_TYPE_LONG_BLOB:
+    case ATTACHSQL_COLUMN_TYPE_VARSTRING:
+    case ATTACHSQL_COLUMN_TYPE_GEOMETRY:
+    case ATTACHSQL_COLUMN_TYPE_ERROR:
       break;
   }
 
@@ -304,7 +301,7 @@ bool attachsql_statement_row_get(attachsql_connect_t *con, attachsql_error_t **e
     return false;
   }
 
-  total_columns= con->core_con->result.column_count;
+  total_columns= con->result.column_count;
   if (con->stmt_row == NULL)
   {
     con->stmt_row= new (std::nothrow) attachsql_stmt_row_st[total_columns];
@@ -316,7 +313,7 @@ bool attachsql_statement_row_get(attachsql_connect_t *con, attachsql_error_t **e
     return false;
   }
 
-  raw_row= con->core_con->result.row_data;
+  raw_row= con->result.row_data;
   /* packet header */
   raw_row++;
   con->stmt_null_bitmap_length= ((total_columns+7+2)/8);
@@ -325,63 +322,59 @@ bool attachsql_statement_row_get(attachsql_connect_t *con, attachsql_error_t **e
 
   for (column= 0; column < total_columns; column++)
   {
-    ascore_column_type_t type= con->core_con->result.columns[column].type;
+    attachsql_column_type_t type= con->result.columns[column].type;
     /* Really complex way of saying "if this is in the NULL bitmap */
     if (con->stmt_null_bitmap[(column+2)/8] & (1 << ((column+2) % 8)))
     {
-      type= ASCORE_COLUMN_TYPE_NULL;
+      type= ATTACHSQL_COLUMN_TYPE_NULL;
     }
     switch(type)
     {
-      case ASCORE_COLUMN_TYPE_STRING:
-      case ASCORE_COLUMN_TYPE_VARCHAR:
-      case ASCORE_COLUMN_TYPE_VARSTRING:
-      case ASCORE_COLUMN_TYPE_ENUM:
-      case ASCORE_COLUMN_TYPE_SET:
-      case ASCORE_COLUMN_TYPE_LONG_BLOB:
-      case ASCORE_COLUMN_TYPE_MEDIUM_BLOB:
-      case ASCORE_COLUMN_TYPE_TINY_BLOB:
-      case ASCORE_COLUMN_TYPE_BLOB:
-      case ASCORE_COLUMN_TYPE_GEOMETRY:
-      case ASCORE_COLUMN_TYPE_BIT:
-      case ASCORE_COLUMN_TYPE_DECIMAL:
-      case ASCORE_COLUMN_TYPE_NEWDECIMAL:
-        length= ascore_unpack_length(raw_row, &bytes, NULL);
+      case ATTACHSQL_COLUMN_TYPE_STRING:
+      case ATTACHSQL_COLUMN_TYPE_VARCHAR:
+      case ATTACHSQL_COLUMN_TYPE_VARSTRING:
+      case ATTACHSQL_COLUMN_TYPE_ENUM:
+      case ATTACHSQL_COLUMN_TYPE_SET:
+      case ATTACHSQL_COLUMN_TYPE_LONG_BLOB:
+      case ATTACHSQL_COLUMN_TYPE_MEDIUM_BLOB:
+      case ATTACHSQL_COLUMN_TYPE_TINY_BLOB:
+      case ATTACHSQL_COLUMN_TYPE_BLOB:
+      case ATTACHSQL_COLUMN_TYPE_GEOMETRY:
+      case ATTACHSQL_COLUMN_TYPE_BIT:
+      case ATTACHSQL_COLUMN_TYPE_DECIMAL:
+      case ATTACHSQL_COLUMN_TYPE_NEWDECIMAL:
+        length= attachsql_unpack_length(raw_row, &bytes, NULL);
         raw_row+= bytes;
         break;
-      case ASCORE_COLUMN_TYPE_DATE:
-      case ASCORE_COLUMN_TYPE_DATETIME:
-      case ASCORE_COLUMN_TYPE_TIMESTAMP:
-      case ASCORE_COLUMN_TYPE_TIME:
+      case ATTACHSQL_COLUMN_TYPE_DATE:
+      case ATTACHSQL_COLUMN_TYPE_DATETIME:
+      case ATTACHSQL_COLUMN_TYPE_TIMESTAMP:
+      case ATTACHSQL_COLUMN_TYPE_TIME:
         length= raw_row[0];
         raw_row++;
         break;
-      case ASCORE_COLUMN_TYPE_LONGLONG:
-      case ASCORE_COLUMN_TYPE_DOUBLE:
+      case ATTACHSQL_COLUMN_TYPE_LONGLONG:
+      case ATTACHSQL_COLUMN_TYPE_DOUBLE:
         length= 8;
         break;
-      case ASCORE_COLUMN_TYPE_LONG:
-      case ASCORE_COLUMN_TYPE_INT24:
-      case ASCORE_COLUMN_TYPE_FLOAT:
+      case ATTACHSQL_COLUMN_TYPE_LONG:
+      case ATTACHSQL_COLUMN_TYPE_INT24:
+      case ATTACHSQL_COLUMN_TYPE_FLOAT:
         length= 4;
         break;
-      case ASCORE_COLUMN_TYPE_SHORT:
-      case ASCORE_COLUMN_TYPE_YEAR:
+      case ATTACHSQL_COLUMN_TYPE_SHORT:
+      case ATTACHSQL_COLUMN_TYPE_YEAR:
         length= 2;
         break;
-      case ASCORE_COLUMN_TYPE_TINY:
+      case ATTACHSQL_COLUMN_TYPE_TINY:
         length= 1;
         break;
-      case ASCORE_COLUMN_TYPE_NULL:
+      case ATTACHSQL_COLUMN_TYPE_NULL:
         /* in NULL bitmask only */
         length= 0;
         break;
-      case ASCORE_COLUMN_TYPE_NEWDATE:
-      case ASCORE_COLUMN_TYPE_TIMESTAMP2:
-      case ASCORE_COLUMN_TYPE_DATETIME2:
-      case ASCORE_COLUMN_TYPE_TIME2:
+      case ATTACHSQL_COLUMN_TYPE_ERROR:
       default:
-        /* According to MySQL protocol specs, this shouldn't happen */
         attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_UNKNOWN, ATTACHSQL_ERROR_LEVEL_ERROR, "60000", "Bad data in statement result");
         return false;
     }
@@ -407,7 +400,7 @@ int32_t attachsql_statement_get_int(attachsql_connect_t *con, uint16_t column, a
     return 0;
   }
 
-  if (column >= con->core_con->result.column_count)
+  if (column >= con->result.column_count)
   {
     attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Column %d does not exist", column);
     return 0;
@@ -416,57 +409,54 @@ int32_t attachsql_statement_get_int(attachsql_connect_t *con, uint16_t column, a
   attachsql_stmt_row_st *column_data= &con->stmt_row[column];
   switch (column_data->type)
   {
-    case ASCORE_COLUMN_TYPE_TINY:
+    case ATTACHSQL_COLUMN_TYPE_TINY:
       return (int8_t)column_data->data[0];
       break;
-    case ASCORE_COLUMN_TYPE_YEAR:
-    case ASCORE_COLUMN_TYPE_SHORT:
-      return (int16_t)ascore_unpack_int2(column_data->data);
+    case ATTACHSQL_COLUMN_TYPE_YEAR:
+    case ATTACHSQL_COLUMN_TYPE_SHORT:
+      return (int16_t)attachsql_unpack_int2(column_data->data);
       break;
-    case ASCORE_COLUMN_TYPE_LONG:
-      return (int32_t)ascore_unpack_int4(column_data->data);
+    case ATTACHSQL_COLUMN_TYPE_LONG:
+      return (int32_t)attachsql_unpack_int4(column_data->data);
       break;
-    case ASCORE_COLUMN_TYPE_LONGLONG:
-      return (int32_t)ascore_unpack_int8(column_data->data);
+    case ATTACHSQL_COLUMN_TYPE_LONGLONG:
+      return (int32_t)attachsql_unpack_int8(column_data->data);
       break;
-    case ASCORE_COLUMN_TYPE_FLOAT:
+    case ATTACHSQL_COLUMN_TYPE_FLOAT:
       float f;
       memcpy(&f, column_data->data, 4);
       return (int32_t)f;
       break;
-    case ASCORE_COLUMN_TYPE_DOUBLE:
+    case ATTACHSQL_COLUMN_TYPE_DOUBLE:
       double d;
       memcpy(&d, column_data->data, 8);
       return (int32_t)d;
       break;
-    case ASCORE_COLUMN_TYPE_NULL:
+    case ATTACHSQL_COLUMN_TYPE_NULL:
       return 0;
       break;
-    case ASCORE_COLUMN_TYPE_INT24:
-      return (int32_t)ascore_unpack_int3(column_data->data);
+    case ATTACHSQL_COLUMN_TYPE_INT24:
+      return (int32_t)attachsql_unpack_int3(column_data->data);
       break;
 
-    case ASCORE_COLUMN_TYPE_DECIMAL:
-    case ASCORE_COLUMN_TYPE_TIMESTAMP:
-    case ASCORE_COLUMN_TYPE_DATE:
-    case ASCORE_COLUMN_TYPE_TIME:
-    case ASCORE_COLUMN_TYPE_DATETIME:
-    case ASCORE_COLUMN_TYPE_NEWDATE:
-    case ASCORE_COLUMN_TYPE_VARCHAR:
-    case ASCORE_COLUMN_TYPE_BIT:
-    case ASCORE_COLUMN_TYPE_TIMESTAMP2:
-    case ASCORE_COLUMN_TYPE_DATETIME2:
-    case ASCORE_COLUMN_TYPE_TIME2:
-    case ASCORE_COLUMN_TYPE_NEWDECIMAL:
-    case ASCORE_COLUMN_TYPE_ENUM:
-    case ASCORE_COLUMN_TYPE_SET:
-    case ASCORE_COLUMN_TYPE_TINY_BLOB:
-    case ASCORE_COLUMN_TYPE_MEDIUM_BLOB:
-    case ASCORE_COLUMN_TYPE_LONG_BLOB:
-    case ASCORE_COLUMN_TYPE_BLOB:
-    case ASCORE_COLUMN_TYPE_VARSTRING:
-    case ASCORE_COLUMN_TYPE_STRING:
-    case ASCORE_COLUMN_TYPE_GEOMETRY:
+    case ATTACHSQL_COLUMN_TYPE_DECIMAL:
+    case ATTACHSQL_COLUMN_TYPE_TIMESTAMP:
+    case ATTACHSQL_COLUMN_TYPE_DATE:
+    case ATTACHSQL_COLUMN_TYPE_TIME:
+    case ATTACHSQL_COLUMN_TYPE_DATETIME:
+    case ATTACHSQL_COLUMN_TYPE_VARCHAR:
+    case ATTACHSQL_COLUMN_TYPE_BIT:
+    case ATTACHSQL_COLUMN_TYPE_NEWDECIMAL:
+    case ATTACHSQL_COLUMN_TYPE_ENUM:
+    case ATTACHSQL_COLUMN_TYPE_SET:
+    case ATTACHSQL_COLUMN_TYPE_TINY_BLOB:
+    case ATTACHSQL_COLUMN_TYPE_MEDIUM_BLOB:
+    case ATTACHSQL_COLUMN_TYPE_LONG_BLOB:
+    case ATTACHSQL_COLUMN_TYPE_BLOB:
+    case ATTACHSQL_COLUMN_TYPE_VARSTRING:
+    case ATTACHSQL_COLUMN_TYPE_STRING:
+    case ATTACHSQL_COLUMN_TYPE_GEOMETRY:
+    case ATTACHSQL_COLUMN_TYPE_ERROR:
       attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Cannot convert to int");
       return 0;
       break;
@@ -490,7 +480,7 @@ uint32_t attachsql_statement_get_int_unsigned(attachsql_connect_t *con, uint16_t
     return 0;
   }
 
-  if (column >= con->core_con->result.column_count)
+  if (column >= con->result.column_count)
   {
     attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Column %d does not exist", column);
     return 0;
@@ -499,57 +489,54 @@ uint32_t attachsql_statement_get_int_unsigned(attachsql_connect_t *con, uint16_t
   attachsql_stmt_row_st *column_data= &con->stmt_row[column];
   switch (column_data->type)
   {
-    case ASCORE_COLUMN_TYPE_TINY:
+    case ATTACHSQL_COLUMN_TYPE_TINY:
       return (uint8_t)column_data->data[0];
       break;
-    case ASCORE_COLUMN_TYPE_YEAR:
-    case ASCORE_COLUMN_TYPE_SHORT:
-      return (uint16_t)ascore_unpack_int2(column_data->data);
+    case ATTACHSQL_COLUMN_TYPE_YEAR:
+    case ATTACHSQL_COLUMN_TYPE_SHORT:
+      return (uint16_t)attachsql_unpack_int2(column_data->data);
       break;
-    case ASCORE_COLUMN_TYPE_LONG:
-      return (uint32_t)ascore_unpack_int4(column_data->data);
+    case ATTACHSQL_COLUMN_TYPE_LONG:
+      return (uint32_t)attachsql_unpack_int4(column_data->data);
       break;
-    case ASCORE_COLUMN_TYPE_LONGLONG:
-      return (uint32_t)ascore_unpack_int8(column_data->data);
+    case ATTACHSQL_COLUMN_TYPE_LONGLONG:
+      return (uint32_t)attachsql_unpack_int8(column_data->data);
       break;
-    case ASCORE_COLUMN_TYPE_FLOAT:
+    case ATTACHSQL_COLUMN_TYPE_FLOAT:
       float f;
       memcpy(&f, column_data->data, 4);
       return (uint32_t)f;
       break;
-    case ASCORE_COLUMN_TYPE_DOUBLE:
+    case ATTACHSQL_COLUMN_TYPE_DOUBLE:
       double d;
       memcpy(&d, column_data->data, 8);
       return (uint32_t)d;
       break;
-    case ASCORE_COLUMN_TYPE_NULL:
+    case ATTACHSQL_COLUMN_TYPE_NULL:
       return 0;
       break;
-    case ASCORE_COLUMN_TYPE_INT24:
-      return (uint32_t)ascore_unpack_int3(column_data->data);
+    case ATTACHSQL_COLUMN_TYPE_INT24:
+      return (uint32_t)attachsql_unpack_int3(column_data->data);
       break;
 
-    case ASCORE_COLUMN_TYPE_DECIMAL:
-    case ASCORE_COLUMN_TYPE_TIMESTAMP:
-    case ASCORE_COLUMN_TYPE_DATE:
-    case ASCORE_COLUMN_TYPE_TIME:
-    case ASCORE_COLUMN_TYPE_DATETIME:
-    case ASCORE_COLUMN_TYPE_NEWDATE:
-    case ASCORE_COLUMN_TYPE_VARCHAR:
-    case ASCORE_COLUMN_TYPE_BIT:
-    case ASCORE_COLUMN_TYPE_TIMESTAMP2:
-    case ASCORE_COLUMN_TYPE_DATETIME2:
-    case ASCORE_COLUMN_TYPE_TIME2:
-    case ASCORE_COLUMN_TYPE_NEWDECIMAL:
-    case ASCORE_COLUMN_TYPE_ENUM:
-    case ASCORE_COLUMN_TYPE_SET:
-    case ASCORE_COLUMN_TYPE_TINY_BLOB:
-    case ASCORE_COLUMN_TYPE_MEDIUM_BLOB:
-    case ASCORE_COLUMN_TYPE_LONG_BLOB:
-    case ASCORE_COLUMN_TYPE_BLOB:
-    case ASCORE_COLUMN_TYPE_VARSTRING:
-    case ASCORE_COLUMN_TYPE_STRING:
-    case ASCORE_COLUMN_TYPE_GEOMETRY:
+    case ATTACHSQL_COLUMN_TYPE_DECIMAL:
+    case ATTACHSQL_COLUMN_TYPE_TIMESTAMP:
+    case ATTACHSQL_COLUMN_TYPE_DATE:
+    case ATTACHSQL_COLUMN_TYPE_TIME:
+    case ATTACHSQL_COLUMN_TYPE_DATETIME:
+    case ATTACHSQL_COLUMN_TYPE_VARCHAR:
+    case ATTACHSQL_COLUMN_TYPE_BIT:
+    case ATTACHSQL_COLUMN_TYPE_NEWDECIMAL:
+    case ATTACHSQL_COLUMN_TYPE_ENUM:
+    case ATTACHSQL_COLUMN_TYPE_SET:
+    case ATTACHSQL_COLUMN_TYPE_TINY_BLOB:
+    case ATTACHSQL_COLUMN_TYPE_MEDIUM_BLOB:
+    case ATTACHSQL_COLUMN_TYPE_LONG_BLOB:
+    case ATTACHSQL_COLUMN_TYPE_BLOB:
+    case ATTACHSQL_COLUMN_TYPE_VARSTRING:
+    case ATTACHSQL_COLUMN_TYPE_STRING:
+    case ATTACHSQL_COLUMN_TYPE_GEOMETRY:
+    case ATTACHSQL_COLUMN_TYPE_ERROR:
       attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Cannot convert to int");
       return 0;
       break;
@@ -573,7 +560,7 @@ int64_t attachsql_statement_get_bigint(attachsql_connect_t *con, uint16_t column
     return 0;
   }
 
-  if (column >= con->core_con->result.column_count)
+  if (column >= con->result.column_count)
   {
     attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Column %d does not exist", column);
     return 0;
@@ -582,57 +569,54 @@ int64_t attachsql_statement_get_bigint(attachsql_connect_t *con, uint16_t column
   attachsql_stmt_row_st *column_data= &con->stmt_row[column];
   switch (column_data->type)
   {
-    case ASCORE_COLUMN_TYPE_TINY:
+    case ATTACHSQL_COLUMN_TYPE_TINY:
       return (int8_t)column_data->data[0];
       break;
-    case ASCORE_COLUMN_TYPE_YEAR:
-    case ASCORE_COLUMN_TYPE_SHORT:
-      return (int16_t)ascore_unpack_int2(column_data->data);
+    case ATTACHSQL_COLUMN_TYPE_YEAR:
+    case ATTACHSQL_COLUMN_TYPE_SHORT:
+      return (int16_t)attachsql_unpack_int2(column_data->data);
       break;
-    case ASCORE_COLUMN_TYPE_LONG:
-      return (int32_t)ascore_unpack_int4(column_data->data);
+    case ATTACHSQL_COLUMN_TYPE_LONG:
+      return (int32_t)attachsql_unpack_int4(column_data->data);
       break;
-    case ASCORE_COLUMN_TYPE_LONGLONG:
-      return (int64_t)ascore_unpack_int8(column_data->data);
+    case ATTACHSQL_COLUMN_TYPE_LONGLONG:
+      return (int64_t)attachsql_unpack_int8(column_data->data);
       break;
-    case ASCORE_COLUMN_TYPE_FLOAT:
+    case ATTACHSQL_COLUMN_TYPE_FLOAT:
       float f;
       memcpy(&f, column_data->data, 4);
       return (int64_t)f;
       break;
-    case ASCORE_COLUMN_TYPE_DOUBLE:
+    case ATTACHSQL_COLUMN_TYPE_DOUBLE:
       double d;
       memcpy(&d, column_data->data, 8);
       return (int64_t)d;
       break;
-    case ASCORE_COLUMN_TYPE_NULL:
+    case ATTACHSQL_COLUMN_TYPE_NULL:
       return 0;
       break;
-    case ASCORE_COLUMN_TYPE_INT24:
-      return (int32_t)ascore_unpack_int3(column_data->data);
+    case ATTACHSQL_COLUMN_TYPE_INT24:
+      return (int32_t)attachsql_unpack_int3(column_data->data);
       break;
 
-    case ASCORE_COLUMN_TYPE_DECIMAL:
-    case ASCORE_COLUMN_TYPE_TIMESTAMP:
-    case ASCORE_COLUMN_TYPE_DATE:
-    case ASCORE_COLUMN_TYPE_TIME:
-    case ASCORE_COLUMN_TYPE_DATETIME:
-    case ASCORE_COLUMN_TYPE_NEWDATE:
-    case ASCORE_COLUMN_TYPE_VARCHAR:
-    case ASCORE_COLUMN_TYPE_BIT:
-    case ASCORE_COLUMN_TYPE_TIMESTAMP2:
-    case ASCORE_COLUMN_TYPE_DATETIME2:
-    case ASCORE_COLUMN_TYPE_TIME2:
-    case ASCORE_COLUMN_TYPE_NEWDECIMAL:
-    case ASCORE_COLUMN_TYPE_ENUM:
-    case ASCORE_COLUMN_TYPE_SET:
-    case ASCORE_COLUMN_TYPE_TINY_BLOB:
-    case ASCORE_COLUMN_TYPE_MEDIUM_BLOB:
-    case ASCORE_COLUMN_TYPE_LONG_BLOB:
-    case ASCORE_COLUMN_TYPE_BLOB:
-    case ASCORE_COLUMN_TYPE_VARSTRING:
-    case ASCORE_COLUMN_TYPE_STRING:
-    case ASCORE_COLUMN_TYPE_GEOMETRY:
+    case ATTACHSQL_COLUMN_TYPE_DECIMAL:
+    case ATTACHSQL_COLUMN_TYPE_TIMESTAMP:
+    case ATTACHSQL_COLUMN_TYPE_DATE:
+    case ATTACHSQL_COLUMN_TYPE_TIME:
+    case ATTACHSQL_COLUMN_TYPE_DATETIME:
+    case ATTACHSQL_COLUMN_TYPE_VARCHAR:
+    case ATTACHSQL_COLUMN_TYPE_BIT:
+    case ATTACHSQL_COLUMN_TYPE_NEWDECIMAL:
+    case ATTACHSQL_COLUMN_TYPE_ENUM:
+    case ATTACHSQL_COLUMN_TYPE_SET:
+    case ATTACHSQL_COLUMN_TYPE_TINY_BLOB:
+    case ATTACHSQL_COLUMN_TYPE_MEDIUM_BLOB:
+    case ATTACHSQL_COLUMN_TYPE_LONG_BLOB:
+    case ATTACHSQL_COLUMN_TYPE_BLOB:
+    case ATTACHSQL_COLUMN_TYPE_VARSTRING:
+    case ATTACHSQL_COLUMN_TYPE_STRING:
+    case ATTACHSQL_COLUMN_TYPE_GEOMETRY:
+    case ATTACHSQL_COLUMN_TYPE_ERROR:
       attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Cannot convert to int");
       return 0;
       break;
@@ -655,7 +639,7 @@ uint64_t attachsql_statement_get_bigint_unsigned(attachsql_connect_t *con, uint1
     return 0;
   }
 
-  if (column >= con->core_con->result.column_count)
+  if (column >= con->result.column_count)
   {
     attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Column %d does not exist", column);
     return 0;
@@ -664,57 +648,54 @@ uint64_t attachsql_statement_get_bigint_unsigned(attachsql_connect_t *con, uint1
   attachsql_stmt_row_st *column_data= &con->stmt_row[column];
   switch (column_data->type)
   {
-    case ASCORE_COLUMN_TYPE_TINY:
+    case ATTACHSQL_COLUMN_TYPE_TINY:
       return (uint8_t)column_data->data[0];
       break;
-    case ASCORE_COLUMN_TYPE_YEAR:
-    case ASCORE_COLUMN_TYPE_SHORT:
-      return (uint16_t)ascore_unpack_int2(column_data->data);
+    case ATTACHSQL_COLUMN_TYPE_YEAR:
+    case ATTACHSQL_COLUMN_TYPE_SHORT:
+      return (uint16_t)attachsql_unpack_int2(column_data->data);
       break;
-    case ASCORE_COLUMN_TYPE_LONG:
-      return (uint32_t)ascore_unpack_int4(column_data->data);
+    case ATTACHSQL_COLUMN_TYPE_LONG:
+      return (uint32_t)attachsql_unpack_int4(column_data->data);
       break;
-    case ASCORE_COLUMN_TYPE_LONGLONG:
-      return (uint64_t)ascore_unpack_int8(column_data->data);
+    case ATTACHSQL_COLUMN_TYPE_LONGLONG:
+      return (uint64_t)attachsql_unpack_int8(column_data->data);
       break;
-    case ASCORE_COLUMN_TYPE_FLOAT:
+    case ATTACHSQL_COLUMN_TYPE_FLOAT:
       float f;
       memcpy(&f, column_data->data, 4);
       return (uint32_t)f;
       break;
-    case ASCORE_COLUMN_TYPE_DOUBLE:
+    case ATTACHSQL_COLUMN_TYPE_DOUBLE:
       double d;
       memcpy(&d, column_data->data, 8);
       return (uint32_t)d;
       break;
-    case ASCORE_COLUMN_TYPE_NULL:
+    case ATTACHSQL_COLUMN_TYPE_NULL:
       return 0;
       break;
-    case ASCORE_COLUMN_TYPE_INT24:
-      return (uint32_t)ascore_unpack_int3(column_data->data);
+    case ATTACHSQL_COLUMN_TYPE_INT24:
+      return (uint32_t)attachsql_unpack_int3(column_data->data);
       break;
 
-    case ASCORE_COLUMN_TYPE_DECIMAL:
-    case ASCORE_COLUMN_TYPE_TIMESTAMP:
-    case ASCORE_COLUMN_TYPE_DATE:
-    case ASCORE_COLUMN_TYPE_TIME:
-    case ASCORE_COLUMN_TYPE_DATETIME:
-    case ASCORE_COLUMN_TYPE_NEWDATE:
-    case ASCORE_COLUMN_TYPE_VARCHAR:
-    case ASCORE_COLUMN_TYPE_BIT:
-    case ASCORE_COLUMN_TYPE_TIMESTAMP2:
-    case ASCORE_COLUMN_TYPE_DATETIME2:
-    case ASCORE_COLUMN_TYPE_TIME2:
-    case ASCORE_COLUMN_TYPE_NEWDECIMAL:
-    case ASCORE_COLUMN_TYPE_ENUM:
-    case ASCORE_COLUMN_TYPE_SET:
-    case ASCORE_COLUMN_TYPE_TINY_BLOB:
-    case ASCORE_COLUMN_TYPE_MEDIUM_BLOB:
-    case ASCORE_COLUMN_TYPE_LONG_BLOB:
-    case ASCORE_COLUMN_TYPE_BLOB:
-    case ASCORE_COLUMN_TYPE_VARSTRING:
-    case ASCORE_COLUMN_TYPE_STRING:
-    case ASCORE_COLUMN_TYPE_GEOMETRY:
+    case ATTACHSQL_COLUMN_TYPE_DECIMAL:
+    case ATTACHSQL_COLUMN_TYPE_TIMESTAMP:
+    case ATTACHSQL_COLUMN_TYPE_DATE:
+    case ATTACHSQL_COLUMN_TYPE_TIME:
+    case ATTACHSQL_COLUMN_TYPE_DATETIME:
+    case ATTACHSQL_COLUMN_TYPE_VARCHAR:
+    case ATTACHSQL_COLUMN_TYPE_BIT:
+    case ATTACHSQL_COLUMN_TYPE_NEWDECIMAL:
+    case ATTACHSQL_COLUMN_TYPE_ENUM:
+    case ATTACHSQL_COLUMN_TYPE_SET:
+    case ATTACHSQL_COLUMN_TYPE_TINY_BLOB:
+    case ATTACHSQL_COLUMN_TYPE_MEDIUM_BLOB:
+    case ATTACHSQL_COLUMN_TYPE_LONG_BLOB:
+    case ATTACHSQL_COLUMN_TYPE_BLOB:
+    case ATTACHSQL_COLUMN_TYPE_VARSTRING:
+    case ATTACHSQL_COLUMN_TYPE_STRING:
+    case ATTACHSQL_COLUMN_TYPE_GEOMETRY:
+    case ATTACHSQL_COLUMN_TYPE_ERROR:
       attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Cannot convert to int");
       return 0;
       break;
@@ -737,7 +718,7 @@ double attachsql_statement_get_double(attachsql_connect_t *con, uint16_t column,
     return 0;
   }
 
-  if (column >= con->core_con->result.column_count)
+  if (column >= con->result.column_count)
   {
     attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Column %d does not exist", column);
     return 0;
@@ -746,57 +727,54 @@ double attachsql_statement_get_double(attachsql_connect_t *con, uint16_t column,
   attachsql_stmt_row_st *column_data= &con->stmt_row[column];
   switch (column_data->type)
   {
-    case ASCORE_COLUMN_TYPE_TINY:
+    case ATTACHSQL_COLUMN_TYPE_TINY:
       return (double)column_data->data[0];
       break;
-    case ASCORE_COLUMN_TYPE_YEAR:
-    case ASCORE_COLUMN_TYPE_SHORT:
-      return (double)ascore_unpack_int2(column_data->data);
+    case ATTACHSQL_COLUMN_TYPE_YEAR:
+    case ATTACHSQL_COLUMN_TYPE_SHORT:
+      return (double)attachsql_unpack_int2(column_data->data);
       break;
-    case ASCORE_COLUMN_TYPE_LONG:
-      return (double)ascore_unpack_int4(column_data->data);
+    case ATTACHSQL_COLUMN_TYPE_LONG:
+      return (double)attachsql_unpack_int4(column_data->data);
       break;
-    case ASCORE_COLUMN_TYPE_LONGLONG:
-      return (double)ascore_unpack_int8(column_data->data);
+    case ATTACHSQL_COLUMN_TYPE_LONGLONG:
+      return (double)attachsql_unpack_int8(column_data->data);
       break;
-    case ASCORE_COLUMN_TYPE_FLOAT:
+    case ATTACHSQL_COLUMN_TYPE_FLOAT:
       float f;
       memcpy(&f, column_data->data, 4);
       return (double)f;
       break;
-    case ASCORE_COLUMN_TYPE_DOUBLE:
+    case ATTACHSQL_COLUMN_TYPE_DOUBLE:
       double d;
       memcpy(&d, column_data->data, 8);
       return d;
       break;
-    case ASCORE_COLUMN_TYPE_NULL:
+    case ATTACHSQL_COLUMN_TYPE_NULL:
       return 0;
       break;
-    case ASCORE_COLUMN_TYPE_INT24:
-      return (double)ascore_unpack_int3(column_data->data);
+    case ATTACHSQL_COLUMN_TYPE_INT24:
+      return (double)attachsql_unpack_int3(column_data->data);
       break;
 
-    case ASCORE_COLUMN_TYPE_DECIMAL:
-    case ASCORE_COLUMN_TYPE_TIMESTAMP:
-    case ASCORE_COLUMN_TYPE_DATE:
-    case ASCORE_COLUMN_TYPE_TIME:
-    case ASCORE_COLUMN_TYPE_DATETIME:
-    case ASCORE_COLUMN_TYPE_NEWDATE:
-    case ASCORE_COLUMN_TYPE_VARCHAR:
-    case ASCORE_COLUMN_TYPE_BIT:
-    case ASCORE_COLUMN_TYPE_TIMESTAMP2:
-    case ASCORE_COLUMN_TYPE_DATETIME2:
-    case ASCORE_COLUMN_TYPE_TIME2:
-    case ASCORE_COLUMN_TYPE_NEWDECIMAL:
-    case ASCORE_COLUMN_TYPE_ENUM:
-    case ASCORE_COLUMN_TYPE_SET:
-    case ASCORE_COLUMN_TYPE_TINY_BLOB:
-    case ASCORE_COLUMN_TYPE_MEDIUM_BLOB:
-    case ASCORE_COLUMN_TYPE_LONG_BLOB:
-    case ASCORE_COLUMN_TYPE_BLOB:
-    case ASCORE_COLUMN_TYPE_VARSTRING:
-    case ASCORE_COLUMN_TYPE_STRING:
-    case ASCORE_COLUMN_TYPE_GEOMETRY:
+    case ATTACHSQL_COLUMN_TYPE_DECIMAL:
+    case ATTACHSQL_COLUMN_TYPE_TIMESTAMP:
+    case ATTACHSQL_COLUMN_TYPE_DATE:
+    case ATTACHSQL_COLUMN_TYPE_TIME:
+    case ATTACHSQL_COLUMN_TYPE_DATETIME:
+    case ATTACHSQL_COLUMN_TYPE_VARCHAR:
+    case ATTACHSQL_COLUMN_TYPE_BIT:
+    case ATTACHSQL_COLUMN_TYPE_NEWDECIMAL:
+    case ATTACHSQL_COLUMN_TYPE_ENUM:
+    case ATTACHSQL_COLUMN_TYPE_SET:
+    case ATTACHSQL_COLUMN_TYPE_TINY_BLOB:
+    case ATTACHSQL_COLUMN_TYPE_MEDIUM_BLOB:
+    case ATTACHSQL_COLUMN_TYPE_LONG_BLOB:
+    case ATTACHSQL_COLUMN_TYPE_BLOB:
+    case ATTACHSQL_COLUMN_TYPE_VARSTRING:
+    case ATTACHSQL_COLUMN_TYPE_STRING:
+    case ATTACHSQL_COLUMN_TYPE_GEOMETRY:
+    case ATTACHSQL_COLUMN_TYPE_ERROR:
       attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Cannot convert to int");
       return 0;
       break;
@@ -819,7 +797,7 @@ char *attachsql_statement_get_char(attachsql_connect_t *con, uint16_t column, si
     return NULL;
   }
 
-  if (column >= con->core_con->result.column_count)
+  if (column >= con->result.column_count)
   {
     attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Column %d does not exist", column);
     return NULL;
@@ -832,11 +810,11 @@ char *attachsql_statement_get_char(attachsql_connect_t *con, uint16_t column, si
   }
 
   attachsql_stmt_row_st *column_data= &con->stmt_row[column];
-  ascore_datetime_st datetime;
+  attachsql_datetime_st datetime;
   switch (column_data->type)
   {
-    case ASCORE_COLUMN_TYPE_TINY:
-      if (con->core_con->result.columns[column].flags & ASCORE_COLUMN_FLAGS_UNSIGNED)
+    case ATTACHSQL_COLUMN_TYPE_TINY:
+      if (con->result.columns[column].flags & ATTACHSQL_COLUMN_FLAGS_UNSIGNED)
       {
         *length= snprintf(con->stmt_tmp_buffer, ATTACHSQL_STMT_CHAR_BUFFER_SIZE, "%" PRIu8, column_data->data[0]);
       }
@@ -846,85 +824,85 @@ char *attachsql_statement_get_char(attachsql_connect_t *con, uint16_t column, si
       }
       return con->stmt_tmp_buffer;
       break;
-    case ASCORE_COLUMN_TYPE_YEAR:
-    case ASCORE_COLUMN_TYPE_SHORT:
-      if (con->core_con->result.columns[column].flags & ASCORE_COLUMN_FLAGS_UNSIGNED)
+    case ATTACHSQL_COLUMN_TYPE_YEAR:
+    case ATTACHSQL_COLUMN_TYPE_SHORT:
+      if (con->result.columns[column].flags & ATTACHSQL_COLUMN_FLAGS_UNSIGNED)
       {
-        *length= snprintf(con->stmt_tmp_buffer, ATTACHSQL_STMT_CHAR_BUFFER_SIZE, "%" PRIu16, ascore_unpack_int2(column_data->data));
+        *length= snprintf(con->stmt_tmp_buffer, ATTACHSQL_STMT_CHAR_BUFFER_SIZE, "%" PRIu16, attachsql_unpack_int2(column_data->data));
       }
       else
       {
-        *length= snprintf(con->stmt_tmp_buffer, ATTACHSQL_STMT_CHAR_BUFFER_SIZE, "%" PRId16, ascore_unpack_int2(column_data->data));
+        *length= snprintf(con->stmt_tmp_buffer, ATTACHSQL_STMT_CHAR_BUFFER_SIZE, "%" PRId16, attachsql_unpack_int2(column_data->data));
       }
       return con->stmt_tmp_buffer;
       break;
-    case ASCORE_COLUMN_TYPE_LONG:
-      if (con->core_con->result.columns[column].flags & ASCORE_COLUMN_FLAGS_UNSIGNED)
+    case ATTACHSQL_COLUMN_TYPE_LONG:
+      if (con->result.columns[column].flags & ATTACHSQL_COLUMN_FLAGS_UNSIGNED)
       {
-        *length= snprintf(con->stmt_tmp_buffer, ATTACHSQL_STMT_CHAR_BUFFER_SIZE, "%" PRIu32, ascore_unpack_int4(column_data->data));
+        *length= snprintf(con->stmt_tmp_buffer, ATTACHSQL_STMT_CHAR_BUFFER_SIZE, "%" PRIu32, attachsql_unpack_int4(column_data->data));
       }
       else
       {
-        *length= snprintf(con->stmt_tmp_buffer, ATTACHSQL_STMT_CHAR_BUFFER_SIZE, "%" PRId32, ascore_unpack_int4(column_data->data));
+        *length= snprintf(con->stmt_tmp_buffer, ATTACHSQL_STMT_CHAR_BUFFER_SIZE, "%" PRId32, attachsql_unpack_int4(column_data->data));
       }
       return con->stmt_tmp_buffer;
       break;
-    case ASCORE_COLUMN_TYPE_LONGLONG:
-      if (con->core_con->result.columns[column].flags & ASCORE_COLUMN_FLAGS_UNSIGNED)
+    case ATTACHSQL_COLUMN_TYPE_LONGLONG:
+      if (con->result.columns[column].flags & ATTACHSQL_COLUMN_FLAGS_UNSIGNED)
       {
-        *length= snprintf(con->stmt_tmp_buffer, ATTACHSQL_STMT_CHAR_BUFFER_SIZE, "%" PRIu64, ascore_unpack_int8(column_data->data));
+        *length= snprintf(con->stmt_tmp_buffer, ATTACHSQL_STMT_CHAR_BUFFER_SIZE, "%" PRIu64, attachsql_unpack_int8(column_data->data));
       }
       else
       {
-        *length= snprintf(con->stmt_tmp_buffer, ATTACHSQL_STMT_CHAR_BUFFER_SIZE, "%" PRId64, ascore_unpack_int8(column_data->data));
+        *length= snprintf(con->stmt_tmp_buffer, ATTACHSQL_STMT_CHAR_BUFFER_SIZE, "%" PRId64, attachsql_unpack_int8(column_data->data));
       }
       return con->stmt_tmp_buffer;
       break;
-    case ASCORE_COLUMN_TYPE_FLOAT:
+    case ATTACHSQL_COLUMN_TYPE_FLOAT:
       float f;
       memcpy(&f, column_data->data, 4);
       *length= snprintf(con->stmt_tmp_buffer, ATTACHSQL_STMT_CHAR_BUFFER_SIZE, "%f", f);
       return con->stmt_tmp_buffer;
       break;
-    case ASCORE_COLUMN_TYPE_DOUBLE:
+    case ATTACHSQL_COLUMN_TYPE_DOUBLE:
       double d;
       memcpy(&d, column_data->data, 8);
       *length= snprintf(con->stmt_tmp_buffer, ATTACHSQL_STMT_CHAR_BUFFER_SIZE, "%f", d);
       return con->stmt_tmp_buffer;
       break;
-    case ASCORE_COLUMN_TYPE_NULL:
+    case ATTACHSQL_COLUMN_TYPE_NULL:
       return NULL;
       break;
-    case ASCORE_COLUMN_TYPE_INT24:
-      if (con->core_con->result.columns[column].flags & ASCORE_COLUMN_FLAGS_UNSIGNED)
+    case ATTACHSQL_COLUMN_TYPE_INT24:
+      if (con->result.columns[column].flags & ATTACHSQL_COLUMN_FLAGS_UNSIGNED)
       {
-        *length= snprintf(con->stmt_tmp_buffer, ATTACHSQL_STMT_CHAR_BUFFER_SIZE, "%" PRIu32, ascore_unpack_int3(column_data->data));
+        *length= snprintf(con->stmt_tmp_buffer, ATTACHSQL_STMT_CHAR_BUFFER_SIZE, "%" PRIu32, attachsql_unpack_int3(column_data->data));
       }
       else
       {
-        *length= snprintf(con->stmt_tmp_buffer, ATTACHSQL_STMT_CHAR_BUFFER_SIZE, "%" PRId32, ascore_unpack_int3(column_data->data));
+        *length= snprintf(con->stmt_tmp_buffer, ATTACHSQL_STMT_CHAR_BUFFER_SIZE, "%" PRId32, attachsql_unpack_int3(column_data->data));
       }
       return con->stmt_tmp_buffer;
       break;
 
-    case ASCORE_COLUMN_TYPE_DECIMAL:
-    case ASCORE_COLUMN_TYPE_VARCHAR:
-    case ASCORE_COLUMN_TYPE_BIT:
-    case ASCORE_COLUMN_TYPE_NEWDECIMAL:
-    case ASCORE_COLUMN_TYPE_ENUM:
-    case ASCORE_COLUMN_TYPE_SET:
-    case ASCORE_COLUMN_TYPE_TINY_BLOB:
-    case ASCORE_COLUMN_TYPE_MEDIUM_BLOB:
-    case ASCORE_COLUMN_TYPE_LONG_BLOB:
-    case ASCORE_COLUMN_TYPE_BLOB:
-    case ASCORE_COLUMN_TYPE_VARSTRING:
-    case ASCORE_COLUMN_TYPE_STRING:
-    case ASCORE_COLUMN_TYPE_GEOMETRY:
+    case ATTACHSQL_COLUMN_TYPE_DECIMAL:
+    case ATTACHSQL_COLUMN_TYPE_VARCHAR:
+    case ATTACHSQL_COLUMN_TYPE_BIT:
+    case ATTACHSQL_COLUMN_TYPE_NEWDECIMAL:
+    case ATTACHSQL_COLUMN_TYPE_ENUM:
+    case ATTACHSQL_COLUMN_TYPE_SET:
+    case ATTACHSQL_COLUMN_TYPE_TINY_BLOB:
+    case ATTACHSQL_COLUMN_TYPE_MEDIUM_BLOB:
+    case ATTACHSQL_COLUMN_TYPE_LONG_BLOB:
+    case ATTACHSQL_COLUMN_TYPE_BLOB:
+    case ATTACHSQL_COLUMN_TYPE_VARSTRING:
+    case ATTACHSQL_COLUMN_TYPE_STRING:
+    case ATTACHSQL_COLUMN_TYPE_GEOMETRY:
       *length= column_data->length;
       return column_data->data;
       break;
-    case ASCORE_COLUMN_TYPE_TIME:
-      ascore_unpack_time(column_data->data, column_data->length, &datetime);
+    case ATTACHSQL_COLUMN_TYPE_TIME:
+      attachsql_unpack_time(column_data->data, column_data->length, &datetime);
       *length= snprintf(con->stmt_tmp_buffer, ATTACHSQL_STMT_CHAR_BUFFER_SIZE, "%s%02u:%02" PRIu8 ":%02" PRIu8, (datetime.is_negative) ? "-" : "", datetime.hour + 24 * datetime.day, datetime.minute, datetime.second);
       if (datetime.microsecond)
       {
@@ -932,12 +910,12 @@ char *attachsql_statement_get_char(attachsql_connect_t *con, uint16_t column, si
       }
       return con->stmt_tmp_buffer;
       break;
-    case ASCORE_COLUMN_TYPE_TIMESTAMP:
-    case ASCORE_COLUMN_TYPE_DATE:
-    case ASCORE_COLUMN_TYPE_DATETIME:
-      ascore_unpack_datetime(column_data->data, column_data->length, &datetime);
+    case ATTACHSQL_COLUMN_TYPE_TIMESTAMP:
+    case ATTACHSQL_COLUMN_TYPE_DATE:
+    case ATTACHSQL_COLUMN_TYPE_DATETIME:
+      attachsql_unpack_datetime(column_data->data, column_data->length, &datetime);
       *length= snprintf(con->stmt_tmp_buffer, ATTACHSQL_STMT_CHAR_BUFFER_SIZE, "%04" PRIu16 "-%02" PRIu8 "-%02" PRIu32, datetime.year, datetime.month, datetime.day);
-      if (column_data->type == ASCORE_COLUMN_TYPE_DATE)
+      if (column_data->type == ATTACHSQL_COLUMN_TYPE_DATE)
       {
         return con->stmt_tmp_buffer;
       }
@@ -949,10 +927,7 @@ char *attachsql_statement_get_char(attachsql_connect_t *con, uint16_t column, si
       }
       return con->stmt_tmp_buffer;
       break;
-    case ASCORE_COLUMN_TYPE_NEWDATE:
-    case ASCORE_COLUMN_TYPE_TIMESTAMP2:
-    case ASCORE_COLUMN_TYPE_DATETIME2:
-    case ASCORE_COLUMN_TYPE_TIME2:
+    case ATTACHSQL_COLUMN_TYPE_ERROR:
       attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Cannot convert to int");
       return NULL;
       break;
@@ -973,7 +948,7 @@ void attachsql_statement_close(attachsql_connect_t *con)
     delete[] con->stmt_row;
   }
   con->stmt_row= NULL;
-  ascore_stmt_destroy(con->stmt);
+  attachsql_stmt_destroy(con->stmt);
   con->stmt= NULL;
 }
 
@@ -984,12 +959,12 @@ attachsql_column_type_t attachsql_statement_get_column_type(attachsql_connect_t 
     return ATTACHSQL_COLUMN_TYPE_ERROR;
   }
 
-  if (column >= con->core_con->result.column_count)
+  if (column >= con->result.column_count)
   {
     return ATTACHSQL_COLUMN_TYPE_ERROR;
   }
 
-  return (attachsql_column_type_t)con->core_con->result.columns[column].type;
+  return (attachsql_column_type_t)con->result.columns[column].type;
 }
 
 void attachsql_statement_row_next(attachsql_connect_t *con)
@@ -998,7 +973,7 @@ void attachsql_statement_row_next(attachsql_connect_t *con)
   {
     return;
   }
-  ascore_get_next_row(con->core_con);
+  attachsql_get_next_row(con);
 }
 
 uint16_t attachsql_statement_get_column_count(attachsql_connect_t *con)
@@ -1008,6 +983,6 @@ uint16_t attachsql_statement_get_column_count(attachsql_connect_t *con)
     return 0;
   }
 
-  return con->core_con->result.column_count;
+  return con->result.column_count;
 }
 

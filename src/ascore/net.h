@@ -23,50 +23,50 @@
 extern "C" {
 #endif
 
-void ascore_send_data(ascon_st *con, char *data, size_t length);
+void attachsql_send_data(attachsql_connect_t *con, char *data, size_t length);
 
 void on_write(uv_write_t *req, int status);
 
-void ascore_read_data_cb(uv_stream_t* tcp, ssize_t read_size, const uv_buf_t buf);
+void attachsql_read_data_cb(uv_stream_t* tcp, ssize_t read_size, const uv_buf_t buf);
 
-bool ascore_con_process_packets(ascon_st *con);
+bool attachsql_con_process_packets(attachsql_connect_t *con);
 
-void ascore_packet_read_end(ascon_st *con);
+void attachsql_packet_read_end(attachsql_connect_t *con);
 
-void ascore_packet_read_response(ascon_st *con);
+void attachsql_packet_read_response(attachsql_connect_t *con);
 
-void ascore_packet_read_prepare_response(ascon_st *con);
+void attachsql_packet_read_prepare_response(attachsql_connect_t *con);
 
-void ascore_packet_read_prepare_parameter(ascon_st *con);
+void attachsql_packet_read_prepare_parameter(attachsql_connect_t *con);
 
-void ascore_packet_read_prepare_column(ascon_st *con);
+void attachsql_packet_read_prepare_column(attachsql_connect_t *con);
 
-void ascore_packet_get_column(ascon_st *con, column_t *column);
+void attachsql_packet_get_column(attachsql_connect_t *con, column_t *column);
 
-void ascore_packet_read_column(ascon_st *con);
+void attachsql_packet_read_column(attachsql_connect_t *con);
 
-void ascore_packet_stmt_read_row(ascon_st *con);
+void attachsql_packet_stmt_read_row(attachsql_connect_t *con);
 
-void ascore_packet_read_row(ascon_st *con);
+void attachsql_packet_read_row(attachsql_connect_t *con);
 
-void ascore_run_uv_loop(ascon_st *con);
+void attachsql_run_uv_loop(attachsql_connect_t *con);
 
-bool ascore_packet_queue_push(ascon_st *con, ascore_packet_type_t packet_type);
+bool attachsql_packet_queue_push(attachsql_connect_t *con, attachsql_packet_type_t packet_type);
 
-ascore_packet_type_t ascore_packet_queue_pop(ascon_st *con);
+attachsql_packet_type_t attachsql_packet_queue_pop(attachsql_connect_t *con);
 
-ascore_packet_type_t ascore_packet_queue_peek(ascon_st *con);
+attachsql_packet_type_t attachsql_packet_queue_peek(attachsql_connect_t *con);
 
 #ifdef HAVE_ZLIB
-void ascore_send_compressed_packet(ascon_st *con, char *data, size_t length, uint8_t command);
+void attachsql_send_compressed_packet(attachsql_connect_t *con, char *data, size_t length, uint8_t command);
 #endif
 
 #ifdef HAVE_OPENSSL
-void ascore_ssl_run(ascon_st *con);
+void attachsql_ssl_run(attachsql_connect_t *con);
 
-void ascore_ssl_data_check(ascon_st *con);
+void attachsql_ssl_data_check(attachsql_connect_t *con);
 
-void ascore_ssl_handle_error(ascon_st *con, int result);
+void attachsql_ssl_handle_error(attachsql_connect_t *con, int result);
 #endif
 
 #ifdef __cplusplus

@@ -46,19 +46,19 @@
 extern "C" {
 #endif
 
-#define ascore_pack_int2(__buffer, __int) do { \
+#define attachsql_pack_int2(__buffer, __int) do { \
   (__buffer)[0]= (uint8_t)((__int) & 0xFF); \
   (__buffer)[1]= (uint8_t)(((__int) >> 8) & 0xFF); } while (0)
-#define ascore_pack_int3(__buffer, __int) do { \
+#define attachsql_pack_int3(__buffer, __int) do { \
   (__buffer)[0]= (uint8_t)((__int) & 0xFF); \
   (__buffer)[1]= (uint8_t)(((__int) >> 8) & 0xFF); \
   (__buffer)[2]= (uint8_t)(((__int) >> 16) & 0xFF); } while (0)
-#define ascore_pack_int4(__buffer, __int) do { \
+#define attachsql_pack_int4(__buffer, __int) do { \
   (__buffer)[0]= (uint8_t)((__int) & 0xFF); \
   (__buffer)[1]= (uint8_t)(((__int) >> 8) & 0xFF); \
   (__buffer)[2]= (uint8_t)(((__int) >> 16) & 0xFF); \
   (__buffer)[3]= (uint8_t)(((__int) >> 24) & 0xFF); } while (0)
-#define ascore_pack_int8(__buffer, __int) do { \
+#define attachsql_pack_int8(__buffer, __int) do { \
   (__buffer)[0]= (uint8_t)((__int) & 0xFF); \
   (__buffer)[1]= (uint8_t)(((__int) >> 8) & 0xFF); \
   (__buffer)[2]= (uint8_t)(((__int) >> 16) & 0xFF); \
@@ -68,24 +68,24 @@ extern "C" {
   (__buffer)[6]= (uint8_t)(((__int) >> 48) & 0xFF); \
   (__buffer)[7]= (uint8_t)(((__int) >> 56) & 0xFF); } while (0)
 
-#define ascore_unpack_int2(__buffer)               \
+#define attachsql_unpack_int2(__buffer)               \
   (uint16_t)((((uint8_t *)__buffer)[0]) |         \
   ((uint16_t)(((uint8_t *)__buffer)[1]) << 8))
-#define ascore_unpack_int3(__buffer)               \
+#define attachsql_unpack_int3(__buffer)               \
              (((uint8_t *)__buffer)[0] |          \
   ((uint32_t)(((uint8_t *)__buffer)[1]) << 8) |   \
   ((uint32_t)(((uint8_t *)__buffer)[2]) << 16))
-#define ascore_unpack_int4(__buffer)               \
+#define attachsql_unpack_int4(__buffer)               \
              (((uint8_t *)__buffer)[0] |          \
   ((uint32_t)(((uint8_t *)__buffer)[1]) << 8) |   \
   ((uint32_t)(((uint8_t *)__buffer)[2]) << 16) |  \
   ((uint32_t)(((uint8_t *)__buffer)[3]) << 24))
-#define ascore_unpack_int8(__buffer)               \
-  (ascore_unpack_int4(__buffer) |                  \
-  ((uint64_t)ascore_unpack_int4(((uint8_t *)__buffer)+4) << 32))
+#define attachsql_unpack_int8(__buffer)               \
+  (attachsql_unpack_int4(__buffer) |                  \
+  ((uint64_t)attachsql_unpack_int4(((uint8_t *)__buffer)+4) << 32))
 
-#define ascore_mb_char(__c) (((__c) & 0x80) != 0)
-#define ascore_mb_length(__c) \
+#define attachsql_mb_char(__c) (((__c) & 0x80) != 0)
+#define attachsql_mb_length(__c) \
   ((uint32_t)(__c) <= 0x7f ? 1 : \
   ((uint32_t)(__c) <= 0x7ff ? 2 : \
   ((uint32_t)(__c) <= 0xd7ff ? 3 : \

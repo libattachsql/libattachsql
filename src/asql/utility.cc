@@ -41,5 +41,8 @@ uint8_t attachsql_get_library_version_patch(void)
 
 void attachsql_library_init(void)
 {
-  ascore_library_init();
+#ifdef HAVE_OPENSSL
+  SSL_load_error_strings();
+  SSL_library_init();
+#endif
 }
