@@ -33,7 +33,7 @@ src_asql_libattachsql_la_SOURCES+= src/ascore/statement.cc
 
 src_asql_libattachsql_la_SOURCES+= src/asql/error.cc
 src_asql_libattachsql_la_SOURCES+= src/asql/connect.cc
-src_asql_libattachsql_la_SOURCES+= src/asql/group.cc
+src_asql_libattachsql_la_SOURCES+= src/asql/pool.cc
 src_asql_libattachsql_la_SOURCES+= src/asql/query.cc
 src_asql_libattachsql_la_SOURCES+= src/asql/statement.cc
 src_asql_libattachsql_la_SOURCES+= src/asql/utility.cc

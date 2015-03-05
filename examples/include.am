@@ -48,15 +48,15 @@ examples_prepared_statement_LDADD+= -lstdc++
 endif
 noinst_PROGRAMS+= examples/prepared_statement
 
-examples_group_query_SOURCES= examples/group_query.c
-examples_group_query_LDADD= src/asql/libattachsql.la
+examples_pool_query_SOURCES= examples/pool_query.c
+examples_pool_query_LDADD= src/asql/libattachsql.la
 if BUILD_WIN32
-examples_group_query_LDADD+= -lws2_32
-examples_group_query_LDADD+= -lpsapi
-examples_group_query_LDADD+= -liphlpapi
-examples_group_query_CFLAGS= -D__USE_MINGW_ANSI_STDIO
-examples_group_query_LDADD+= -lstdc++
+examples_pool_query_LDADD+= -lws2_32
+examples_pool_query_LDADD+= -lpsapi
+examples_pool_query_LDADD+= -liphlpapi
+examples_pool_query_CFLAGS= -D__USE_MINGW_ANSI_STDIO
+examples_pool_query_LDADD+= -lstdc++
 endif
-noinst_PROGRAMS+= examples/group_query
+noinst_PROGRAMS+= examples/pool_query
 
 

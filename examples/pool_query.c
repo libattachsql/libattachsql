@@ -15,11 +15,14 @@
  *
  */
 
-#include <yatl/lite.h>
-#include "version.h"
 #include <libattachsql-2.0/attachsql.h>
+#include <stddef.h>
+#include <stdio.h>
+#include <string.h>
 
-bool done[3]= {false, false, false};
+uint8_t done_count= 0;
+
+void callbk(attachsql_connect_t *current_con, attachsql_events_t events, void *context, attachsql_error_t *error);
 
 void callbk(attachsql_connect_t *current_con, attachsql_events_t events, void *context, attachsql_error_t *error)
 {
@@ -32,19 +35,12 @@ void callbk(attachsql_connect_t *current_con, attachsql_events_t events, void *c
       printf("Connected event on con %d\n", *con_no);
       break;
     case ATTACHSQL_EVENT_ERROR:
-      if (error && (attachsql_error_code(error) == 2002))
-      {
-        SKIP_IF_(true, "No MYSQL server");
-      }
-      else
-      {
-        ASSERT_FALSE_(true, "Error exists on con %d: %d", *con_no, attachsql_error_code(error));
-      }
-      // Normally we would attachsql_error_free() here
+      printf("Error exists on con %d: %d", *con_no, attachsql_error_code(error));
+      attachsql_error_free(error);
       break;
     case ATTACHSQL_EVENT_EOF:
       printf("Connection %d finished\n", *con_no);
-      done[*con_no]= true;
+      done_count++;
       attachsql_query_close(current_con);
       break;
     case ATTACHSQL_EVENT_ROW_READY:
@@ -67,32 +63,30 @@ int main(int argc, char *argv[])
   (void) argc;
   (void) argv;
   attachsql_connect_t *con[3];
-  attachsql_group_t *group;
+  attachsql_pool_t *pool;
   attachsql_error_t *error= NULL;
-  const char *data= "SHOW PROCESSLIST";
+  const char *query1= "SELECT * FROM t1 WHERE name='fred'";
+  const char *query2= "SELECT * FROM t1 WHERE age >= 40";
+  const char *query3= "SELECT * FROM t1 WHERE age < 40";
   uint8_t con_no[3]= {0, 1, 2};
 
-  group= attachsql_group_create(NULL);
-  con[0]= attachsql_connect_create("localhost", 3306, "test", "test", "", NULL);
-  attachsql_group_add_connection(group, con[0], &error);
+  pool= attachsql_pool_create(NULL);
+  con[0]= attachsql_connect_create("localhost", 3306, "test", "test", "testdb", NULL);
+  attachsql_pool_add_connection(pool, con[0], &error);
   attachsql_connect_set_callback(con[0], callbk, &con_no[0]);
-  bool compress= attachsql_connect_set_option(con[0], ATTACHSQL_OPTION_COMPRESS, NULL);
-  SKIP_IF_(!compress, "Not compiled with ZLib");
-  con[1]= attachsql_connect_create("localhost", 3306, "test", "test", "", NULL);
-  attachsql_group_add_connection(group, con[1], &error);
+  con[1]= attachsql_connect_create("localhost", 3306, "test", "test", "testdb", NULL);
+  attachsql_pool_add_connection(pool, con[1], &error);
   attachsql_connect_set_callback(con[1], callbk, &con_no[1]);
-  attachsql_connect_set_option(con[1], ATTACHSQL_OPTION_COMPRESS, NULL);
-  con[2]= attachsql_connect_create("localhost", 3306, "test", "test", "", NULL);
-  attachsql_group_add_connection(group, con[2], &error);
+  con[2]= attachsql_connect_create("localhost", 3306, "test", "test", "testdb", NULL);
+  attachsql_pool_add_connection(pool, con[2], &error);
   attachsql_connect_set_callback(con[2], callbk, &con_no[2]);
-  attachsql_connect_set_option(con[2], ATTACHSQL_OPTION_COMPRESS, NULL);
-  attachsql_query(con[0], strlen(data), data, 0, NULL, &error);
-  attachsql_query(con[1], strlen(data), data, 0, NULL, &error);
-  attachsql_query(con[2], strlen(data), data, 0, NULL, &error);
+  attachsql_query(con[0], strlen(query1), query1, 0, NULL, &error);
+  attachsql_query(con[1], strlen(query2), query2, 0, NULL, &error);
+  attachsql_query(con[2], strlen(query3), query3, 0, NULL, &error);
 
-  while((not done[0]) || (not done[1]) || (not done[2]))
+  while(done_count < 3)
   {
-    attachsql_group_run(group);
+    attachsql_pool_run(pool);
   }
-  attachsql_group_destroy(group);
+  attachsql_pool_destroy(pool);
 }

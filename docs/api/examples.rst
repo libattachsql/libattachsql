@@ -265,36 +265,36 @@ And finally instead of closing a query, we are closing a statement.
 
    attachsql_statement_close(con);
 
-.. _group-connections-example:
+.. _pool-connections-example:
 
-Group Connections
------------------
+Pool Connections
+----------------
 
-libAttachSQL has the ability to group several connections into a single event loop.  This makes this more efficient for many connections on a single thread.  There is a slightly different access pattern for this which relies on callback.
+libAttachSQL has the ability to pool several connections into a single event loop.  This makes this more efficient for many connections on a single thread.  There is a slightly different access pattern for this which relies on callback.
 
-In this example we will make three simultaneous queries to the server on three connections in a single connection group.  All three will be executed in parallel and as such will return in a random order.  The example file can be found at ``examples/group_query.c``.
+In this example we will make three simultaneous queries to the server on three connections in a single connection pool.  All three will be executed in parallel and as such will return in a random order.  The example file can be found at ``examples/pool_query.c``.
 
 Source Code
 ^^^^^^^^^^^
 
-.. literalinclude:: ../../examples/group_query.c
+.. literalinclude:: ../../examples/pool_query.c
    :language: c
 
 Breaking it Down
 ^^^^^^^^^^^^^^^^
 
-First we create the group object which the connections will be attached to:
+First we create the pool object which the connections will be attached to:
 
 .. code-block:: c
 
-   group= attachsql_group_create(NULL);
+   pool= attachsql_pool_create(NULL);
 
-Then we create the connections, add the connections to the group and set the callback function for the connections.  This is repeated 3 times, once for every connection:
+Then we create the connections, add the connections to the pool and set the callback function for the connections.  This is repeated 3 times, once for every connection:
 
 .. code-block:: c
 
    con[0]= attachsql_connect_create("localhost", 3306, "test", "test", "testdb", NULL);
-   attachsql_group_add_connection(group, con[0], &error);
+   attachsql_pool_add_connection(pool, con[0], &error);
    attachsql_connect_set_callback(con[0], callbk, &con_no[0]);
 
 We can now send a query to each of these connections:
@@ -309,13 +309,13 @@ We can now send a query to each of these connections:
    attachsql_query(con[1], strlen(query2), query2, 0, NULL, &error);
    attachsql_query(con[2], strlen(query3), query3, 0, NULL, &error);
 
-The group method uses callbacks instead of polling and checking the results.  So you only need to run the group event loop whenever ready.  This is non-blocking and will only fire a callback if there is data ready:
+The pool method uses callbacks instead of polling and checking the results.  So you only need to run the pool event loop whenever ready.  This is non-blocking and will only fire a callback if there is data ready:
 
 .. code-block:: c
 
    while(done_count < 3)
    {
-     attachsql_group_run(group);
+     attachsql_pool_run(pool);
    }
 
 When there is an event to be triggered such as a row ready in the buffer the callback is triggered:
@@ -365,9 +365,9 @@ Finally the row ready event fires when a row is ready for processing in the buff
      printf("\n");
      break;
 
-After the main while() loop has finished the group needs to be destroyed.  This will cleanup all underlying connections:
+After the main while() loop has finished the pool needs to be destroyed.  This will cleanup all underlying connections:
 
 .. code-block:: c
 
-   attachsql_group_destroy(group);
+   attachsql_pool_destroy(pool);
     break;

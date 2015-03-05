@@ -12,9 +12,9 @@ Basic Types
 
    An error object allocated by many functions in the library and needs to be freed by the user using :c:func:`attachsql_error_free`.
 
-.. c:type:: attachsql_group_t
+.. c:type:: attachsql_pool_t
 
-   An object containing a group of connections to be executed using the same event loop.
+   An object containing a pool of connections to be executed using the same event loop.
 
 Builtin Types
 -------------

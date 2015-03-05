@@ -58,7 +58,7 @@ attachsql_connect_t *attachsql_connect_create(const char *host, in_port_t port, 
 
 void attachsql_connect_destroy(attachsql_connect_t *con)
 {
-  bool in_group= false;
+  bool in_pool= false;
   if (con == NULL)
   {
     return;
@@ -71,10 +71,10 @@ void attachsql_connect_destroy(attachsql_connect_t *con)
 
   if (con->core_con != NULL)
   {
-    in_group= con->core_con->in_group;
+    in_pool= con->core_con->in_pool;
     ascore_con_destroy(con->core_con);
   }
-  if (not in_group)
+  if (not in_pool)
   {
     delete con;
   }
@@ -114,7 +114,7 @@ attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_er
     attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Invalid connection object");
     return ATTACHSQL_RETURN_ERROR;
   }
-  if (not con->core_con->in_group)
+  if (not con->core_con->in_pool)
   {
     status= ascore_con_poll(con->core_con);
   }

@@ -9,6 +9,7 @@ Version 2.0.0 Beta (Not yet released)
 
 * Removed the IDLE return state, it was causing confusion and the EOF state did the same (`Issue #179 <https://github.com/libattachsql/libattachsql/issues/179>`_)
 * Removed ``attachsql_statement_set_float()`` and ``attachsql_statement_get_float()``.  The double functions should be used instead (`Issue #181 <https://github.com/libattachsql/libattachsql/issues/181>`_)
+* All `group` functions and types have been renamed to `pool`
 
 Version 1.0
 -----------
@@ -67,11 +68,11 @@ Version 0.9.0 RC (2014-10-14)
 * Added new connection groups feature (`Issue #115 <https://github.com/libattachsql/libattachsql/issues/115>`_)
 
   * Changed :c:type:`attachsql_callback_fn` to include an error object. **THIS BREAKS API OVER 0.5.0**
-  * Added :c:type:`attachsql_group_t`
-  * Added :c:func:`attachsql_group_create`
-  * Added :c:func:`attachsql_group_destroy`
-  * Added :c:func:`attachsql_group_add_connection`
-  * Added :c:func:`attachsql_group_run`
+  * Added ``attachsql_group_t``
+  * Added ``attachsql_group_create()``
+  * Added ``attachsql_group_destroy()``
+  * Added ``attachsql_group_add_connection()``
+  * Added ``attachsql_group_run()``
   * Packet processing is now part of the event loop
   * Added example
 
