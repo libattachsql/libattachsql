@@ -1,0 +1,54 @@
+# vim:ft=automake
+# included from Top Level Makefile.am
+# All paths should be given relative to the root
+
+noinst_HEADERS+= src/ascore.h
+noinst_HEADERS+= src/buffer.h
+noinst_HEADERS+= src/connect.h
+noinst_HEADERS+= src/constants.h
+noinst_HEADERS+= src/command.h
+noinst_HEADERS+= src/common.h
+noinst_HEADERS+= src/debug.h
+noinst_HEADERS+= src/error_internal.h
+noinst_HEADERS+= src/net.h
+noinst_HEADERS+= src/pack.h
+noinst_HEADERS+= src/pack_macros.h
+noinst_HEADERS+= src/query_internal.h
+noinst_HEADERS+= src/return.h
+noinst_HEADERS+= src/sha1.h
+noinst_HEADERS+= src/structs.h
+noinst_HEADERS+= src/statement.h
+
+lib_LTLIBRARIES+= src/libattachsql.la
+src_libattachsql_la_SOURCES=
+src_libattachsql_la_LIBADD=
+src_libattachsql_la_LDFLAGS=
+src_libattachsql_la_CFLAGS= -DBUILDING_ASQL
+src_libattachsql_la_CXXFLAGS= -DBUILDING_ASQL
+
+if BUILD_WIN32
+src_libattachsql_la_LIBADD+= -lmingw32
+src_libattachsql_la_LIBADD+= -lws2_32
+src_libattachsql_la_LIBADD+= -lpsapi
+src_libattachsql_la_LIBADD+= -liphlpapi
+endif
+
+src_libattachsql_la_SOURCES+= src/buffer.cc
+src_libattachsql_la_SOURCES+= src/command.cc
+src_libattachsql_la_SOURCES+= src/connect.cc
+src_libattachsql_la_SOURCES+= src/sha1.cc
+src_libattachsql_la_SOURCES+= src/net.cc
+src_libattachsql_la_SOURCES+= src/pack.cc
+src_libattachsql_la_SOURCES+= src/statement.cc
+src_libattachsql_la_SOURCES+= src/statement_getset.cc
+
+src_libattachsql_la_SOURCES+= src/error.cc
+src_libattachsql_la_SOURCES+= src/pool.cc
+src_libattachsql_la_SOURCES+= src/query.cc
+src_libattachsql_la_SOURCES+= src/utility.cc
+
+src_libattachsql_la_LDFLAGS+= -version-info ${LIBATTACHSQL_LIBRARY_VERSION}
+
+src_libattachsql_la_LIBADD+= @LIBUV_LIB@
+src_libattachsql_la_LIBADD+= @ZLIB_LIB@
+src_libattachsql_la_LIBADD+= @OPENSSL_LIBS@

@@ -1,0 +1,14 @@
+# vim:ft=automake
+# included from Top Level Makefile.am
+# All paths should be given relative to the root
+
+nobase_include_HEADERS+= libattachsql2/attachsql.h
+nobase_include_HEADERS+= libattachsql2/connect.h
+nobase_include_HEADERS+= libattachsql2/constants.h
+nobase_include_HEADERS+= libattachsql2/error.h
+nobase_include_HEADERS+= libattachsql2/pool.h
+nobase_include_HEADERS+= libattachsql2/query.h
+nobase_include_HEADERS+= libattachsql2/utility.h
+nobase_include_HEADERS+= libattachsql2/statement.h
+nobase_include_HEADERS+= libattachsql2/structs.h
+nobase_include_HEADERS+= libattachsql2/visibility.h

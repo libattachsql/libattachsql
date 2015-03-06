@@ -8,7 +8,7 @@ Make sure that your application includes the main libAttachSQL include as follow
 
 .. code-block:: c
 
-   #include <libattachsql-1.0/attachsql.h>
+   #include <libattachsql2/attachsql.h>
 
 This will pull in all the libAttachSQL functions and constants you may require for your application.
 

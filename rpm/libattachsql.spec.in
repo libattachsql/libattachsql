@@ -60,7 +60,7 @@ mkdir -p $RPM_BUILD_ROOT/
 %files devel
 %defattr(-,root,root,-)
 %doc LICENSE README.rst
-%{_includedir}/libattachsql-2.0/*.h
+%{_includedir}/libattachsql2/*.h
 
 %changelog
 * Tue Aug 05 2014 Andrew Hutchings <andrew@linuxjedi.co.uk>

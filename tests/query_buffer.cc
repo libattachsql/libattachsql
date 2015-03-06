@@ -15,48 +15,47 @@
  *
  */
 
+#include <yatl/lite.h>
+#include "version.h"
 #include <libattachsql2/attachsql.h>
-#include <stddef.h>
-#include <stdio.h>
-#include <string.h>
 
-int main(void)
+int main(int argc, char *argv[])
 {
-  attachsql_connect_t *con= NULL;
+  (void) argc;
+  (void) argv;
+  attachsql_connect_t *con;
   attachsql_error_t *error= NULL;
-  const char *query= "SELECT * FROM t1 WHERE name='fred'";
-  attachsql_return_t ret= ATTACHSQL_RETURN_NONE;
+  const char *data= "SHOW PROCESSLIST";
+  attachsql_return_t aret= ATTACHSQL_RETURN_NONE;
   attachsql_query_row_st *row;
-  uint16_t columns, current_column;
+  uint16_t columns, col;
 
-  con= attachsql_connect_create("localhost", 3306, "test", "test", "testdb", NULL);
+  con= attachsql_connect_create("localhost", 3306, "test", "test", "", NULL);
   attachsql_query_buffer_rows(con, true);
-  attachsql_query(con, strlen(query), query, 0, NULL, &error);
-
-  while ((ret != ATTACHSQL_RETURN_EOF) && (error == NULL))
+  attachsql_query(con, strlen(data), data, 0, NULL, &error);
+  while(aret != ATTACHSQL_RETURN_EOF)
   {
-    ret= attachsql_connect_poll(con, &error);
+    aret= attachsql_connect_poll(con, &error);
+    if (error && (attachsql_error_code(error) == 2002))
+    {
+      SKIP_IF_(true, "No MYSQL server");
+    }
+    else if (error)
+    {
+      ASSERT_FALSE_(true, "Error exists: %d", attachsql_error_code(error));
+    }
   }
-  if (error != NULL)
-  {
-    printf("Error occurred: %s", attachsql_error_message(error));
-    return 1;
-  }
-
   columns= attachsql_query_column_count(con);
+  ASSERT_TRUE(attachsql_query_row_count(con) > 0);
   while((row= attachsql_query_buffer_row_get(con)))
   {
-    for (current_column= 0; current_column < columns; current_column++)
+    for (col=0; col < columns; col++)
     {
-      printf("%.*s ", (int)row[current_column].length, row[current_column].data);
+      printf("Column: %d, Length: %zu, Data: %.*s ", col, row[col].length, (int)row[col].length, row[col].data);
     }
     printf("\n");
   }
-  if (error != NULL)
-  {
-    printf("Error occurred: %s", attachsql_error_message(error));
-    attachsql_error_free(error);
-  }
+
   attachsql_query_close(con);
   attachsql_connect_destroy(con);
 }

@@ -11,4 +11,222 @@
 LIBTOOL_COMMAND= ${abs_top_builddir}/libtool --mode=execute
 GDB_COMMAND= $(LIBTOOL_COMMAND) gdb -f -x support/run.gdb
 
-include tests/asql/include.am
+t_version_SOURCES= tests/version.cc
+t_version_LDADD= src/libattachsql.la
+if BUILD_WIN32
+t_version_LDADD+= -lws2_32
+t_version_LDADD+= -lpsapi
+t_version_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/version
+noinst_PROGRAMS+= t/version
+
+t_query_SOURCES= tests/query.cc
+t_query_LDADD= src/libattachsql.la
+if BUILD_WIN32
+t_query_LDADD+= -lws2_32
+t_query_LDADD+= -lpsapi
+t_query_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/query
+noinst_PROGRAMS+= t/query
+
+t_query_ssl_SOURCES= tests/query_ssl.cc
+t_query_ssl_LDADD= src/libattachsql.la
+if BUILD_WIN32
+t_query_ssl_LDADD+= -lws2_32
+t_query_ssl_LDADD+= -lpsapi
+t_query_ssl_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/query_ssl
+noinst_PROGRAMS+= t/query_ssl
+
+t_query_compress_SOURCES= tests/query_compress.cc
+t_query_compress_LDADD= src/libattachsql.la
+if BUILD_WIN32
+t_query_compress_LDADD+= -lws2_32
+t_query_compress_LDADD+= -lpsapi
+t_query_compress_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/query_compress
+noinst_PROGRAMS+= t/query_compress
+
+t_query_uds_SOURCES= tests/query_uds.cc
+t_query_uds_LDADD= src/libattachsql.la
+if BUILD_WIN32
+t_query_uds_LDADD+= -lws2_32
+t_query_uds_LDADD+= -lpsapi
+t_query_uds_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/query_uds
+noinst_PROGRAMS+= t/query_uds
+
+t_query_buffer_SOURCES= tests/query_buffer.cc
+t_query_buffer_LDADD= src/libattachsql.la
+if BUILD_WIN32
+t_query_buffer_LDADD+= -lws2_32
+t_query_buffer_LDADD+= -lpsapi
+t_query_buffer_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/query_buffer
+noinst_PROGRAMS+= t/query_buffer
+
+t_multi_query_SOURCES= tests/multi_query.cc
+t_multi_query_LDADD= src/libattachsql.la
+if BUILD_WIN32
+t_multi_query_LDADD+= -lws2_32
+t_multi_query_LDADD+= -lpsapi
+t_multi_query_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/multi_query
+noinst_PROGRAMS+= t/multi_query
+
+t_query_error_SOURCES= tests/query_error.cc
+t_query_error_LDADD= src/libattachsql.la
+if BUILD_WIN32
+t_query_error_LDADD+= -lws2_32
+t_query_error_LDADD+= -lpsapi
+t_query_error_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/query_error
+noinst_PROGRAMS+= t/query_error
+
+t_connect_error_SOURCES= tests/connect_error.cc
+t_connect_error_LDADD= src/libattachsql.la
+if BUILD_WIN32
+t_connect_error_LDADD+= -lws2_32
+t_connect_error_LDADD+= -lpsapi
+t_connect_error_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/connect_error
+noinst_PROGRAMS+= t/connect_error
+
+t_connect_SOURCES= tests/connect.cc
+t_connect_LDADD= src/libattachsql.la
+if BUILD_WIN32
+t_connect_LDADD+= -lws2_32
+t_connect_LDADD+= -lpsapi
+t_connect_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/connect
+noinst_PROGRAMS+= t/connect
+
+t_statement_SOURCES= tests/statement.cc
+t_statement_LDADD= src/libattachsql.la
+if BUILD_WIN32
+t_statement_LDADD+= -lws2_32
+t_statement_LDADD+= -lpsapi
+t_statement_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/statement
+noinst_PROGRAMS+= t/statement
+
+t_statement_param_SOURCES= tests/statement_param.cc
+t_statement_param_LDADD= src/libattachsql.la
+if BUILD_WIN32
+t_statement_param_LDADD+= -lws2_32
+t_statement_param_LDADD+= -lpsapi
+t_statement_param_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/statement_param
+noinst_PROGRAMS+= t/statement_param
+
+t_statement_reuse_SOURCES= tests/statement_reuse.cc
+t_statement_reuse_LDADD= src/libattachsql.la
+if BUILD_WIN32
+t_statement_reuse_LDADD+= -lws2_32
+t_statement_reuse_LDADD+= -lpsapi
+t_statement_reuse_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/statement_reuse
+noinst_PROGRAMS+= t/statement_reuse
+
+t_statement_twice_SOURCES= tests/statement_twice.cc
+t_statement_twice_LDADD= src/libattachsql.la
+if BUILD_WIN32
+t_statement_twice_LDADD+= -lws2_32
+t_statement_twice_LDADD+= -lpsapi
+t_statement_twice_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/statement_twice
+noinst_PROGRAMS+= t/statement_twice
+
+t_no_backslash_SOURCES= tests/no_backslash.cc
+t_no_backslash_LDADD= src/libattachsql.la
+if BUILD_WIN32
+t_no_backslash_LDADD+= -lws2_32
+t_no_backslash_LDADD+= -lpsapi
+t_no_backslash_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/no_backslash
+noinst_PROGRAMS+= t/no_backslash
+
+t_query_semi_block_SOURCES= tests/query_semi_block.cc
+t_query_semi_block_LDADD= src/libattachsql.la
+if BUILD_WIN32
+t_query_semi_block_LDADD+= -lws2_32
+t_query_semi_block_LDADD+= -lpsapi
+t_query_semi_block_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/query_semi_block
+noinst_PROGRAMS+= t/query_semi_block
+
+t_pool_SOURCES= tests/pool.cc
+t_pool_LDADD= src/libattachsql.la
+if BUILD_WIN32
+t_pool_LDADD+= -lws2_32
+t_pool_LDADD+= -lpsapi
+t_pool_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/pool
+noinst_PROGRAMS+= t/pool
+
+t_statement_semi_block_SOURCES= tests/statement_semi_block.cc
+t_statement_semi_block_LDADD= src/libattachsql.la
+if BUILD_WIN32
+t_statement_semi_block_LDADD+= -lws2_32
+t_statement_semi_block_LDADD+= -lpsapi
+t_statement_semi_block_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/statement_semi_block
+noinst_PROGRAMS+= t/statement_semi_block
+
+t_query_compress_semi_block_SOURCES= tests/query_compress_semi_block.cc
+t_query_compress_semi_block_LDADD= src/libattachsql.la
+if BUILD_WIN32
+t_query_compress_semi_block_LDADD+= -lws2_32
+t_query_compress_semi_block_LDADD+= -lpsapi
+t_query_compress_semi_block_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/query_compress_semi_block
+noinst_PROGRAMS+= t/query_compress_semi_block
+
+t_pool_compress_SOURCES= tests/pool_compress.cc
+t_pool_compress_LDADD= src/libattachsql.la
+if BUILD_WIN32
+t_pool_compress_LDADD+= -lws2_32
+t_pool_compress_LDADD+= -lpsapi
+t_pool_compress_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/pool_compress
+noinst_PROGRAMS+= t/pool_compress
+
+t_query_ssl_compress_SOURCES= tests/query_ssl_compress.cc
+t_query_ssl_compress_LDADD= src/libattachsql.la
+if BUILD_WIN32
+t_query_ssl_compress_LDADD+= -lws2_32
+t_query_ssl_compress_LDADD+= -lpsapi
+t_query_ssl_compress_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/query_ssl_compress
+noinst_PROGRAMS+= t/query_ssl_compress
+
+t_transaction_SOURCES= tests/transaction.cc
+t_transaction_LDADD= src/libattachsql.la
+if BUILD_WIN32
+t_transaction_LDADD+= -lws2_32
+t_transaction_LDADD+= -lpsapi
+t_transaction_LDADD+= -liphlpapi
+endif
+check_PROGRAMS+= t/transaction
+noinst_PROGRAMS+= t/transaction
