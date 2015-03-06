@@ -16,7 +16,7 @@
  */
 
 #include "config.h"
-#include "src/asql/common.h"
+#include "common.h"
 #include <stdio.h>
 #include <stdarg.h>
 

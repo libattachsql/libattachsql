@@ -16,9 +16,9 @@
  */
 
 #include "config.h"
-#include "src/asql/common.h"
-#include "src/asql/query_internal.h"
-#include "src/ascore/ascore.h"
+#include "common.h"
+#include "query_internal.h"
+#include "ascore.h"
 
 bool attachsql_query(attachsql_connect_t *con, size_t length, const char *statement, uint16_t parameter_count, attachsql_query_parameter_st *parameters, attachsql_error_t **error)
 {

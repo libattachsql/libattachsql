@@ -9,7 +9,7 @@
 # All paths should be given relative to the root
 
 t_asql_version_SOURCES= tests/asql/version.cc
-t_asql_version_LDADD= src/asql/libattachsql.la
+t_asql_version_LDADD= src/libattachsql.la
 if BUILD_WIN32
 t_asql_version_LDADD+= -lws2_32
 t_asql_version_LDADD+= -lpsapi
@@ -19,7 +19,7 @@ check_PROGRAMS+= t/asql/version
 noinst_PROGRAMS+= t/asql/version
 
 t_asql_query_SOURCES= tests/asql/query.cc
-t_asql_query_LDADD= src/asql/libattachsql.la
+t_asql_query_LDADD= src/libattachsql.la
 if BUILD_WIN32
 t_asql_query_LDADD+= -lws2_32
 t_asql_query_LDADD+= -lpsapi
@@ -29,7 +29,7 @@ check_PROGRAMS+= t/asql/query
 noinst_PROGRAMS+= t/asql/query
 
 t_asql_query_ssl_SOURCES= tests/asql/query_ssl.cc
-t_asql_query_ssl_LDADD= src/asql/libattachsql.la
+t_asql_query_ssl_LDADD= src/libattachsql.la
 if BUILD_WIN32
 t_asql_query_ssl_LDADD+= -lws2_32
 t_asql_query_ssl_LDADD+= -lpsapi
@@ -39,7 +39,7 @@ check_PROGRAMS+= t/asql/query_ssl
 noinst_PROGRAMS+= t/asql/query_ssl
 
 t_asql_query_compress_SOURCES= tests/asql/query_compress.cc
-t_asql_query_compress_LDADD= src/asql/libattachsql.la
+t_asql_query_compress_LDADD= src/libattachsql.la
 if BUILD_WIN32
 t_asql_query_compress_LDADD+= -lws2_32
 t_asql_query_compress_LDADD+= -lpsapi
@@ -49,7 +49,7 @@ check_PROGRAMS+= t/asql/query_compress
 noinst_PROGRAMS+= t/asql/query_compress
 
 t_asql_query_uds_SOURCES= tests/asql/query_uds.cc
-t_asql_query_uds_LDADD= src/asql/libattachsql.la
+t_asql_query_uds_LDADD= src/libattachsql.la
 if BUILD_WIN32
 t_asql_query_uds_LDADD+= -lws2_32
 t_asql_query_uds_LDADD+= -lpsapi
@@ -59,7 +59,7 @@ check_PROGRAMS+= t/asql/query_uds
 noinst_PROGRAMS+= t/asql/query_uds
 
 t_asql_query_buffer_SOURCES= tests/asql/query_buffer.cc
-t_asql_query_buffer_LDADD= src/asql/libattachsql.la
+t_asql_query_buffer_LDADD= src/libattachsql.la
 if BUILD_WIN32
 t_asql_query_buffer_LDADD+= -lws2_32
 t_asql_query_buffer_LDADD+= -lpsapi
@@ -69,7 +69,7 @@ check_PROGRAMS+= t/asql/query_buffer
 noinst_PROGRAMS+= t/asql/query_buffer
 
 t_asql_multi_query_SOURCES= tests/asql/multi_query.cc
-t_asql_multi_query_LDADD= src/asql/libattachsql.la
+t_asql_multi_query_LDADD= src/libattachsql.la
 if BUILD_WIN32
 t_asql_multi_query_LDADD+= -lws2_32
 t_asql_multi_query_LDADD+= -lpsapi
@@ -79,7 +79,7 @@ check_PROGRAMS+= t/asql/multi_query
 noinst_PROGRAMS+= t/asql/multi_query
 
 t_asql_query_error_SOURCES= tests/asql/query_error.cc
-t_asql_query_error_LDADD= src/asql/libattachsql.la
+t_asql_query_error_LDADD= src/libattachsql.la
 if BUILD_WIN32
 t_asql_query_error_LDADD+= -lws2_32
 t_asql_query_error_LDADD+= -lpsapi
@@ -89,7 +89,7 @@ check_PROGRAMS+= t/asql/query_error
 noinst_PROGRAMS+= t/asql/query_error
 
 t_asql_connect_error_SOURCES= tests/asql/connect_error.cc
-t_asql_connect_error_LDADD= src/asql/libattachsql.la
+t_asql_connect_error_LDADD= src/libattachsql.la
 if BUILD_WIN32
 t_asql_connect_error_LDADD+= -lws2_32
 t_asql_connect_error_LDADD+= -lpsapi
@@ -99,7 +99,7 @@ check_PROGRAMS+= t/asql/connect_error
 noinst_PROGRAMS+= t/asql/connect_error
 
 t_asql_connect_SOURCES= tests/asql/connect.cc
-t_asql_connect_LDADD= src/asql/libattachsql.la
+t_asql_connect_LDADD= src/libattachsql.la
 if BUILD_WIN32
 t_asql_connect_LDADD+= -lws2_32
 t_asql_connect_LDADD+= -lpsapi
@@ -109,7 +109,7 @@ check_PROGRAMS+= t/asql/connect
 noinst_PROGRAMS+= t/asql/connect
 
 t_asql_statement_SOURCES= tests/asql/statement.cc
-t_asql_statement_LDADD= src/asql/libattachsql.la
+t_asql_statement_LDADD= src/libattachsql.la
 if BUILD_WIN32
 t_asql_statement_LDADD+= -lws2_32
 t_asql_statement_LDADD+= -lpsapi
@@ -119,7 +119,7 @@ check_PROGRAMS+= t/asql/statement
 noinst_PROGRAMS+= t/asql/statement
 
 t_asql_statement_param_SOURCES= tests/asql/statement_param.cc
-t_asql_statement_param_LDADD= src/asql/libattachsql.la
+t_asql_statement_param_LDADD= src/libattachsql.la
 if BUILD_WIN32
 t_asql_statement_param_LDADD+= -lws2_32
 t_asql_statement_param_LDADD+= -lpsapi
@@ -129,7 +129,7 @@ check_PROGRAMS+= t/asql/statement_param
 noinst_PROGRAMS+= t/asql/statement_param
 
 t_asql_statement_reuse_SOURCES= tests/asql/statement_reuse.cc
-t_asql_statement_reuse_LDADD= src/asql/libattachsql.la
+t_asql_statement_reuse_LDADD= src/libattachsql.la
 if BUILD_WIN32
 t_asql_statement_reuse_LDADD+= -lws2_32
 t_asql_statement_reuse_LDADD+= -lpsapi
@@ -139,7 +139,7 @@ check_PROGRAMS+= t/asql/statement_reuse
 noinst_PROGRAMS+= t/asql/statement_reuse
 
 t_asql_statement_twice_SOURCES= tests/asql/statement_twice.cc
-t_asql_statement_twice_LDADD= src/asql/libattachsql.la
+t_asql_statement_twice_LDADD= src/libattachsql.la
 if BUILD_WIN32
 t_asql_statement_twice_LDADD+= -lws2_32
 t_asql_statement_twice_LDADD+= -lpsapi
@@ -149,7 +149,7 @@ check_PROGRAMS+= t/asql/statement_twice
 noinst_PROGRAMS+= t/asql/statement_twice
 
 t_asql_no_backslash_SOURCES= tests/asql/no_backslash.cc
-t_asql_no_backslash_LDADD= src/asql/libattachsql.la
+t_asql_no_backslash_LDADD= src/libattachsql.la
 if BUILD_WIN32
 t_asql_no_backslash_LDADD+= -lws2_32
 t_asql_no_backslash_LDADD+= -lpsapi
@@ -159,7 +159,7 @@ check_PROGRAMS+= t/asql/no_backslash
 noinst_PROGRAMS+= t/asql/no_backslash
 
 t_asql_query_semi_block_SOURCES= tests/asql/query_semi_block.cc
-t_asql_query_semi_block_LDADD= src/asql/libattachsql.la
+t_asql_query_semi_block_LDADD= src/libattachsql.la
 if BUILD_WIN32
 t_asql_query_semi_block_LDADD+= -lws2_32
 t_asql_query_semi_block_LDADD+= -lpsapi
@@ -169,7 +169,7 @@ check_PROGRAMS+= t/asql/query_semi_block
 noinst_PROGRAMS+= t/asql/query_semi_block
 
 t_asql_pool_SOURCES= tests/asql/pool.cc
-t_asql_pool_LDADD= src/asql/libattachsql.la
+t_asql_pool_LDADD= src/libattachsql.la
 if BUILD_WIN32
 t_asql_pool_LDADD+= -lws2_32
 t_asql_pool_LDADD+= -lpsapi
@@ -179,7 +179,7 @@ check_PROGRAMS+= t/asql/pool
 noinst_PROGRAMS+= t/asql/pool
 
 t_asql_statement_semi_block_SOURCES= tests/asql/statement_semi_block.cc
-t_asql_statement_semi_block_LDADD= src/asql/libattachsql.la
+t_asql_statement_semi_block_LDADD= src/libattachsql.la
 if BUILD_WIN32
 t_asql_statement_semi_block_LDADD+= -lws2_32
 t_asql_statement_semi_block_LDADD+= -lpsapi
@@ -189,7 +189,7 @@ check_PROGRAMS+= t/asql/statement_semi_block
 noinst_PROGRAMS+= t/asql/statement_semi_block
 
 t_asql_query_compress_semi_block_SOURCES= tests/asql/query_compress_semi_block.cc
-t_asql_query_compress_semi_block_LDADD= src/asql/libattachsql.la
+t_asql_query_compress_semi_block_LDADD= src/libattachsql.la
 if BUILD_WIN32
 t_asql_query_compress_semi_block_LDADD+= -lws2_32
 t_asql_query_compress_semi_block_LDADD+= -lpsapi
@@ -199,7 +199,7 @@ check_PROGRAMS+= t/asql/query_compress_semi_block
 noinst_PROGRAMS+= t/asql/query_compress_semi_block
 
 t_asql_pool_compress_SOURCES= tests/asql/pool_compress.cc
-t_asql_pool_compress_LDADD= src/asql/libattachsql.la
+t_asql_pool_compress_LDADD= src/libattachsql.la
 if BUILD_WIN32
 t_asql_pool_compress_LDADD+= -lws2_32
 t_asql_pool_compress_LDADD+= -lpsapi
@@ -209,7 +209,7 @@ check_PROGRAMS+= t/asql/pool_compress
 noinst_PROGRAMS+= t/asql/pool_compress
 
 t_asql_query_ssl_compress_SOURCES= tests/asql/query_ssl_compress.cc
-t_asql_query_ssl_compress_LDADD= src/asql/libattachsql.la
+t_asql_query_ssl_compress_LDADD= src/libattachsql.la
 if BUILD_WIN32
 t_asql_query_ssl_compress_LDADD+= -lws2_32
 t_asql_query_ssl_compress_LDADD+= -lpsapi
@@ -219,7 +219,7 @@ check_PROGRAMS+= t/asql/query_ssl_compress
 noinst_PROGRAMS+= t/asql/query_ssl_compress
 
 t_asql_transaction_SOURCES= tests/asql/transaction.cc
-t_asql_transaction_LDADD= src/asql/libattachsql.la
+t_asql_transaction_LDADD= src/libattachsql.la
 if BUILD_WIN32
 t_asql_transaction_LDADD+= -lws2_32
 t_asql_transaction_LDADD+= -lpsapi

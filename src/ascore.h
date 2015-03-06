@@ -17,15 +17,18 @@
 
 #pragma once
 
-#include "src/ascore/ascore.h"
+#include <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <libattachsql-2.0/attachsql.h>
 
-attachsql_return_t attachsql_connect_query(attachsql_connect_t *con, attachsql_error_t **error);
-
-#ifdef __cplusplus
-}
-#endif
-
+/* These two need to go first, in this order */
+#include "constants.h"
+#include "structs.h"
+#include "return.h"
+#include "pack_macros.h"
+#include "pack.h"
+#include "net.h"
+#include "connect.h"
+#include "command.h"
+#include "buffer.h"
+#include "statement.h"

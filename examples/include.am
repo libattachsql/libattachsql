@@ -9,7 +9,7 @@
 # All paths should be given relative to the root
 
 examples_basic_query_SOURCES= examples/basic_query.c
-examples_basic_query_LDADD= src/asql/libattachsql.la
+examples_basic_query_LDADD= src/libattachsql.la
 if BUILD_WIN32
 examples_basic_query_LDADD+= -lws2_32
 examples_basic_query_LDADD+= -lpsapi
@@ -19,7 +19,7 @@ endif
 noinst_PROGRAMS+= examples/basic_query
 
 examples_buffered_query_SOURCES= examples/buffered_query.c
-examples_buffered_query_LDADD= src/asql/libattachsql.la
+examples_buffered_query_LDADD= src/libattachsql.la
 if BUILD_WIN32
 examples_buffered_query_LDADD+= -lws2_32
 examples_buffered_query_LDADD+= -lpsapi
@@ -29,7 +29,7 @@ endif
 noinst_PROGRAMS+= examples/buffered_query
 
 examples_escaped_query_SOURCES= examples/escaped_query.c
-examples_escaped_query_LDADD= src/asql/libattachsql.la
+examples_escaped_query_LDADD= src/libattachsql.la
 if BUILD_WIN32
 examples_escaped_query_LDADD+= -lws2_32
 examples_escaped_query_LDADD+= -lpsapi
@@ -39,7 +39,7 @@ endif
 noinst_PROGRAMS+= examples/escaped_query
 
 examples_prepared_statement_SOURCES= examples/prepared_statement.c
-examples_prepared_statement_LDADD= src/asql/libattachsql.la
+examples_prepared_statement_LDADD= src/libattachsql.la
 if BUILD_WIN32
 examples_prepared_statement_LDADD+= -lws2_32
 examples_prepared_statement_LDADD+= -lpsapi
@@ -49,7 +49,7 @@ endif
 noinst_PROGRAMS+= examples/prepared_statement
 
 examples_pool_query_SOURCES= examples/pool_query.c
-examples_pool_query_LDADD= src/asql/libattachsql.la
+examples_pool_query_LDADD= src/libattachsql.la
 if BUILD_WIN32
 examples_pool_query_LDADD+= -lws2_32
 examples_pool_query_LDADD+= -lpsapi

@@ -31,13 +31,9 @@
 extern "C" {
 #endif
 
-attachsql_connect_t *attachsql_con_create(const char *host, in_port_t port, const char *user, const char *pass, const char *schema);
-
 attachsql_con_status_t attachsql_do_connect(attachsql_connect_t *con);
 
-attachsql_con_status_t attachsql_con_poll(attachsql_connect_t *con);
-
-void attachsql_con_destroy(attachsql_connect_t *con);
+attachsql_con_status_t attachsql_do_poll(attachsql_connect_t *con);
 
 void on_resolved(uv_getaddrinfo_t *resolver, int status, struct addrinfo *res);
 
@@ -51,9 +47,9 @@ asret_t scramble_password(attachsql_connect_t *con, unsigned char *buffer);
 
 void attachsql_handshake_response(attachsql_connect_t *con);
 
-#ifdef HAVE_OPENSSL
-bool attachsql_con_set_ssl(attachsql_connect_t *con, const char *key, const char *cert, const char *ca, const char *capath, const char *cipher, bool verify);
+attachsql_return_t attachsql_connect_query(attachsql_connect_t *con, attachsql_error_t **error);
 
+#ifdef HAVE_OPENSSL
 int attachsql_ssl_buffer_write(attachsql_connect_t *con, uv_buf_t *buf, int buf_len);
 #endif
 

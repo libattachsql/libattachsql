@@ -2,7 +2,7 @@
  * Copyright 2014 Hewlett-Packard Development Company, L.P.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License. You may obtain
+ * not use this file except in compliance with the License. You may obtain 
  * a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
@@ -17,27 +17,25 @@
 
 #pragma once
 
-#include "config.h"
-#include "common.h"
+#include <float.h>
+#include "ascore.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-attachsql_stmt_st *attachsql_stmt_prepare(attachsql_connect_t *con, size_t length, const char *statement);
+// Float and Double lengths from: http://stackoverflow.com/questions/1701055/what-is-the-maximum-length-in-chars-needed-to-represent-any-double-value
 
-bool attachsql_stmt_execute(attachsql_stmt_st *stmt);
+#define FLOAT_MAX_LEN 3 + FLT_MANT_DIG - FLT_MIN_EXP
+#define DOUBLE_MAX_LEN 3 + DBL_MANT_DIG - DBL_MIN_EXP
 
-bool attachsql_stmt_check_buffer_size(attachsql_stmt_st *stmt, size_t required);
+size_t attachsql_query_escape_data(char *buffer, char *data, size_t length);
 
-attachsql_command_status_t attachsql_stmt_fetch(attachsql_stmt_st *stmt);
+attachsql_return_t attachsql_query_row_buffer(attachsql_connect_t *con, attachsql_error_t **error);
 
-void attachsql_stmt_destroy(attachsql_stmt_st *stmt);
-
-attachsql_command_status_t attachsql_stmt_reset(attachsql_stmt_st *stmt);
-
-attachsql_command_status_t attachsql_stmt_send_long_data(attachsql_stmt_st *stmt, uint16_t param, size_t length, char *data);
+size_t attachsql_query_no_backslash_escape_data(char *buffer, char *data, size_t length);
 
 #ifdef __cplusplus
 }
 #endif
+

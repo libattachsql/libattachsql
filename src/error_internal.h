@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include "src/ascore/ascore.h"
+#include "ascore.h"
 
 #ifdef __cplusplus
 extern "C" {

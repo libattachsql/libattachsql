@@ -17,25 +17,21 @@
 
 #pragma once
 
-#include <float.h>
-#include "src/ascore/ascore.h"
-
 #ifdef __cplusplus
-extern "C" {
+#include <cstddef>
 #endif
 
-// Float and Double lengths from: http://stackoverflow.com/questions/1701055/what-is-the-maximum-length-in-chars-needed-to-represent-any-double-value
-
-#define FLOAT_MAX_LEN 3 + FLT_MANT_DIG - FLT_MIN_EXP
-#define DOUBLE_MAX_LEN 3 + DBL_MANT_DIG - DBL_MIN_EXP
-
-size_t attachsql_query_escape_data(char *buffer, char *data, size_t length);
-
-attachsql_return_t attachsql_query_row_buffer(attachsql_connect_t *con, attachsql_error_t **error);
-
-size_t attachsql_query_no_backslash_escape_data(char *buffer, char *data, size_t length);
-
-#ifdef __cplusplus
-}
-#endif
-
+#include "debug.h"
+#include "return.h"
+#include "pack_macros.h"
+#include "pack.h"
+#include "constants.h"
+#include "structs.h"
+#include <libattachsql-2.0/attachsql.h>
+#include "error_internal.h"
+#include <new>
+#include <uv.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>

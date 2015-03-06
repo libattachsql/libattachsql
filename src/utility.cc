@@ -15,20 +15,34 @@
  *
  */
 
-#pragma once
+#include "config.h"
+#include "version.h"
+#include "common.h"
 
-#include <stdint.h>
+const char *attachsql_get_library_version(void)
+{
+  return LIBATTACHSQL_VERSION_STRING;
+}
 
-#include <libattachsql-2.0/attachsql.h>
+uint8_t attachsql_get_library_version_major(void)
+{
+  return (uint8_t)((LIBATTACHSQL_VERSION_HEX & 0xff000000) >> 24);
+}
 
-/* These two need to go first, in this order */
-#include "src/ascore/constants.h"
-#include "src/ascore/structs.h"
-#include "src/ascore/return.h"
-#include "src/ascore/pack_macros.h"
-#include "src/ascore/pack.h"
-#include "src/ascore/net.h"
-#include "src/ascore/connect.h"
-#include "src/ascore/command.h"
-#include "src/ascore/buffer.h"
-#include "src/ascore/statement.h"
+uint8_t attachsql_get_library_version_minor(void)
+{
+  return (uint8_t)((LIBATTACHSQL_VERSION_HEX & 0x00fff000) >> 12);
+}
+
+uint8_t attachsql_get_library_version_patch(void)
+{
+  return (uint8_t)(LIBATTACHSQL_VERSION_HEX & 0x00000fff);
+}
+
+void attachsql_library_init(void)
+{
+#ifdef HAVE_OPENSSL
+  SSL_load_error_strings();
+  SSL_library_init();
+#endif
+}

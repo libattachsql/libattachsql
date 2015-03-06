@@ -21,21 +21,61 @@
 #include "command.h"
 #include "net.h"
 
-attachsql_stmt_st *attachsql_stmt_prepare(attachsql_connect_t *con, size_t length, const char *statement)
+bool attachsql_statement_prepare(attachsql_connect_t *con, size_t length, const char *statement, attachsql_error_t **error)
 {
+  if (con->status == ATTACHSQL_CON_STATUS_NOT_CONNECTED)
+  {
+    con->query_buffer= (char*)statement;
+    con->query_buffer_length= length;
+    con->query_buffer_alloc= false;
+    con->query_buffer_statement= true;
+    return attachsql_connect(con, error);
+  }
   con->stmt= new (std::nothrow) attachsql_stmt_st;
 
   if (con->stmt == NULL)
   {
     con->local_errcode= ASRET_OUT_OF_MEMORY_ERROR;
     con->command_status= ATTACHSQL_COMMAND_STATUS_SEND_FAILED;
-    return NULL;
+    attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_ALLOC, ATTACHSQL_ERROR_LEVEL_ERROR, "82100", "Allocation failure for statement object");
+    return false;
   }
 
   con->stmt->con= con;
   asdebug("Sending MySQL prepare");
   attachsql_command_send(con, ATTACHSQL_COMMAND_STMT_PREPARE, (char*)statement, length);
-  return con->stmt;
+
+  return true;
+}
+
+bool attachsql_statement_execute(attachsql_connect_t *con, attachsql_error_t **error)
+{
+  if (con == NULL)
+  {
+    attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "No connection provided");
+    return false;
+  }
+  if (con->stmt == NULL)
+  {
+    attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "No statement prepared");
+    return false;
+  }
+  /* Free anything left over from last exec */
+  attachsql_command_free(con);
+  if (not attachsql_stmt_execute(con->stmt))
+  {
+    if (con->local_errcode == ASRET_BAD_STMT_PARAMETER)
+    {
+      attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Bad parameter bound to statement");
+      return false;
+    }
+    else
+    {
+      attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_ALLOC, ATTACHSQL_ERROR_LEVEL_ERROR, "82100", "Allocation failure for statement object");
+      return false;
+    }
+  }
+  return true;
 }
 
 bool attachsql_stmt_execute(attachsql_stmt_st *stmt)
@@ -241,8 +281,20 @@ attachsql_command_status_t attachsql_stmt_fetch(attachsql_stmt_st *stmt)
   return stmt->con->command_status;
 }
 
-void attachsql_stmt_destroy(attachsql_stmt_st *stmt)
+void attachsql_statement_close(attachsql_connect_t *con)
 {
+  attachsql_stmt_st *stmt= con->stmt;
+  if (con == NULL)
+  {
+    return;
+  }
+
+  if (con->stmt_row != NULL)
+  {
+    delete[] con->stmt_row;
+  }
+  con->stmt_row= NULL;
+
   if (stmt == NULL)
   {
     return;
@@ -270,29 +322,36 @@ void attachsql_stmt_destroy(attachsql_stmt_st *stmt)
     delete[] stmt->param_data;
   }
 
-  stmt->con->stmt= NULL;
-  stmt->con->write_buffer_extra= 4;
-  attachsql_command_free(stmt->con);
-  attachsql_pack_int4(&stmt->con->write_buffer[1], stmt->id);
-  attachsql_command_send(stmt->con, ATTACHSQL_COMMAND_STMT_CLOSE, NULL, 0);
+  con->stmt= NULL;
+  con->write_buffer_extra= 4;
+  attachsql_command_free(con);
+  attachsql_pack_int4(&con->write_buffer[1], stmt->id);
+  attachsql_command_send(con, ATTACHSQL_COMMAND_STMT_CLOSE, NULL, 0);
   delete stmt;
 }
 
-attachsql_command_status_t attachsql_stmt_reset(attachsql_stmt_st *stmt)
+bool attachsql_statement_reset(attachsql_connect_t *con, attachsql_error_t **error)
 {
-  stmt->con->write_buffer_extra= 4;
-  attachsql_pack_int4(&stmt->con->write_buffer[1], stmt->id);
+  if (con == NULL)
+  {
+    attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "No connection provided");
+    return false;
+  }
+  if (con->stmt == NULL)
+  {
+    attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "No statement prepared");
+    return false;
+  }
 
-  return attachsql_command_send(stmt->con, ATTACHSQL_COMMAND_STMT_RESET, NULL, 0);
+  con->write_buffer_extra= 4;
+  attachsql_pack_int4(&con->write_buffer[1], con->stmt->id);
+
+  if (attachsql_command_send(con, ATTACHSQL_COMMAND_STMT_RESET, NULL, 0) == ATTACHSQL_COMMAND_STATUS_SEND_FAILED)
+  {
+    attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_SERVER_GONE, ATTACHSQL_ERROR_LEVEL_ERROR, "08006", con->errmsg);
+    return false;
+  }
+
+  return true;
 }
-
-attachsql_command_status_t attachsql_stmt_send_long_data(attachsql_stmt_st *stmt, uint16_t param, size_t length, char *data)
-{
-  stmt->con->write_buffer_extra= 6;
-  attachsql_pack_int4(&stmt->con->write_buffer[1], stmt->id);
-  attachsql_pack_int2(&stmt->con->write_buffer[5], param);
-
-  return attachsql_command_send(stmt->con, ATTACHSQL_COMMAND_STMT_SEND_LONG_DATA, data, length);
-}
-
 

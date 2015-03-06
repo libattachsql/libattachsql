@@ -16,81 +16,9 @@
  */
 
 #include "config.h"
-#include "src/asql/common.h"
-#include "src/ascore/ascore.h"
-#include "src/ascore/statement.h"
-#include "src/asql/statement_internal.h"
-
-bool attachsql_statement_prepare(attachsql_connect_t *con, size_t length, const char *statement, attachsql_error_t **error)
-{
-  if (con->status == ATTACHSQL_CON_STATUS_NOT_CONNECTED)
-  {
-    con->query_buffer= (char*)statement;
-    con->query_buffer_length= length;
-    con->query_buffer_alloc= false;
-    con->query_buffer_statement= true;
-    return attachsql_connect(con, error);
-  }
-  con->stmt= attachsql_stmt_prepare(con, length, statement);
-  if (con->stmt == NULL)
-  {
-    attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_ALLOC, ATTACHSQL_ERROR_LEVEL_ERROR, "82100", "Allocation failure for statement object");
-    return false;
-  }
-  return true;
-}
-
-bool attachsql_statement_execute(attachsql_connect_t *con, attachsql_error_t **error)
-{
-  if (con == NULL)
-  {
-    attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "No connection provided");
-    return false;
-  }
-  if (con->stmt == NULL)
-  {
-    attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "No statement prepared");
-    return false;
-  }
-  /* Free anything left over from last exec */
-  attachsql_command_free(con);
-  if (not attachsql_stmt_execute(con->stmt))
-  {
-    if (con->local_errcode == ASRET_BAD_STMT_PARAMETER)
-    {
-      attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Bad parameter bound to statement");
-      return false;
-    }
-    else
-    {
-      attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_ALLOC, ATTACHSQL_ERROR_LEVEL_ERROR, "82100", "Allocation failure for statement object");
-      return false;
-    }
-  }
-  return true;
-}
-
-bool attachsql_statement_reset(attachsql_connect_t *con, attachsql_error_t **error)
-{
-  if (con == NULL)
-  {
-    attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "No connection provided");
-    return false;
-  }
-  if (con->stmt == NULL)
-  {
-    attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "No statement prepared");
-    return false;
-  }
-
-  if (attachsql_stmt_reset(con->stmt) == ATTACHSQL_COMMAND_STATUS_SEND_FAILED)
-  {
-    attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_SERVER_GONE, ATTACHSQL_ERROR_LEVEL_ERROR, "08006", con->errmsg);
-    return false;
-  }
-
-  return true;
-}
+#include "common.h"
+#include "ascore.h"
+#include "statement.h"
 
 bool attachsql_statement_send_long_data(attachsql_connect_t *con, uint16_t param, size_t length, char *data, attachsql_error_t **error)
 {
@@ -104,8 +32,11 @@ bool attachsql_statement_send_long_data(attachsql_connect_t *con, uint16_t param
     attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "No statement prepared");
     return false;
   }
+  con->write_buffer_extra= 6;
+  attachsql_pack_int4(&con->write_buffer[1], con->stmt->id);
+  attachsql_pack_int2(&con->write_buffer[5], param);
 
-  if (attachsql_stmt_send_long_data(con->stmt, param, length, data) == ATTACHSQL_COMMAND_STATUS_SEND_FAILED)
+  if (attachsql_command_send(con, ATTACHSQL_COMMAND_STMT_SEND_LONG_DATA, data, length) == ATTACHSQL_COMMAND_STATUS_SEND_FAILED)
   {
     attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_SERVER_GONE, ATTACHSQL_ERROR_LEVEL_ERROR, "08006", con->errmsg);
     return false;
@@ -934,22 +865,6 @@ char *attachsql_statement_get_char(attachsql_connect_t *con, uint16_t column, si
   }
   /* Should never hit here, but lets make compilers happy */
   return NULL;
-}
-
-void attachsql_statement_close(attachsql_connect_t *con)
-{
-  if (con == NULL)
-  {
-    return;
-  }
-
-  if (con->stmt_row != NULL)
-  {
-    delete[] con->stmt_row;
-  }
-  con->stmt_row= NULL;
-  attachsql_stmt_destroy(con->stmt);
-  con->stmt= NULL;
 }
 
 attachsql_column_type_t attachsql_statement_get_column_type(attachsql_connect_t *con, uint16_t column)
