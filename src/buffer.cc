@@ -62,11 +62,11 @@ size_t attachsql_buffer_get_available(buffer_st *buffer)
   return buffer->buffer_size - ((size_t)(buffer->buffer_read_ptr - buffer->buffer) + buffer->buffer_used);
 }
 
-asret_t attachsql_buffer_increase(buffer_st *buffer)
+attachsql_ret_t attachsql_buffer_increase(buffer_st *buffer)
 {
   if (buffer == NULL)
   {
-    return ASRET_PARAMETER_ERROR;
+    return ATTACHSQL_RET_PARAMETER_ERROR;
   }
 
   size_t buffer_available= attachsql_buffer_get_available(buffer);
@@ -97,7 +97,7 @@ asret_t attachsql_buffer_increase(buffer_st *buffer)
     char *realloc_buffer= (char*)realloc(buffer->buffer, new_size);
     if (realloc_buffer == NULL)
     {
-      return ASRET_OUT_OF_MEMORY_ERROR;
+      return ATTACHSQL_RET_OUT_OF_MEMORY_ERROR;
     }
     buffer->buffer_size= new_size;
     buffer->buffer= realloc_buffer;
@@ -107,7 +107,7 @@ asret_t attachsql_buffer_increase(buffer_st *buffer)
     buffer->packet_end_ptr= realloc_buffer + packet_end_size;
   }
 
-  return ASRET_OK;
+  return ATTACHSQL_RET_OK;
 }
 
 /* Moves the write pointer and returns the amount of unread data in the buffer */

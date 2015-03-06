@@ -43,7 +43,7 @@ void attachsql_packet_read_handshake(attachsql_connect_t *con);
 
 uv_buf_t on_alloc(uv_handle_t *client, size_t suggested_size);
 
-asret_t scramble_password(attachsql_connect_t *con, unsigned char *buffer);
+attachsql_ret_t scramble_password(attachsql_connect_t *con, unsigned char *buffer);
 
 void attachsql_handshake_response(attachsql_connect_t *con);
 

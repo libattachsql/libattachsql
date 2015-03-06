@@ -17,7 +17,7 @@
 
 #include <yatl/lite.h>
 #include "version.h"
-#include <libattachsql-2.0/attachsql.h>
+#include <libattachsql2/attachsql.h>
 
 int main(int argc, char *argv[])
 {
@@ -25,43 +25,38 @@ int main(int argc, char *argv[])
   (void) argv;
   attachsql_connect_t *con;
   attachsql_error_t *error= NULL;
-  const char *data= "SHOW PROCESSLIST";
+  const char *data= "SELECT * FROM NO_SUCH_TABLE";
   attachsql_return_t aret= ATTACHSQL_RETURN_NONE;
-  uint16_t columns;
+  attachsql_query_row_st *row;
+  uint16_t columns, col;
 
   con= attachsql_connect_create("localhost", 3306, "test", "test", "", NULL);
-  attachsql_statement_prepare(con, strlen(data), data, &error);
-  ASSERT_FALSE_(error, "Statement creation error");
-  while(aret != ATTACHSQL_RETURN_EOF)
-  {
-    aret= attachsql_connect_poll(con, &error);
-    if (error && (attachsql_error_code(error) == 2002))
-    {
-      SKIP_IF_(true, "No MYSQL server");
-    }
-    else if (error)
-    {
-      ASSERT_FALSE_(true, "Error exists: %d", attachsql_error_code(error));
-    }
-  }
-
-  attachsql_statement_execute(con, &error);
-  aret= ATTACHSQL_RETURN_NONE;
+  attachsql_query(con, strlen(data), data, 0, NULL, &error);
   while(aret != ATTACHSQL_RETURN_EOF)
   {
     aret= attachsql_connect_poll(con, &error);
     if (aret == ATTACHSQL_RETURN_ROW_READY)
     {
+      row= attachsql_query_row_get(con, &error);
       columns= attachsql_query_column_count(con);
-      attachsql_statement_row_get(con, &error);
-      printf("Got %d columns\n", columns);
-      attachsql_statement_row_next(con);
+      for (col=0; col < columns; col++)
+      {
+        printf("Column: %d, Length: %zu, Data: %.*s ", col, row[col].length, (int)row[col].length, row[col].data);
+      }
+      attachsql_query_row_next(con);
+      printf("\n");
     }
-    if (error)
+    else if (aret == ATTACHSQL_RETURN_ERROR)
     {
-      ASSERT_FALSE_(true, "Error exists: %d", attachsql_error_code(error));
+      break;
     }
   }
-  attachsql_statement_close(con);
+  SKIP_IF_((attachsql_error_code(error) == 2002), "No MySQL server");
+  ASSERT_EQ_(ATTACHSQL_RETURN_ERROR, aret, "Query should have error'd");
+  ASSERT_EQ_(1046, attachsql_error_code(error), "Error code is wrong");
+  ASSERT_STREQL_("3D000", attachsql_error_sqlstate(error), 5, "SQLSTATE is wrong");
+  ASSERT_STREQ_("No database selected", attachsql_error_message(error), "Message is wrong");
+  attachsql_error_free(error);
+  attachsql_query_close(con);
   attachsql_connect_destroy(con);
 }

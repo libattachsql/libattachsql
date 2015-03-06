@@ -8,17 +8,17 @@ Layout
 
 The code for libAttachSQL in several parts:
 
-+-----------------------+--------------------------------------+
-| Directory             | Contents                             |
-+=======================+======================================+
-| ``/src/ascore``       | The core internal protocol functions |
-+-----------------------+--------------------------------------+
-| ``/src/asql``         | The public API functions             |
-+-----------------------+--------------------------------------+
-| ``/libattachsql-1.0`` | The public API headers               |
-+-----------------------+--------------------------------------+
-| ``/tests/asql``       | Unit tests for the public API        |
-+-----------------------+--------------------------------------+
++--------------------+-------------------------------+
+| Directory          | Contents                      |
++====================+===============================+
+| ``/src``           | The API source code           |
++--------------------+-------------------------------+
+| ``/libattachsql2`` | The public API headers        |
++--------------------+-------------------------------+
+| ``/tests/asql``    | Unit tests for the public API |
++--------------------+-------------------------------+
+| ``/examples``      | Usage examples for the API    |
++--------------------+-------------------------------+
 
 In each case if any files are added or removed the ``include.am`` file in that directory will require updating to reflect the change.
 
@@ -62,7 +62,7 @@ Function Visibility
 
 The code and build system only exposes public API functions as usable symbols in the finished binary.  This cuts down on binary size quite significantly and also discourages use of undocumented functionality that was not designed for public use.
 
-When adding a new API function to ``/libattachsql-1.0`` always add ``ASQL_API`` on its own on the line above the function definition in the header.  This tells the build system this is an API function to be included.
+When adding a new API function to ``/libattachsql2`` always add ``ASQL_API`` on its own on the line above the function definition in the header.  This tells the build system this is an API function to be included.
 
 License Headers
 ---------------

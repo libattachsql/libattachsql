@@ -17,7 +17,7 @@
 
 #include <yatl/lite.h>
 #include "version.h"
-#include <libattachsql-2.0/attachsql.h>
+#include <libattachsql2/attachsql.h>
 
 int main(int argc, char *argv[])
 {
@@ -25,22 +25,17 @@ int main(int argc, char *argv[])
   (void) argv;
   attachsql_connect_t *con;
   attachsql_error_t *error= NULL;
-  const char *data= "SET SESSION sql_mode='NO_BACKSLASH_ESCAPES'";
-  const char *data2= "SELECT ? as a";
+  const char *data= "SHOW PROCESSLIST";
   attachsql_return_t aret= ATTACHSQL_RETURN_NONE;
   attachsql_query_row_st *row;
-  attachsql_query_parameter_st param[1];
-  uint16_t columns;
+  uint16_t columns, col;
 
   con= attachsql_connect_create("localhost", 3306, "test", "test", "", NULL);
+  attachsql_query_buffer_rows(con, true);
   attachsql_query(con, strlen(data), data, 0, NULL, &error);
   while(aret != ATTACHSQL_RETURN_EOF)
   {
     aret= attachsql_connect_poll(con, &error);
-    if (aret == ATTACHSQL_RETURN_ROW_READY)
-    {
-      attachsql_query_row_next(con);
-    }
     if (error && (attachsql_error_code(error) == 2002))
     {
       SKIP_IF_(true, "No MYSQL server");
@@ -50,27 +45,17 @@ int main(int argc, char *argv[])
       ASSERT_FALSE_(true, "Error exists: %d", attachsql_error_code(error));
     }
   }
-  attachsql_query_close(con);
-  const char *td= "te'st\n";
-  param[0].type= ATTACHSQL_ESCAPE_TYPE_CHAR;
-  param[0].data= (char*)td;
-  param[0].length= strlen(td);
-  attachsql_query(con, strlen(data2), data2, 1, param, &error);
-  ASSERT_NULL_(error, "Error not NULL");
-  aret= ATTACHSQL_RETURN_NONE;
-  while(aret != ATTACHSQL_RETURN_EOF)
+  columns= attachsql_query_column_count(con);
+  ASSERT_TRUE(attachsql_query_row_count(con) > 0);
+  while((row= attachsql_query_buffer_row_get(con)))
   {
-    aret= attachsql_connect_poll(con, &error);
-    if (aret == ATTACHSQL_RETURN_ROW_READY)
+    for (col=0; col < columns; col++)
     {
-      row= attachsql_query_row_get(con, &error);
-      columns= attachsql_query_column_count(con);
-      ASSERT_EQ_(1, columns, "Column count unexpected");
-      ASSERT_STREQL_("te'st\n", row[0].data, 4, "Bad row data");
-      attachsql_query_row_next(con);
-      printf("\n");
+      printf("Column: %d, Length: %zu, Data: %.*s ", col, row[col].length, (int)row[col].length, row[col].data);
     }
+    printf("\n");
   }
+
   attachsql_query_close(con);
   attachsql_connect_destroy(con);
 }

@@ -17,7 +17,7 @@
 
 #include <yatl/lite.h>
 #include "version.h"
-#include <libattachsql-2.0/attachsql.h>
+#include <libattachsql2/attachsql.h>
 
 void cycle_query(attachsql_connect_t *con)
 {

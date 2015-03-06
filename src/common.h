@@ -27,7 +27,7 @@
 #include "pack.h"
 #include "constants.h"
 #include "structs.h"
-#include <libattachsql-2.0/attachsql.h>
+#include <libattachsql2/attachsql.h>
 #include "error_internal.h"
 #include <new>
 #include <uv.h>

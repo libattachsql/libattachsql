@@ -54,7 +54,7 @@ attachsql_command_status_t attachsql_command_send(attachsql_connect_t *con, atta
   con->server_errno= 0;
 
   asdebug("Sending command 0x%02X to server", command);
-  con->local_errcode= ASRET_OK;
+  con->local_errcode= ATTACHSQL_RET_OK;
   con->errmsg[0]= '\0';
 
   attachsql_pack_int3(con->packet_header, length + 1 + con->write_buffer_extra);
@@ -109,11 +109,11 @@ attachsql_command_status_t attachsql_command_send(attachsql_connect_t *con, atta
   }
   if (ret != 0)
   {
-    con->local_errcode= ASRET_NET_WRITE_ERROR;
+    con->local_errcode= ATTACHSQL_RET_NET_WRITE_ERROR;
     asdebug("Write fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
     con->command_status= ATTACHSQL_COMMAND_STATUS_SEND_FAILED;
     con->next_packet_queue_used= 0;
-    con->local_errcode= ASRET_NET_WRITE_ERROR;
+    con->local_errcode= ATTACHSQL_RET_NET_WRITE_ERROR;
     snprintf(con->errmsg, ATTACHSQL_ERROR_BUFFER_SIZE, "Query send failed: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
     return con->command_status;
   }

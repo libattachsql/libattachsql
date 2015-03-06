@@ -17,7 +17,7 @@
 
 #include <yatl/lite.h>
 #include "version.h"
-#include <libattachsql-2.0/attachsql.h>
+#include <libattachsql2/attachsql.h>
 
 int main(int argc, char *argv[])
 {
@@ -31,6 +31,7 @@ int main(int argc, char *argv[])
   uint16_t columns;
 
   con= attachsql_connect_create("localhost", 3306, "test", "test", "", NULL);
+  attachsql_connect_set_option(con, ATTACHSQL_OPTION_SEMI_BLOCKING, NULL);
   attachsql_statement_prepare(con, strlen(data), data, &error);
   ASSERT_FALSE_(error, "Statement creation error");
   while(aret != ATTACHSQL_RETURN_EOF)

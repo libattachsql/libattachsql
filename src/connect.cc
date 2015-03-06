@@ -42,7 +42,7 @@ attachsql_connect_t *attachsql_connect_create(const char *host, in_port_t port, 
   con->port= port;
   if ((user == NULL) or (strlen(user) > ATTACHSQL_MAX_USER_SIZE))
   {
-    con->local_errcode= ASRET_USER_TOO_LONG;
+    con->local_errcode= ATTACHSQL_RET_USER_TOO_LONG;
     con->status= ATTACHSQL_CON_STATUS_PARAMETER_ERROR;
     attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "User name too long");
     attachsql_connect_destroy(con);
@@ -54,7 +54,7 @@ attachsql_connect_t *attachsql_connect_create(const char *host, in_port_t port, 
   con->pass= pass;
   if ((schema == NULL) or (strlen(schema) > ATTACHSQL_MAX_SCHEMA_SIZE))
   {
-    con->local_errcode= ASRET_SCHEMA_TOO_LONG;
+    con->local_errcode= ATTACHSQL_RET_SCHEMA_TOO_LONG;
     con->status= ATTACHSQL_CON_STATUS_PARAMETER_ERROR;
     attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Schema too long");
     attachsql_connect_destroy(con);
@@ -150,7 +150,7 @@ void on_resolved(uv_getaddrinfo_t *resolver, int status, struct addrinfo *res)
   {
     asdebug("DNS lookup failure: %s", uv_err_name(uv_last_error(resolver->loop)));
     con->status= ATTACHSQL_CON_STATUS_CONNECT_FAILED;
-    con->local_errcode= ASRET_DNS_ERROR;
+    con->local_errcode= ATTACHSQL_RET_DNS_ERROR;
     snprintf(con->errmsg, ATTACHSQL_ERROR_BUFFER_SIZE, "DNS lookup failure: %s", uv_err_name(uv_last_error(resolver->loop)));
     return;
   }
@@ -224,7 +224,7 @@ attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_er
       return ATTACHSQL_RETURN_CONNECTING;
       break;
     case ATTACHSQL_CON_STATUS_CONNECT_FAILED:
-      if (con->local_errcode == ASRET_DNS_ERROR)
+      if (con->local_errcode == ATTACHSQL_RET_DNS_ERROR)
       {
         attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_HOST_UNKNOWN, ATTACHSQL_ERROR_LEVEL_ERROR, "08000", con->errmsg);
       }
@@ -364,7 +364,7 @@ attachsql_con_status_t attachsql_do_connect(attachsql_connect_t *con)
   if (con->uv_objects.loop == NULL)
   {
     asdebug("Loop initalize failure");
-    con->local_errcode= ASRET_OUT_OF_MEMORY_ERROR;
+    con->local_errcode= ATTACHSQL_RET_OUT_OF_MEMORY_ERROR;
     snprintf(con->errmsg, ATTACHSQL_ERROR_BUFFER_SIZE, "Loop initialization failure, either out of memory or out of file descripitors (usually the latter)");
     con->status= ATTACHSQL_CON_STATUS_CONNECT_FAILED;
     return con->status;
@@ -394,7 +394,7 @@ attachsql_con_status_t attachsql_do_connect(attachsql_connect_t *con)
       if (ret)
       {
         asdebug("DNS lookup fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
-        con->local_errcode= ASRET_DNS_ERROR;
+        con->local_errcode= ATTACHSQL_RET_DNS_ERROR;
         snprintf(con->errmsg, ATTACHSQL_ERROR_BUFFER_SIZE, "DNS lookup failure: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
         con->status= ATTACHSQL_CON_STATUS_CONNECT_FAILED;
         return con->status;
@@ -465,7 +465,7 @@ bool attachsql_connect(attachsql_connect_t *con, attachsql_error_t **error)
       return true;
       break;
     case ATTACHSQL_CON_STATUS_CONNECT_FAILED:
-      if (con->local_errcode == ASRET_DNS_ERROR)
+      if (con->local_errcode == ATTACHSQL_RET_DNS_ERROR)
       {
         attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_HOST_UNKNOWN, ATTACHSQL_ERROR_LEVEL_ERROR, "08000", con->errmsg);
       }
@@ -585,7 +585,7 @@ void on_connect(uv_connect_t *req, int status)
   if (status != 0)
   {
     asdebug("Connect fail: %s", uv_err_name(uv_last_error(req->handle->loop)));
-    con->local_errcode= ASRET_CONNECT_ERROR;
+    con->local_errcode= ATTACHSQL_RET_CONNECT_ERROR;
     con->status= ATTACHSQL_CON_STATUS_CONNECT_FAILED;
     snprintf(con->errmsg, ATTACHSQL_ERROR_BUFFER_SIZE, "Connection failed: %s", uv_err_name(uv_last_error(req->handle->loop)));
     return;
@@ -618,7 +618,7 @@ uv_buf_t on_alloc(uv_handle_t *client, size_t suggested_size)
     }
     else
     {
-      con->local_errcode= ASRET_OUT_OF_MEMORY_ERROR;
+      con->local_errcode= ATTACHSQL_RET_OUT_OF_MEMORY_ERROR;
       asdebug("SSL buffer realloc failure");
       con->command_status= ATTACHSQL_COMMAND_STATUS_SEND_FAILED;
       con->next_packet_queue_used= 0;
@@ -692,7 +692,7 @@ void attachsql_packet_read_handshake(attachsql_connect_t *con)
   {
     // Note that 255 is a special immediate auth fail case
     asdebug("Bad protocol version");
-    con->local_errcode= ASRET_BAD_PROTOCOL;
+    con->local_errcode= ATTACHSQL_RET_BAD_PROTOCOL;
     snprintf(con->errmsg, ATTACHSQL_ERROR_BUFFER_SIZE, "Incompatible protocol version");
     return;
   }
@@ -718,7 +718,7 @@ void attachsql_packet_read_handshake(attachsql_connect_t *con)
   if (not (con->server_capabilities & ATTACHSQL_CAPABILITY_PROTOCOL_41))
   {
     asdebug("MySQL <4.1 Auth not supported");
-    con->local_errcode= ASRET_NO_OLD_AUTH;
+    con->local_errcode= ATTACHSQL_RET_NO_OLD_AUTH;
     snprintf(con->errmsg, ATTACHSQL_ERROR_BUFFER_SIZE, "MySQL 4.1 protocol and higher required");
   }
 
@@ -758,7 +758,7 @@ void attachsql_handshake_response(attachsql_connect_t *con)
     if (not (con->server_capabilities & ATTACHSQL_CAPABILITY_SSL))
     {
       asdebug("SSL disabled on server");
-      con->local_errcode= ASRET_NET_SSL_ERROR;
+      con->local_errcode= ATTACHSQL_RET_NET_SSL_ERROR;
       snprintf(con->errmsg, ATTACHSQL_ERROR_BUFFER_SIZE, "SSL auth not supported enabled on server");
       con->command_status= ATTACHSQL_COMMAND_STATUS_SEND_FAILED;
       con->next_packet_queue_used= 0;
@@ -819,14 +819,14 @@ void attachsql_handshake_response(attachsql_connect_t *con)
   // TODO: add support for password plugins
   if (con->pass[0] != '\0')
   {
-    asret_t ret;
+    attachsql_ret_t ret;
     buffer_ptr[0]= SHA1_DIGEST_LENGTH; // probably should use char packing?
     buffer_ptr++;
     ret= scramble_password(con, (unsigned char*)buffer_ptr);
-    if (ret != ASRET_OK)
+    if (ret != ATTACHSQL_RET_OK)
     {
       asdebug("Scramble problem!");
-      con->local_errcode= ASRET_BAD_SCRAMBLE;
+      con->local_errcode= ATTACHSQL_RET_BAD_SCRAMBLE;
       return;
     }
     buffer_ptr+= SHA1_DIGEST_LENGTH;
@@ -848,7 +848,7 @@ void attachsql_handshake_response(attachsql_connect_t *con)
   attachsql_packet_queue_push(con, ATTACHSQL_PACKET_TYPE_RESPONSE);
 }
 
-asret_t scramble_password(attachsql_connect_t *con, unsigned char *buffer)
+attachsql_ret_t scramble_password(attachsql_connect_t *con, unsigned char *buffer)
 {
   SHA1_CTX ctx;
   unsigned char stage1[SHA1_DIGEST_LENGTH];
@@ -858,7 +858,7 @@ asret_t scramble_password(attachsql_connect_t *con, unsigned char *buffer)
   if (con->scramble_buffer[0] == '\0')
   {
     asdebug("No scramble supplied from server");
-    return ASRET_NO_SCRAMBLE;
+    return ATTACHSQL_RET_NO_SCRAMBLE;
   }
 
   // Double hash the password
@@ -881,7 +881,7 @@ asret_t scramble_password(attachsql_connect_t *con, unsigned char *buffer)
     buffer[it]= buffer[it] ^ stage1[it];
   }
 
-  return ASRET_OK;
+  return ATTACHSQL_RET_OK;
 }
 
 void attachsql_connect_set_callback(attachsql_connect_t *con, attachsql_callback_fn *function, void *context)

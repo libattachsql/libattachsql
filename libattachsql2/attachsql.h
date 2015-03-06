@@ -5,7 +5,7 @@
  * not use this file except in compliance with the License. You may obtain 
  * a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE2
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
@@ -30,13 +30,13 @@ typedef uint16_t in_port_t;
 #endif
 
 /* These four need to go first, in this order */
-#include <libattachsql-2.0/visibility.h>
-#include <libattachsql-2.0/constants.h>
-#include <libattachsql-2.0/structs.h>
-#include <libattachsql-2.0/error.h>
+#include <libattachsql2/visibility.h>
+#include <libattachsql2/constants.h>
+#include <libattachsql2/structs.h>
+#include <libattachsql2/error.h>
 
-#include <libattachsql-2.0/connect.h>
-#include <libattachsql-2.0/pool.h>
-#include <libattachsql-2.0/query.h>
-#include <libattachsql-2.0/statement.h>
-#include <libattachsql-2.0/utility.h>
+#include <libattachsql2/connect.h>
+#include <libattachsql2/pool.h>
+#include <libattachsql2/query.h>
+#include <libattachsql2/statement.h>
+#include <libattachsql2/utility.h>

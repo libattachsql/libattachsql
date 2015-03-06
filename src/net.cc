@@ -74,7 +74,7 @@ void attachsql_ssl_data_check(attachsql_connect_t *con)
         int error= SSL_get_error(con->ssl.ssl, r);
         if (error != SSL_ERROR_WANT_READ)
         {
-          con->local_errcode= ASRET_NET_SSL_ERROR;
+          con->local_errcode= ATTACHSQL_RET_NET_SSL_ERROR;
           asdebug("SSL write fail: %d", error);
           con->command_status= ATTACHSQL_COMMAND_STATUS_SEND_FAILED;
           con->next_packet_queue_used= 0;
@@ -99,7 +99,7 @@ void attachsql_ssl_data_check(attachsql_connect_t *con)
     uv_write_t *req= new (std::nothrow) uv_write_t;
     if (uv_write(req, con->uv_objects.stream, send_buffer, 1, on_write) != 0)
     {
-      con->local_errcode= ASRET_NET_WRITE_ERROR;
+      con->local_errcode= ATTACHSQL_RET_NET_WRITE_ERROR;
       asdebug("Write fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
       con->command_status= ATTACHSQL_COMMAND_STATUS_SEND_FAILED;
       con->next_packet_queue_used= 0;
@@ -116,7 +116,7 @@ void attachsql_ssl_handle_error(attachsql_connect_t *con, int result)
   }
   else
   {
-    con->local_errcode= ASRET_NET_SSL_ERROR;
+    con->local_errcode= ATTACHSQL_RET_NET_SSL_ERROR;
     unsigned long errcode= ERR_get_error();
     asdebug("SSL fail: %d, %s", error, ERR_error_string(errcode, NULL));
     con->status= ATTACHSQL_CON_STATUS_SSL_ERROR;
@@ -208,7 +208,7 @@ void attachsql_send_data(attachsql_connect_t *con, char *data, size_t length)
   }
   if (r != 0)
   {
-      con->local_errcode= ASRET_NET_WRITE_ERROR;
+      con->local_errcode= ATTACHSQL_RET_NET_WRITE_ERROR;
       asdebug("Write fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
       con->command_status= ATTACHSQL_COMMAND_STATUS_SEND_FAILED;
       con->next_packet_queue_used= 0;
@@ -240,7 +240,7 @@ void attachsql_send_compressed_packet(attachsql_connect_t *con, char *data, size
     realloc_buffer= (char*)realloc(con->uncompressed_buffer, new_size);
     if (realloc_buffer == NULL)
     {
-      con->local_errcode= ASRET_OUT_OF_MEMORY_ERROR;
+      con->local_errcode= ATTACHSQL_RET_OUT_OF_MEMORY_ERROR;
       asdebug("Uncompressed buffer realloc failure");
       con->command_status= ATTACHSQL_COMMAND_STATUS_SEND_FAILED;
       con->next_packet_queue_used= 0;
@@ -280,7 +280,7 @@ void attachsql_send_compressed_packet(attachsql_connect_t *con, char *data, size
       realloc_buffer= (char*)realloc(con->compressed_buffer, new_size);
       if (realloc_buffer == NULL)
       {
-        con->local_errcode= ASRET_OUT_OF_MEMORY_ERROR;
+        con->local_errcode= ATTACHSQL_RET_OUT_OF_MEMORY_ERROR;
         asdebug("Compressed buffer realloc failure");
         con->command_status= ATTACHSQL_COMMAND_STATUS_SEND_FAILED;
         con->next_packet_queue_used= 0;
@@ -293,7 +293,7 @@ void attachsql_send_compressed_packet(attachsql_connect_t *con, char *data, size
     int res= compress((Bytef*)con->compressed_buffer, (uLongf*)&compressed_length, (Bytef*)con->uncompressed_buffer, (uLong)required_uncompressed);
     if ((res != Z_OK) || (con->uncompressed_buffer_len < compressed_length))
     {
-      con->local_errcode= ASRET_COMPRESSION_FAILURE;
+      con->local_errcode= ATTACHSQL_RET_COMPRESSION_FAILURE;
       asdebug("Compression failure");
       con->command_status= ATTACHSQL_COMMAND_STATUS_SEND_FAILED;
       con->next_packet_queue_used= 0;
@@ -338,7 +338,7 @@ void attachsql_send_compressed_packet(attachsql_connect_t *con, char *data, size
   }
   if (r != 0)
   {
-    con->local_errcode= ASRET_NET_WRITE_ERROR;
+    con->local_errcode= ATTACHSQL_RET_NET_WRITE_ERROR;
     asdebug("Write fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
     con->command_status= ATTACHSQL_COMMAND_STATUS_SEND_FAILED;
     con->next_packet_queue_used= 0;
@@ -358,7 +358,7 @@ void on_write(uv_write_t *req, int status)
   }
   if (status != 0)
   {
-    con->local_errcode= ASRET_NET_WRITE_ERROR;
+    con->local_errcode= ATTACHSQL_RET_NET_WRITE_ERROR;
     asdebug("Write fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
     con->command_status= ATTACHSQL_COMMAND_STATUS_SEND_FAILED;
     con->next_packet_queue_used= 0;
@@ -377,7 +377,7 @@ void attachsql_read_data_cb(uv_stream_t* tcp, ssize_t read_size, const uv_buf_t 
 
   if (read_size < 0)
   {
-    con->local_errcode= ASRET_NET_READ_ERROR;
+    con->local_errcode= ATTACHSQL_RET_NET_READ_ERROR;
     asdebug("Read fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
     con->command_status= ATTACHSQL_COMMAND_STATUS_READ_FAILED;
     con->next_packet_queue_used= 0;
@@ -461,7 +461,7 @@ bool attachsql_con_decompress_read_buffer(attachsql_connect_t *con)
   if (con->compressed_packet_number != con->read_buffer_compress->buffer_read_ptr[3])
   {
     asdebug("Compressed packet out of sequence!");
-    con->local_errcode= ASRET_PACKET_OUT_OF_SEQUENCE;
+    con->local_errcode= ATTACHSQL_RET_PACKET_OUT_OF_SEQUENCE;
     con->command_status= ATTACHSQL_COMMAND_STATUS_READ_FAILED;
     con->next_packet_queue_used= 0;
     return true;
@@ -499,7 +499,7 @@ bool attachsql_con_decompress_read_buffer(attachsql_connect_t *con)
     if (res != Z_OK)
     {
       asdebug("Decompression error: %d", res);
-      con->local_errcode= ASRET_COMPRESSION_FAILURE;
+      con->local_errcode= ATTACHSQL_RET_COMPRESSION_FAILURE;
       con->command_status= ATTACHSQL_COMMAND_STATUS_READ_FAILED;
       con->next_packet_queue_used= 0;
       return true;
@@ -566,7 +566,7 @@ bool attachsql_con_process_packets(attachsql_connect_t *con)
     if (con->packet_number != con->read_buffer->buffer_read_ptr[3])
     {
       asdebug("Packet out of sequence!");
-      con->local_errcode= ASRET_PACKET_OUT_OF_SEQUENCE;
+      con->local_errcode= ATTACHSQL_RET_PACKET_OUT_OF_SEQUENCE;
       con->command_status= ATTACHSQL_COMMAND_STATUS_READ_FAILED;
       con->next_packet_queue_used= 0;
       return true;

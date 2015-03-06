@@ -17,7 +17,7 @@
 
 #include <yatl/lite.h>
 #include "version.h"
-#include <libattachsql-2.0/attachsql.h>
+#include <libattachsql2/attachsql.h>
 
 bool done[3]= {false, false, false};
 
@@ -76,16 +76,12 @@ int main(int argc, char *argv[])
   con[0]= attachsql_connect_create("localhost", 3306, "test", "test", "", NULL);
   attachsql_pool_add_connection(pool, con[0], &error);
   attachsql_connect_set_callback(con[0], callbk, &con_no[0]);
-  bool compress= attachsql_connect_set_option(con[0], ATTACHSQL_OPTION_COMPRESS, NULL);
-  SKIP_IF_(!compress, "Not compiled with ZLib");
   con[1]= attachsql_connect_create("localhost", 3306, "test", "test", "", NULL);
   attachsql_pool_add_connection(pool, con[1], &error);
   attachsql_connect_set_callback(con[1], callbk, &con_no[1]);
-  attachsql_connect_set_option(con[1], ATTACHSQL_OPTION_COMPRESS, NULL);
   con[2]= attachsql_connect_create("localhost", 3306, "test", "test", "", NULL);
   attachsql_pool_add_connection(pool, con[2], &error);
   attachsql_connect_set_callback(con[2], callbk, &con_no[2]);
-  attachsql_connect_set_option(con[2], ATTACHSQL_OPTION_COMPRESS, NULL);
   attachsql_query(con[0], strlen(data), data, 0, NULL, &error);
   attachsql_query(con[1], strlen(data), data, 0, NULL, &error);
   attachsql_query(con[2], strlen(data), data, 0, NULL, &error);

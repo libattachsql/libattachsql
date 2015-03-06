@@ -19,7 +19,7 @@
 
 #include <stdint.h>
 
-#include <libattachsql-2.0/attachsql.h>
+#include <libattachsql2/attachsql.h>
 
 /* These two need to go first, in this order */
 #include "constants.h"

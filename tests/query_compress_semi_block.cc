@@ -17,7 +17,7 @@
 
 #include <yatl/lite.h>
 #include "version.h"
-#include <libattachsql-2.0/attachsql.h>
+#include <libattachsql2/attachsql.h>
 
 int main(int argc, char *argv[])
 {
@@ -32,14 +32,10 @@ int main(int argc, char *argv[])
   attachsql_query_parameter_st param[5];
   uint16_t columns, col;
 
-  attachsql_library_init();
   con= attachsql_connect_create("localhost", 3306, "test", "test", "", NULL);
-  attachsql_connect_set_ssl(con, "tests/ssl/client-key.pem", "tests/ssl/client-cert.pem", "tests/ssl/ca-cert.pem", NULL, NULL, false, &error);
-  if (error and (attachsql_error_code(error) == 3002))
-  {
-    SKIP_IF_(true, "SSL not supported");
-  }
-  SKIP_IF_(error, "SSL certs missing");
+  bool compress= attachsql_connect_set_option(con, ATTACHSQL_OPTION_COMPRESS, NULL);
+  SKIP_IF_(!compress, "Not compiled with ZLib");
+  attachsql_connect_set_option(con, ATTACHSQL_OPTION_SEMI_BLOCKING, NULL);
   attachsql_query(con, strlen(data), data, 0, NULL, &error);
   while(aret != ATTACHSQL_RETURN_EOF)
   {
@@ -57,11 +53,11 @@ int main(int argc, char *argv[])
     }
     if (error && (attachsql_error_code(error) == 2002))
     {
-      SKIP_IF_(true, "No MYSQL server, or MySQL doesn't support SSL");
+      SKIP_IF_(true, "No MYSQL server");
     }
     else if (error)
     {
-      ASSERT_FALSE_(true, "Error exists: %d, %s", attachsql_error_code(error), attachsql_error_message(error));
+      ASSERT_FALSE_(true, "Error exists: %d", attachsql_error_code(error));
     }
   }
   attachsql_query_close(con);

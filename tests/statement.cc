@@ -17,7 +17,7 @@
 
 #include <yatl/lite.h>
 #include "version.h"
-#include <libattachsql-2.0/attachsql.h>
+#include <libattachsql2/attachsql.h>
 
 int main(int argc, char *argv[])
 {
@@ -25,22 +25,43 @@ int main(int argc, char *argv[])
   (void) argv;
   attachsql_connect_t *con;
   attachsql_error_t *error= NULL;
+  const char *data= "SHOW PROCESSLIST";
   attachsql_return_t aret= ATTACHSQL_RETURN_NONE;
+  uint16_t columns;
 
   con= attachsql_connect_create("localhost", 3306, "test", "test", "", NULL);
-  attachsql_connect(con, &error);
-  while (aret != ATTACHSQL_RETURN_EOF)
+  attachsql_statement_prepare(con, strlen(data), data, &error);
+  ASSERT_FALSE_(error, "Statement creation error");
+  while(aret != ATTACHSQL_RETURN_EOF)
   {
     aret= attachsql_connect_poll(con, &error);
     if (error && (attachsql_error_code(error) == 2002))
     {
       SKIP_IF_(true, "No MYSQL server");
     }
-    else if (error != NULL)
+    else if (error)
     {
-      ASSERT_FALSE_(true, "Error exists: %s", attachsql_error_message(error));
+      ASSERT_FALSE_(true, "Error exists: %d", attachsql_error_code(error));
     }
   }
-  attachsql_query_close(con);
+
+  attachsql_statement_execute(con, &error);
+  aret= ATTACHSQL_RETURN_NONE;
+  while(aret != ATTACHSQL_RETURN_EOF)
+  {
+    aret= attachsql_connect_poll(con, &error);
+    if (aret == ATTACHSQL_RETURN_ROW_READY)
+    {
+      columns= attachsql_query_column_count(con);
+      attachsql_statement_row_get(con, &error);
+      printf("Got %d columns\n", columns);
+      attachsql_statement_row_next(con);
+    }
+    if (error)
+    {
+      ASSERT_FALSE_(true, "Error exists: %d", attachsql_error_code(error));
+    }
+  }
+  attachsql_statement_close(con);
   attachsql_connect_destroy(con);
 }

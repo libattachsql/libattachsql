@@ -32,7 +32,7 @@ typedef uint16_t in_port_t;
 #endif
 
 #include <uv.h>
-#include <libattachsql-2.0/attachsql.h>
+#include <libattachsql2/attachsql.h>
 
 #ifdef HAVE_OPENSSL
 # include <openssl/ssl.h>
@@ -201,7 +201,7 @@ struct attachsql_connect_t
 
   attachsql_con_status_t status;
   char errmsg[ATTACHSQL_ERROR_BUFFER_SIZE];
-  asret_t local_errcode;
+  attachsql_ret_t local_errcode;
   buffer_st *read_buffer;
   buffer_st *read_buffer_compress;
   char write_buffer[ATTACHSQL_WRITE_BUFFER_SIZE];
@@ -316,7 +316,7 @@ struct attachsql_connect_t
     pass(NULL),
     schema(NULL),
     status(ATTACHSQL_CON_STATUS_NOT_CONNECTED),
-    local_errcode(ASRET_OK),
+    local_errcode(ATTACHSQL_RET_OK),
     read_buffer(NULL),
     read_buffer_compress(NULL),
     write_buffer_extra(0),

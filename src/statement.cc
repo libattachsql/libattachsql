@@ -35,7 +35,7 @@ bool attachsql_statement_prepare(attachsql_connect_t *con, size_t length, const 
 
   if (con->stmt == NULL)
   {
-    con->local_errcode= ASRET_OUT_OF_MEMORY_ERROR;
+    con->local_errcode= ATTACHSQL_RET_OUT_OF_MEMORY_ERROR;
     con->command_status= ATTACHSQL_COMMAND_STATUS_SEND_FAILED;
     attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_ALLOC, ATTACHSQL_ERROR_LEVEL_ERROR, "82100", "Allocation failure for statement object");
     return false;
@@ -64,7 +64,7 @@ bool attachsql_statement_execute(attachsql_connect_t *con, attachsql_error_t **e
   attachsql_command_free(con);
   if (not attachsql_stmt_execute(con->stmt))
   {
-    if (con->local_errcode == ASRET_BAD_STMT_PARAMETER)
+    if (con->local_errcode == ATTACHSQL_RET_BAD_STMT_PARAMETER)
     {
       attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Bad parameter bound to statement");
       return false;
@@ -227,7 +227,7 @@ bool attachsql_stmt_execute(attachsql_stmt_st *stmt)
       case ATTACHSQL_COLUMN_TYPE_DECIMAL:
       case ATTACHSQL_COLUMN_TYPE_ERROR:
       default:
-        stmt->con->local_errcode= ASRET_BAD_STMT_PARAMETER;
+        stmt->con->local_errcode= ATTACHSQL_RET_BAD_STMT_PARAMETER;
         asdebug("Bad stmt parameter type provided: %d", param_data->type);
         stmt->con->command_status= ATTACHSQL_COMMAND_STATUS_SEND_FAILED;
         stmt->con->next_packet_queue_used= 0;
@@ -260,7 +260,7 @@ bool attachsql_stmt_check_buffer_size(attachsql_stmt_st *stmt, size_t required)
     realloc_buffer= (char*)realloc(stmt->exec_buffer, new_size);
     if (realloc_buffer == NULL)
     {
-      stmt->con->local_errcode= ASRET_OUT_OF_MEMORY_ERROR;
+      stmt->con->local_errcode= ATTACHSQL_RET_OUT_OF_MEMORY_ERROR;
       asdebug("Exec buffer realloc failure");
       stmt->con->command_status= ATTACHSQL_COMMAND_STATUS_SEND_FAILED;
       stmt->con->next_packet_queue_used= 0;

@@ -12,19 +12,19 @@ The ``.travis.yml`` file sets this up automatically for Travis CI test runs.
 Adding a Test Case
 ------------------
 
-Test cases are basic C/C++ applications in the ``tests/asql/`` directory.  To add a test case to the suite.  To add a test edit the ``include.am`` and add the following (replacing *query* with whatever the test is called):
+Test cases are basic C/C++ applications in the ``tests/`` directory.  To add a test case to the suite.  To add a test edit the ``include.am`` and add the following (replacing *query* with whatever the test is called):
 
 .. code-block:: makefile
 
-   t_asql_query_SOURCES= tests/asql/query.cc
-   t_asql_query_LDADD= src/asql/libattachsql.la
+   t_query_SOURCES= tests/query.cc
+   t_query_LDADD= src/libattachsql.la
    if BUILD_WIN32
-   t_asql_query_LDADD+= -lws2_32
-   t_asql_query_LDADD+= -lpsapi
-   t_asql_query_LDADD+= -liphlpapi
+   t_query_LDADD+= -lws2_32
+   t_query_LDADD+= -lpsapi
+   t_query_LDADD+= -liphlpapi
    endif
-   check_PROGRAMS+= t/asql/query
-   noinst_PROGRAMS+= t/asql/query
+   check_PROGRAMS+= t/query
+   noinst_PROGRAMS+= t/query
 
 
 Using YATL
