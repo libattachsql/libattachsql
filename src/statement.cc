@@ -283,11 +283,12 @@ attachsql_command_status_t attachsql_stmt_fetch(attachsql_stmt_st *stmt)
 
 void attachsql_statement_close(attachsql_connect_t *con)
 {
-  attachsql_stmt_st *stmt= con->stmt;
   if (con == NULL)
   {
     return;
   }
+
+  attachsql_stmt_st *stmt= con->stmt;
 
   if (con->stmt_row != NULL)
   {
