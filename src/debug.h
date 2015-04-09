@@ -24,16 +24,16 @@ extern "C" {
 #endif
 
 #if DEBUG
-#define asdebug(MSG, ...) fprintf(stderr, "[libattachcore] %s:%d " MSG "\n", __FILE__, __LINE__, ##__VA_ARGS__)
+#define asdebug(MSG, ...) fprintf(stderr, "[libattachsql] %s:%d " MSG "\n", __FILE__, __LINE__, ##__VA_ARGS__)
 #define asdebug_hex(DATA, LEN) do { \
   size_t hex_it; \
-  fprintf(stderr, "[libattachcore] %s:%d packet hex: ", __FILE__, __LINE__); \
+  fprintf(stderr, "[libattachsql] %s:%d packet hex: ", __FILE__, __LINE__); \
   for (hex_it = 0; hex_it < LEN ; hex_it++) \
   { \
     fprintf(stderr, "%02X ", (unsigned char)DATA[hex_it]); \
   } \
   fprintf(stderr, "\n"); \
-  fprintf(stderr, "[libattachcore] %s:%d printable packet data: ", __FILE__, __LINE__); \
+  fprintf(stderr, "[libattachsql] %s:%d printable packet data: ", __FILE__, __LINE__); \
   for (hex_it = 0; hex_it < LEN ; hex_it++) \
   { \
     if (((unsigned char)DATA[hex_it] < 0x32) or (((unsigned char)DATA[hex_it] > 0x7e))) \

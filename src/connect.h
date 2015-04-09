@@ -35,13 +35,15 @@ attachsql_con_status_t attachsql_do_connect(attachsql_connect_t *con);
 
 attachsql_con_status_t attachsql_do_poll(attachsql_connect_t *con);
 
+void loop_walk_cb(uv_handle_t *handle, void *arg);
+
 void on_resolved(uv_getaddrinfo_t *resolver, int status, struct addrinfo *res);
 
 void on_connect(uv_connect_t *req, int status);
 
 void attachsql_packet_read_handshake(attachsql_connect_t *con);
 
-uv_buf_t on_alloc(uv_handle_t *client, size_t suggested_size);
+void on_alloc(uv_handle_t *client, size_t suggested_size, uv_buf_t *buf);
 
 attachsql_ret_t scramble_password(attachsql_connect_t *con, unsigned char *buffer);
 
@@ -53,7 +55,7 @@ attachsql_return_t attachsql_connect_query(attachsql_connect_t *con, attachsql_e
 int attachsql_ssl_buffer_write(attachsql_connect_t *con, uv_buf_t *buf, int buf_len);
 #endif
 
-void attachsql_check_for_data_cb(uv_check_t *handle, int status);
+void attachsql_check_for_data_cb(uv_check_t *handle);
 
 #ifdef __cplusplus
 }

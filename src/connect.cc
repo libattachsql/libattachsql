@@ -125,20 +125,25 @@ void attachsql_connect_destroy(attachsql_connect_t *con)
   if ((con->uv_objects.stream != NULL) and (con->status != ATTACHSQL_CON_STATUS_NET_ERROR))
   {
     uv_check_stop(&con->uv_objects.check);
-    uv_close((uv_handle_t*)con->uv_objects.stream, NULL);
     if (not con->in_pool)
     {
+      uv_walk(con->uv_objects.loop, loop_walk_cb, NULL);
       uv_run(con->uv_objects.loop, UV_RUN_DEFAULT);
     }
   }
   if (not con->in_pool)
   {
-    if (con->uv_objects.loop != NULL)
-    {
-      uv_loop_delete(con->uv_objects.loop);
-    }
+    int ret= uv_loop_close(con->uv_objects.loop);
+    assert(ret == 0);
+    delete con->uv_objects.loop;
     delete con;
   }
+}
+
+void loop_walk_cb(uv_handle_t *handle, void *arg)
+{
+  (void) arg;
+  uv_close(handle, NULL);
 }
 
 void on_resolved(uv_getaddrinfo_t *resolver, int status, struct addrinfo *res)
@@ -146,12 +151,12 @@ void on_resolved(uv_getaddrinfo_t *resolver, int status, struct addrinfo *res)
   attachsql_connect_t *con= (attachsql_connect_t *)resolver->data;
 
   asdebug("Resolver callback");
-  if (status != 0)
+  if (status < 0)
   {
-    asdebug("DNS lookup failure: %s", uv_err_name(uv_last_error(resolver->loop)));
+    asdebug("DNS lookup failure: %s", uv_err_name(status));
     con->status= ATTACHSQL_CON_STATUS_CONNECT_FAILED;
     con->local_errcode= ATTACHSQL_RET_DNS_ERROR;
-    snprintf(con->errmsg, ATTACHSQL_ERROR_BUFFER_SIZE, "DNS lookup failure: %s", uv_err_name(uv_last_error(resolver->loop)));
+    snprintf(con->errmsg, ATTACHSQL_ERROR_BUFFER_SIZE, "DNS lookup failure: %s", uv_err_name(status));
     return;
   }
   char addr[17] = {'\0'};
@@ -161,7 +166,7 @@ void on_resolved(uv_getaddrinfo_t *resolver, int status, struct addrinfo *res)
   uv_tcp_init(resolver->loop, &con->uv_objects.socket.tcp);
   con->uv_objects.socket.tcp.data= con;
   con->uv_objects.connect_req.data= (void*) &con->uv_objects.socket.tcp;
-  uv_tcp_connect(&con->uv_objects.connect_req, &con->uv_objects.socket.tcp, *(struct sockaddr_in*) res->ai_addr, on_connect);
+  uv_tcp_connect(&con->uv_objects.connect_req, &con->uv_objects.socket.tcp, (const struct sockaddr*) res->ai_addr, on_connect);
 
   uv_freeaddrinfo(res);
 }
@@ -330,9 +335,8 @@ attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_er
   return ATTACHSQL_RETURN_ERROR;
 }
 
-void attachsql_check_for_data_cb(uv_check_t *handle, int status)
+void attachsql_check_for_data_cb(uv_check_t *handle)
 {
-  (void) status;
   asdebug("Check called");
   struct attachsql_connect_t *con= (struct attachsql_connect_t*)handle->data;
   attachsql_con_process_packets(con);
@@ -359,15 +363,16 @@ attachsql_con_status_t attachsql_do_connect(attachsql_connect_t *con)
 
   if (not con->in_pool)
   {
-    con->uv_objects.loop= uv_loop_new();
-  }
-  if (con->uv_objects.loop == NULL)
-  {
-    asdebug("Loop initalize failure");
-    con->local_errcode= ATTACHSQL_RET_OUT_OF_MEMORY_ERROR;
-    snprintf(con->errmsg, ATTACHSQL_ERROR_BUFFER_SIZE, "Loop initialization failure, either out of memory or out of file descripitors (usually the latter)");
-    con->status= ATTACHSQL_CON_STATUS_CONNECT_FAILED;
-    return con->status;
+    con->uv_objects.loop= new (std::nothrow) uv_loop_t;
+    ret= uv_loop_init(con->uv_objects.loop);
+    if (ret < 0)
+    {
+      asdebug("Loop initalize failure");
+      con->local_errcode= ATTACHSQL_RET_OUT_OF_MEMORY_ERROR;
+      snprintf(con->errmsg, ATTACHSQL_ERROR_BUFFER_SIZE, "Loop initialization failure, either out of memory or out of file descripitors (usually the latter)");
+      con->status= ATTACHSQL_CON_STATUS_CONNECT_FAILED;
+      return con->status;
+    }
   }
 
   snprintf(con->str_port, 6, "%d", con->port);
@@ -391,11 +396,11 @@ attachsql_con_status_t attachsql_do_connect(attachsql_connect_t *con)
       asdebug("Async DNS lookup: %s", con->host);
       con->uv_objects.resolver.data= con;
       ret= uv_getaddrinfo(con->uv_objects.loop, &con->uv_objects.resolver, on_resolved, con->host, con->str_port, &con->uv_objects.hints);
-      if (ret)
+      if (ret < 0)
       {
-        asdebug("DNS lookup fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
+        asdebug("DNS lookup fail: %s", uv_err_name(ret));
         con->local_errcode= ATTACHSQL_RET_DNS_ERROR;
-        snprintf(con->errmsg, ATTACHSQL_ERROR_BUFFER_SIZE, "DNS lookup failure: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
+        snprintf(con->errmsg, ATTACHSQL_ERROR_BUFFER_SIZE, "DNS lookup failure: %s", uv_err_name(ret));
         con->status= ATTACHSQL_CON_STATUS_CONNECT_FAILED;
         return con->status;
       }
@@ -582,12 +587,12 @@ void on_connect(uv_connect_t *req, int status)
 {
   attachsql_connect_t *con= (attachsql_connect_t*)req->handle->data;
   asdebug("Connect event callback");
-  if (status != 0)
+  if (status < 0)
   {
-    asdebug("Connect fail: %s", uv_err_name(uv_last_error(req->handle->loop)));
+    asdebug("Connect fail: %s", uv_err_name(status));
     con->local_errcode= ATTACHSQL_RET_CONNECT_ERROR;
     con->status= ATTACHSQL_CON_STATUS_CONNECT_FAILED;
-    snprintf(con->errmsg, ATTACHSQL_ERROR_BUFFER_SIZE, "Connection failed: %s", uv_err_name(uv_last_error(req->handle->loop)));
+    snprintf(con->errmsg, ATTACHSQL_ERROR_BUFFER_SIZE, "Connection failed: %s", uv_err_name(status));
     return;
   }
   asdebug("Connection succeeded!");
@@ -600,10 +605,9 @@ void on_connect(uv_connect_t *req, int status)
   uv_read_start((uv_stream_t*)req->data, on_alloc, attachsql_read_data_cb);
 }
 
-uv_buf_t on_alloc(uv_handle_t *client, size_t suggested_size)
+void on_alloc(uv_handle_t *client, size_t suggested_size, uv_buf_t *buf)
 {
   size_t buffer_free;
-  uv_buf_t buf;
   attachsql_connect_t *con= (attachsql_connect_t*) client->data;
 
 #ifdef HAVE_OPENSSL
@@ -642,8 +646,8 @@ uv_buf_t on_alloc(uv_handle_t *client, size_t suggested_size)
       attachsql_buffer_increase(con->read_buffer);
       buffer_free= attachsql_buffer_get_available(con->read_buffer);
     }
-    buf.base= con->read_buffer->buffer_write_ptr;
-    buf.len= buffer_free;
+    buf->base= con->read_buffer->buffer_write_ptr;
+    buf->len= buffer_free;
   }
   else
   {
@@ -661,19 +665,17 @@ uv_buf_t on_alloc(uv_handle_t *client, size_t suggested_size)
       attachsql_buffer_increase(con->read_buffer_compress);
       buffer_free= attachsql_buffer_get_available(con->read_buffer_compress);
     }
-    buf.base= con->read_buffer_compress->buffer_write_ptr;
-    buf.len= buffer_free;
+    buf->base= con->read_buffer_compress->buffer_write_ptr;
+    buf->len= buffer_free;
   }
 
 #ifdef HAVE_OPENSSL
   if (con->ssl.handshake_done)
   {
-    buf.base= con->ssl.bio_buffer;
-    buf.len= con->ssl.bio_buffer_size;
+    buf->base= con->ssl.bio_buffer;
+    buf->len= con->ssl.bio_buffer_size;
   }
 #endif
-
-  return buf;
 }
 
 void attachsql_packet_read_handshake(attachsql_connect_t *con)

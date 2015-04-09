@@ -27,7 +27,7 @@ void attachsql_send_data(attachsql_connect_t *con, char *data, size_t length);
 
 void on_write(uv_write_t *req, int status);
 
-void attachsql_read_data_cb(uv_stream_t* tcp, ssize_t read_size, const uv_buf_t buf);
+void attachsql_read_data_cb(uv_stream_t* tcp, ssize_t read_size, const uv_buf_t *buf);
 
 bool attachsql_con_process_packets(attachsql_connect_t *con);
 

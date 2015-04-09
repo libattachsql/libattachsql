@@ -7,11 +7,6 @@
 # Use and distribution licensed under the BSD license.  See
 # the COPYING file in this directory for full text.
 
-# These two needed for RHEL/CentOS 6
-m4_ifndef([m4_esyscmd_s], [m4_define([m4_chomp_all],[m4_format([[%.*s]], m4_bregexp(m4_translit([[$1]],[/],[/]),[/*$]), [$1])])] [m4_define([m4_esyscmd_s], [m4_chomp_all(m4_esyscmd([$1]))])])
-
-m4_ifndef([AS_VAR_COPY], [m4_define([AS_VAR_COPY], [AS_LITERAL_IF([$1[]$2], [$1=$$2],[eval $1=\$$2])])])
-
 AC_COPYRIGHT([2014 Hewlett-Packard Development Company, L.P.])
 #AC_REVISION([m4_esyscmd_s([git describe --always])])
 AC_PREREQ([2.63])
@@ -20,14 +15,20 @@ AC_PREREQ([2.63])
 # happen in src/asql/utility.cc
 AC_INIT([libattachsql],m4_esyscmd_s([tr -d '\n' < VERSION]),[andrew@linuxjedi.co.uk],[libattachsql],[http://libattachsql.org])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
-# Setup the compilers early on
-AC_PROG_CC([cc gcc clang])
-AC_PROG_CXX([c++ g++ clang++])
 
 # Must come before AM_INIT_AUTOMAKE.
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CANONICAL_HOST
 AC_CONFIG_MACRO_DIR([m4])
+
+# Setup the compilers early on
+AC_PROG_CC([cc gcc clang])
+AC_PROG_CXX([c++ g++ clang++])
+
+# These two needed for RHEL/CentOS 6
+m4_ifndef([m4_esyscmd_s], [m4_define([m4_chomp_all],[m4_format([[%.*s]], m4_bregexp(m4_translit([[$1]],[/],[/]),[/*$]), [$1])])] [m4_define([m4_esyscmd_s], [m4_chomp_all(m4_esyscmd([$1]))])])
+
+m4_ifndef([AS_VAR_COPY], [m4_define([AS_VAR_COPY], [AS_LITERAL_IF([$1[]$2], [$1=$$2],[eval $1=\$$2])])])
 
 # Automake version before 1.13 (when the serial-tests option was dnl still the default) still defined the badly obsolete macro.  'AC_PROG_INSTALL'.
 AM_INIT_AUTOMAKE(1.11 no-define color-tests -Wno-portability subdir-objects foreign tar-ustar m4_ifndef([AC_PROG_INSTALL], [serial-tests]))
@@ -116,13 +117,21 @@ AX_PRINTF_STRERROR
 
 AX_PTHREAD_TIMEDJOIN_NP
 
-AX_CHECK_LIBRARY([LIBUV], [uv.h], [uv], [], [AC_MSG_ERROR(could not find libuv)])
-AX_CHECK_LIBRARY([ZLIB], [zlib.h], [z], [], [AC_MSG_WARN(could not find zlib)])
-AX_CHECK_OPENSSL([ax_cv_openssl=yes
-                  AC_DEFINE([HAVE_OPENSSL], [1], [Define to 1 if you have OpenSSL])
-                  ], [
-                  ax_cv_openssl=no
-                  AC_MSG_WARN(could not find openssl)])
+PKG_CHECK_MODULES([LIBUV], [libuv >= 1.4], [ax_cv_libuv=yes], [AC_MSG_ERROR(could not find a suitable version of libuv)])
+PKG_CHECK_MODULES([ZLIB], [zlib >= 1.2], [
+                   ax_cv_zlib=yes
+                   AC_DEFINE([HAVE_ZLIB], [1], [Defined to 1 if you have zlib])
+                   ], [
+                   ax_cv_zlib=no
+                   AC_MSG_WARN(could not find a suitable version of zlib)
+                   ])
+PKG_CHECK_MODULES([OPENSSL], [openssl >= 0.9.8], [
+                   ax_cv_openssl=yes
+                   AC_DEFINE([HAVE_OPENSSL], [1], [Defined to 1 if you have OpenSSL])
+                   ], [
+                   ax_cv_openssl=no
+                   AC_MSG_WARN(could not find openssl)
+                   ])
 AX_ENDIAN
 AX_HEX_VERSION([LIBATTACHSQL],[$VERSION])
 AC_SUBST([RPM_RELEASE],[1])
@@ -174,8 +183,8 @@ echo "   * LDFLAGS Flags:             $LDFLAGS"
 echo "   * Assertions enabled:        $ax_enable_assert"
 echo "   * Debug enabled:             $ax_enable_debug"
 echo "   * Warnings as failure:       $ac_cv_warnings_as_errors"
-echo "   * libuv:                     $ax_cv_have_LIBUV"
-echo "   * zlib:                      $ax_cv_have_ZLIB"
+echo "   * libuv:                     $ax_cv_libuv"
+echo "   * zlib:                      $ax_cv_zlib"
 echo "   * openssl:                   $ax_cv_openssl"
 echo "   * make -j:                   $enable_jobserver"
 echo "   * VCS checkout:              $ac_cv_vcs_system"
