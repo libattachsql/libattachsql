@@ -35,6 +35,8 @@ attachsql_con_status_t attachsql_do_connect(attachsql_connect_t *con);
 
 attachsql_con_status_t attachsql_do_poll(attachsql_connect_t *con);
 
+void loop_walk_cb(uv_handle_t *handle, void *arg);
+
 void on_resolved(uv_getaddrinfo_t *resolver, int status, struct addrinfo *res);
 
 void on_connect(uv_connect_t *req, int status);

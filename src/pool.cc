@@ -51,8 +51,10 @@ void attachsql_pool_destroy(attachsql_pool_t *pool)
   {
     attachsql_connect_destroy(pool->connections[connection]);
   }
+  uv_walk(pool->loop, loop_walk_cb, NULL);
   uv_run(pool->loop, UV_RUN_DEFAULT);
-  uv_loop_close(pool->loop);
+  int ret= uv_loop_close(pool->loop);
+  assert(ret == 0);
   delete pool->loop;
   for (connection= 0; connection < pool->connection_count; connection++)
   {

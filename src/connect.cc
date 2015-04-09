@@ -125,18 +125,25 @@ void attachsql_connect_destroy(attachsql_connect_t *con)
   if ((con->uv_objects.stream != NULL) and (con->status != ATTACHSQL_CON_STATUS_NET_ERROR))
   {
     uv_check_stop(&con->uv_objects.check);
-    uv_close((uv_handle_t*)con->uv_objects.stream, NULL);
     if (not con->in_pool)
     {
+      uv_walk(con->uv_objects.loop, loop_walk_cb, NULL);
       uv_run(con->uv_objects.loop, UV_RUN_DEFAULT);
     }
   }
   if (not con->in_pool)
   {
-    uv_loop_close(con->uv_objects.loop);
+    int ret= uv_loop_close(con->uv_objects.loop);
+    assert(ret == 0);
     delete con->uv_objects.loop;
     delete con;
   }
+}
+
+void loop_walk_cb(uv_handle_t *handle, void *arg)
+{
+  (void) arg;
+  uv_close(handle, NULL);
 }
 
 void on_resolved(uv_getaddrinfo_t *resolver, int status, struct addrinfo *res)
