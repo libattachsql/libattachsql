@@ -1,7 +1,6 @@
 language: cpp
 
 before_install:
-  - sudo apt-add-repository ppa:linuxjedi/ppa -y
   - sudo apt-get update -qq
   - mysql -uroot -e "grant all on *.* to 'test'@'localhost' identified by 'test';"
   - sudo cp $(pwd)/.ci/ssl.cnf /etc/mysql/conf.d/
