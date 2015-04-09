@@ -49,6 +49,6 @@ src_libattachsql_la_SOURCES+= src/utility.cc
 
 src_libattachsql_la_LDFLAGS+= -version-info ${LIBATTACHSQL_LIBRARY_VERSION}
 
-src_libattachsql_la_LIBADD+= @LIBUV_LIB@
-src_libattachsql_la_LIBADD+= @ZLIB_LIB@
+src_libattachsql_la_LIBADD+= @LIBUV_LIBS@
+src_libattachsql_la_LIBADD+= @ZLIB_LIBS@
 src_libattachsql_la_LIBADD+= @OPENSSL_LIBS@

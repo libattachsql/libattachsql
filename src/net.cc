@@ -97,10 +97,11 @@ void attachsql_ssl_data_check(attachsql_connect_t *con)
     send_buffer[0].base= con->ssl.ssl_write_buffer;
     send_buffer[0].len= bytes_read;
     uv_write_t *req= new (std::nothrow) uv_write_t;
-    if (uv_write(req, con->uv_objects.stream, send_buffer, 1, on_write) != 0)
+    int ret= uv_write(req, con->uv_objects.stream, send_buffer, 1, on_write);
+    if (ret < 0)
     {
       con->local_errcode= ATTACHSQL_RET_NET_WRITE_ERROR;
-      asdebug("Write fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
+      asdebug("Write fail: %s", uv_err_name(ret));
       con->command_status= ATTACHSQL_COMMAND_STATUS_SEND_FAILED;
       con->next_packet_queue_used= 0;
     }
@@ -206,10 +207,10 @@ void attachsql_send_data(attachsql_connect_t *con, char *data, size_t length)
     uv_write_t *req= new (std::nothrow) uv_write_t;
     r= uv_write(req, con->uv_objects.stream, send_buffer, 2, on_write);
   }
-  if (r != 0)
+  if (r < 0)
   {
       con->local_errcode= ATTACHSQL_RET_NET_WRITE_ERROR;
-      asdebug("Write fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
+      asdebug("Write fail: %s", uv_err_name(r));
       con->command_status= ATTACHSQL_COMMAND_STATUS_SEND_FAILED;
       con->next_packet_queue_used= 0;
   }
@@ -336,10 +337,10 @@ void attachsql_send_compressed_packet(attachsql_connect_t *con, char *data, size
     uv_write_t *req= new (std::nothrow) uv_write_t;
     r= uv_write(req, con->uv_objects.stream, send_buffer, 2, on_write);
   }
-  if (r != 0)
+  if (r < 0)
   {
     con->local_errcode= ATTACHSQL_RET_NET_WRITE_ERROR;
-    asdebug("Write fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
+    asdebug("Write fail: %s", uv_err_name(r));
     con->command_status= ATTACHSQL_COMMAND_STATUS_SEND_FAILED;
     con->next_packet_queue_used= 0;
   }
@@ -356,33 +357,34 @@ void on_write(uv_write_t *req, int status)
     con->status= ATTACHSQL_CON_STATUS_IDLE;
     con->command_status= ATTACHSQL_COMMAND_STATUS_EOF;
   }
-  if (status != 0)
+  if (status < 0)
   {
     con->local_errcode= ATTACHSQL_RET_NET_WRITE_ERROR;
-    asdebug("Write fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
+    asdebug("Write fail: %s", uv_err_name(status));
     con->command_status= ATTACHSQL_COMMAND_STATUS_SEND_FAILED;
     con->next_packet_queue_used= 0;
     con->status= ATTACHSQL_CON_STATUS_NET_ERROR;
-    snprintf(con->errmsg, ATTACHSQL_ERROR_BUFFER_SIZE, "Net write failure: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
+    snprintf(con->errmsg, ATTACHSQL_ERROR_BUFFER_SIZE, "Net write failure: %s", uv_err_name(status));
     uv_check_stop(&con->uv_objects.check);
     uv_close((uv_handle_t*)con->uv_objects.stream, NULL);
   }
   delete req;
 }
 
-void attachsql_read_data_cb(uv_stream_t* tcp, ssize_t read_size, const uv_buf_t buf)
+void attachsql_read_data_cb(uv_stream_t* tcp, ssize_t read_size, const uv_buf_t *buf)
 {
-  (void) buf;
+  (void) buf; // If we enter this with HAVE_OPENSSL undefined buf is unused
+
   struct attachsql_connect_t *con= (struct attachsql_connect_t*)tcp->data;
 
   if (read_size < 0)
   {
     con->local_errcode= ATTACHSQL_RET_NET_READ_ERROR;
-    asdebug("Read fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
+    asdebug("Read fail: %s", uv_err_name((int)read_size));
     con->command_status= ATTACHSQL_COMMAND_STATUS_READ_FAILED;
     con->next_packet_queue_used= 0;
     con->status= ATTACHSQL_CON_STATUS_NET_ERROR;
-    snprintf(con->errmsg, ATTACHSQL_ERROR_BUFFER_SIZE, "Net read failure: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
+    snprintf(con->errmsg, ATTACHSQL_ERROR_BUFFER_SIZE, "Net read failure: %s", uv_err_name((int)read_size));
     uv_check_stop(&con->uv_objects.check);
     uv_close((uv_handle_t*)con->uv_objects.stream, NULL);
     return;
@@ -392,7 +394,7 @@ void attachsql_read_data_cb(uv_stream_t* tcp, ssize_t read_size, const uv_buf_t 
   if (con->ssl.handshake_done)
   {
     asdebug("Got encrypted data, %zd bytes", read_size);
-    BIO_write(con->ssl.read_bio, buf.base, (int)read_size);
+    BIO_write(con->ssl.read_bio, buf->base, (int)read_size);
     buffer_st *buffer= NULL;
     if (con->options.compression)
     {

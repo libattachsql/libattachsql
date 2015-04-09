@@ -117,13 +117,21 @@ AX_PRINTF_STRERROR
 
 AX_PTHREAD_TIMEDJOIN_NP
 
-AX_CHECK_LIBRARY([LIBUV], [uv.h], [uv], [], [AC_MSG_ERROR(could not find libuv)])
-AX_CHECK_LIBRARY([ZLIB], [zlib.h], [z], [], [AC_MSG_WARN(could not find zlib)])
-AX_CHECK_OPENSSL([ax_cv_openssl=yes
-                  AC_DEFINE([HAVE_OPENSSL], [1], [Define to 1 if you have OpenSSL])
-                  ], [
-                  ax_cv_openssl=no
-                  AC_MSG_WARN(could not find openssl)])
+PKG_CHECK_MODULES([LIBUV], [libuv >= 1.4], [ax_cv_libuv=yes], [AC_MSG_ERROR(could not find a suitable version of libuv)])
+PKG_CHECK_MODULES([ZLIB], [zlib >= 1.2], [
+                   ax_cv_zlib=yes
+                   AC_DEFINE([HAVE_ZLIB], [1], [Defined to 1 if you have zlib])
+                   ], [
+                   ax_cv_zlib=no
+                   AC_MSG_WARN(could not find a suitable version of zlib)
+                   ])
+PKG_CHECK_MODULES([OPENSSL], [openssl >= 0.9.8], [
+                   ax_cv_openssl=yes
+                   AC_DEFINE([HAVE_OPENSSL], [1], [Defined to 1 if you have OpenSSL])
+                   ], [
+                   ax_cv_openssl=no
+                   AC_MSG_WARN(could not find openssl)
+                   ])
 AX_ENDIAN
 AX_HEX_VERSION([LIBATTACHSQL],[$VERSION])
 AC_SUBST([RPM_RELEASE],[1])
@@ -175,8 +183,8 @@ echo "   * LDFLAGS Flags:             $LDFLAGS"
 echo "   * Assertions enabled:        $ax_enable_assert"
 echo "   * Debug enabled:             $ax_enable_debug"
 echo "   * Warnings as failure:       $ac_cv_warnings_as_errors"
-echo "   * libuv:                     $ax_cv_have_LIBUV"
-echo "   * zlib:                      $ax_cv_have_ZLIB"
+echo "   * libuv:                     $ax_cv_libuv"
+echo "   * zlib:                      $ax_cv_zlib"
 echo "   * openssl:                   $ax_cv_openssl"
 echo "   * make -j:                   $enable_jobserver"
 echo "   * VCS checkout:              $ac_cv_vcs_system"

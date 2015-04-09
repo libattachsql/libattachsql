@@ -3,6 +3,12 @@ Compiling libAttachSQL
 
 libAttachSQL is designed to be compiled with GCC or CLang on a modern Linux distrubition or Mac OSX.
 
+On a Mac you should have XCode along with XCode's console tools installed along with `Homebrew <http://brew.sh/>`_. You will need to following once homebrew is installed to get the proper dev environment:
+
+.. code-block:: bash
+
+   brew install autoconf automake libtool pkg-config
+
 Prerequisites
 -------------
 
@@ -12,7 +18,7 @@ libAttachSQL requires *libuv 0.10* to be installed.  For RedHat 6.x this is in t
 
    sudo yum install libuv-devel
 
-On a Mac we recommend using `Homebrew <http://brew.sh/>`_ to install this:
+On a Mac we recommend using Homebrew to install this:
 
 .. code-block:: bash
 

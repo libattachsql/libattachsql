@@ -107,14 +107,14 @@ attachsql_command_status_t attachsql_command_send(attachsql_connect_t *con, atta
       ret= uv_write(req, con->uv_objects.stream, send_buffer, 2, on_write);
     }
   }
-  if (ret != 0)
+  if (ret < 0)
   {
     con->local_errcode= ATTACHSQL_RET_NET_WRITE_ERROR;
-    asdebug("Write fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
+    asdebug("Write fail: %s", uv_err_name(ret));
     con->command_status= ATTACHSQL_COMMAND_STATUS_SEND_FAILED;
     con->next_packet_queue_used= 0;
     con->local_errcode= ATTACHSQL_RET_NET_WRITE_ERROR;
-    snprintf(con->errmsg, ATTACHSQL_ERROR_BUFFER_SIZE, "Query send failed: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
+    snprintf(con->errmsg, ATTACHSQL_ERROR_BUFFER_SIZE, "Query send failed: %s", uv_err_name(ret));
     return con->command_status;
   }
 

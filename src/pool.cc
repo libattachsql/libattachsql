@@ -29,7 +29,8 @@ attachsql_pool_t *attachsql_pool_create(attachsql_error_t **error)
     attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_ALLOC, ATTACHSQL_ERROR_LEVEL_ERROR, "82100", "Allocation failure for pool object");
     return NULL;
   }
-  pool->loop= uv_loop_new();
+  pool->loop= new (std::nothrow) uv_loop_t;
+  uv_loop_init(pool->loop);
   if (pool->loop == NULL)
   {
     attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_ALLOC, ATTACHSQL_ERROR_LEVEL_ERROR, "82100", "Allocation failure for pool event loop");
@@ -51,7 +52,8 @@ void attachsql_pool_destroy(attachsql_pool_t *pool)
     attachsql_connect_destroy(pool->connections[connection]);
   }
   uv_run(pool->loop, UV_RUN_DEFAULT);
-  uv_loop_delete(pool->loop);
+  uv_loop_close(pool->loop);
+  delete pool->loop;
   for (connection= 0; connection < pool->connection_count; connection++)
   {
     delete pool->connections[connection];
