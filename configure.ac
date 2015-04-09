@@ -117,7 +117,7 @@ AX_PRINTF_STRERROR
 
 AX_PTHREAD_TIMEDJOIN_NP
 
-PKG_CHECK_MODULES([LIBUV], [libuv >= 1.4], [ax_cv_libuv=yes], [AC_MSG_ERROR(could not find a suitable version of libuv)])
+PKG_CHECK_MODULES([LIBUV], [libuv >= 1.0 libuv < 2.0], [ax_cv_libuv=yes], [AC_MSG_ERROR(could not find a suitable version of libuv)])
 PKG_CHECK_MODULES([ZLIB], [zlib >= 1.2], [
                    ax_cv_zlib=yes
                    AC_DEFINE([HAVE_ZLIB], [1], [Defined to 1 if you have zlib])
@@ -157,6 +157,7 @@ AX_AM_JOBSERVER([yes])
 AC_CONFIG_FILES([Makefile
                  rpm/libattachsql.spec
                  version.h
+                 libattachsql.pc
                  ])
 
 AX_CREATE_GENERIC_CONFIG
