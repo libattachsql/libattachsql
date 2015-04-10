@@ -26,6 +26,7 @@ $(DIST_ARCHIVES): $(DISTFILES)
 	$(MAKE) $(AM_MAKEFLAGS) dist-gzip
 
 $(RPM_SOURCE): $(DIST_ARCHIVES) $(RPM_BUILDDIR)
+	@mkdir -p $(RPM_SOURCEDIR)
 	@cp $< $@
 
 $(RPM_BUILD_TARGET): rpm/@PACKAGE@.spec $(RPM_SOURCE)
