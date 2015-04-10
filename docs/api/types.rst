@@ -165,11 +165,12 @@ Callbacks
 
 .. c:type:: attachsql_callback_fn
 
-   A callback function template for use with :c:func:`attachsql_connect_set_callback`.  Defined as:
+   A callback function template for use with :c:func:`attachsql_pool_create`.  Defined as:
 
-   .. c:function:: void (attachsql_callback_fn)(attachsql_connect_t *con, attachsql_events_t events, void *context, attachsql_error_t *error)
+   .. c:function:: void (attachsql_callback_fn)(attachsql_connect_t *con, uint32_t connection_id, attachsql_events_t events, void *context, attachsql_error_t *error)
 
       :param con: The connection object
+      :param connection_id: A unique ID given to the connection by libAttachSQL, *NOT* the MySQL thread ID
       :param events: The event triggered
       :param context: A user defined pointer which is set along with the callback
       :param error: An error object (if an error occurred)

@@ -13,6 +13,8 @@ Version 2.0.0 Beta (Not yet released)
 * Configure now checks version numbers for dependencies
 * libAttachSQL now requires libuv 1.4 or above
 * Build system cleanups
+* Callbacks are now in the connection pool rather than individual connections (`Issue #131 <https://github.com/libattachsql/libattachsql/issues/131>`_)
+
 
 Version 1.0
 -----------

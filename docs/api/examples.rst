@@ -287,7 +287,7 @@ First we create the pool object which the connections will be attached to:
 
 .. code-block:: c
 
-   pool= attachsql_pool_create(NULL);
+   pool= attachsql_pool_create(callbk, NULL, NULL);
 
 Then we create the connections, add the connections to the pool and set the callback function for the connections.  This is repeated 3 times, once for every connection:
 
@@ -295,7 +295,6 @@ Then we create the connections, add the connections to the pool and set the call
 
    con[0]= attachsql_connect_create("localhost", 3306, "test", "test", "testdb", NULL);
    attachsql_pool_add_connection(pool, con[0], &error);
-   attachsql_connect_set_callback(con[0], callbk, &con_no[0]);
 
 We can now send a query to each of these connections:
 
@@ -322,14 +321,14 @@ When there is an event to be triggered such as a row ready in the buffer the cal
 
 .. code-block:: c
 
-   void callbk(attachsql_connect_t *current_con, attachsql_events_t events, void *context, attachsql_error_t *error)
+   void callbk(attachsql_connect_t *current_con, uint32_t connection_id, attachsql_events_t events, void *context, attachsql_error_t *error)
 
 In this callback function we are using a switch statement to find out which event was fired and act appropriately.  The connected event fires when connection and handshake is complete:
 
 .. code-block:: c
 
    case ATTACHSQL_EVENT_CONNECTED:
-     printf("Connected event on con %d\n", *con_no);
+     printf("Connected event on con %d\n", connection_id);
      break;
 
 The error event fires when an error occurs.  It is up to the application to clean up the error:
@@ -337,7 +336,7 @@ The error event fires when an error occurs.  It is up to the application to clea
 .. code-block:: c
 
    case ATTACHSQL_EVENT_ERROR:
-     printf("Error exists on con %d: %d", *con_no, attachsql_error_code(error));
+     printf("Error exists on con %d: %d", connection_id, attachsql_error_code(error));
      attachsql_error_free(error);
      break;
 
@@ -346,7 +345,7 @@ The EOF event fires when we have reached the end of the query results:
 .. code-block:: c
 
    case ATTACHSQL_EVENT_EOF:
-     printf("Connection %d finished\n", *con_no);
+     printf("Connection %d finished\n", connection_id);
      done_count++;
      attachsql_query_close(current_con);
 
@@ -359,7 +358,7 @@ Finally the row ready event fires when a row is ready for processing in the buff
      columns= attachsql_query_column_count(current_con);
      for (col=0; col < columns; col++)
      {
-       printf("Con: %d, Column: %d, Length: %zu, Data: %.*s ", *con_no, col, row[col].length, (int)row[col].length, row[col].data);
+       printf("Con: %d, Column: %d, Length: %zu, Data: %.*s ", connection_id, col, row[col].length, (int)row[col].length, row[col].data);
      }
      attachsql_query_row_next(current_con);
      printf("\n");
