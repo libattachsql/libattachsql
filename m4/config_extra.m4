@@ -50,6 +50,7 @@ AH_TOP([
 
 /* Define to make inttypes.h work on some platforms */
 #define __STDC_FORMAT_MACROS 1
+#define __STDC_LIMIT_MACROS 1
 
 /* _SYS_FEATURE_TESTS_H is Solaris, _FEATURES_H is GCC */
 #if defined( _SYS_FEATURE_TESTS_H) || defined(_FEATURES_H)

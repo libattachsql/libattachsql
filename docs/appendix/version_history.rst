@@ -12,6 +12,7 @@ Version 2.0.0 Beta (Not yet released)
 * All `group` functions and types have been renamed to `pool`
 * Configure now checks version numbers for dependencies
 * libAttachSQL now requires libuv 1.4 or above
+* Build system cleanups
 
 Version 1.0
 -----------

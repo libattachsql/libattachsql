@@ -11,6 +11,11 @@ AC_COPYRIGHT([2014 Hewlett-Packard Development Company, L.P.])
 #AC_REVISION([m4_esyscmd_s([git describe --always])])
 AC_PREREQ([2.63])
 
+# These two needed for RHEL/CentOS 6
+m4_ifndef([m4_esyscmd_s], [m4_define([m4_chomp_all],[m4_format([[%.*s]], m4_bregexp(m4_translit([[$1]],[/],[/]),[/*$]), [$1])])] [m4_define([m4_esyscmd_s], [m4_chomp_all(m4_esyscmd([$1]))])])
+
+m4_ifndef([AS_VAR_COPY], [m4_define([AS_VAR_COPY], [AS_LITERAL_IF([$1[]$2], [$1=$$2],[eval $1=\$$2])])])
+
 # NOTE: Major version should be < 100 and minor/patch < 256 or bad things will
 # happen in src/asql/utility.cc
 AC_INIT([libattachsql],m4_esyscmd_s([tr -d '\n' < VERSION]),[andrew@linuxjedi.co.uk],[libattachsql],[http://libattachsql.org])
@@ -24,11 +29,6 @@ AC_CONFIG_MACRO_DIR([m4])
 # Setup the compilers early on
 AC_PROG_CC([cc gcc clang])
 AC_PROG_CXX([c++ g++ clang++])
-
-# These two needed for RHEL/CentOS 6
-m4_ifndef([m4_esyscmd_s], [m4_define([m4_chomp_all],[m4_format([[%.*s]], m4_bregexp(m4_translit([[$1]],[/],[/]),[/*$]), [$1])])] [m4_define([m4_esyscmd_s], [m4_chomp_all(m4_esyscmd([$1]))])])
-
-m4_ifndef([AS_VAR_COPY], [m4_define([AS_VAR_COPY], [AS_LITERAL_IF([$1[]$2], [$1=$$2],[eval $1=\$$2])])])
 
 # Automake version before 1.13 (when the serial-tests option was dnl still the default) still defined the badly obsolete macro.  'AC_PROG_INSTALL'.
 AM_INIT_AUTOMAKE(1.11 no-define color-tests -Wno-portability subdir-objects foreign tar-ustar m4_ifndef([AC_PROG_INSTALL], [serial-tests]))
@@ -79,9 +79,6 @@ AC_DEFUN([CHECK_FOR_MINGW],
          ])
 CHECK_FOR_MINGW
 
-# Specialty checks
-AX_CXX_CINTTYPES
-
 # Checks for programs.
 AC_CHECK_PROGS([LSB_RELEASE],[lsb_release])
 AC_CHECK_PROGS([DPKG_GENSYMBOLS],[dpkg-gensymbols])
@@ -112,12 +109,7 @@ CHECK_FOR_CXXABI
 
 # Checks for typedefs, structures, and compiler characteristics.
 
-# Checks for library functions.
-AX_PRINTF_STRERROR
-
-AX_PTHREAD_TIMEDJOIN_NP
-
-PKG_CHECK_MODULES([LIBUV], [libuv >= 1.4], [ax_cv_libuv=yes], [AC_MSG_ERROR(could not find a suitable version of libuv)])
+PKG_CHECK_MODULES([LIBUV], [libuv >= 1.0 libuv < 2.0], [ax_cv_libuv=yes], [AC_MSG_ERROR(could not find a suitable version of libuv)])
 PKG_CHECK_MODULES([ZLIB], [zlib >= 1.2], [
                    ax_cv_zlib=yes
                    AC_DEFINE([HAVE_ZLIB], [1], [Defined to 1 if you have zlib])
@@ -157,6 +149,7 @@ AX_AM_JOBSERVER([yes])
 AC_CONFIG_FILES([Makefile
                  rpm/libattachsql.spec
                  version.h
+                 libattachsql.pc
                  ])
 
 AX_CREATE_GENERIC_CONFIG

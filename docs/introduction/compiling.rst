@@ -12,11 +12,11 @@ On a Mac you should have XCode along with XCode's console tools installed along 
 Prerequisites
 -------------
 
-libAttachSQL requires *libuv 0.10* to be installed.  For RedHat 6.x this is in the EPEL repositories so make sure those are enabled first.  In RedHat/Fedora this is installed using:
+libAttachSQL requires *libuv 1.x* to be installed. For Fedora 22 this can be installed using:
 
 .. code-block:: bash
 
-   sudo yum install libuv-devel
+   sudo dnf install libuv-devel
 
 On a Mac we recommend using Homebrew to install this:
 
@@ -24,19 +24,16 @@ On a Mac we recommend using Homebrew to install this:
 
    brew install libuv
 
-Ubuntu 12.04 does not have libuv in its repositories so LinuxJedi created a PPA for this dependency (simply a backport from 14.04) which is used for the Travis CI tests.  It can be found at: `<https://launchpad.net/~linuxjedi/+archive/ubuntu/ppa>`_.  To install it simply do:
+For most other Linux operating systems version 0.10 or 0.11 is still in the repositories so this currently needs to be compiled from source:
 
 .. code-block:: bash
 
-   sudo apt-add-repository ppa:linuxjedi/ppa
-   sudo apt-get update
-   sudo apt-get install libuv-dev
-
-More current versions of Ubuntu have libuv and it can be installed using:
-
-.. code-block:: bash
-
-   sudo apt-get install libuv-dev
+   git clone git://github.com/libuv/libuv
+   cd libuv
+   ./autogen.sh
+   ./configure --prefix=/usr
+   make
+   sudo make install
 
 Optional Libraries
 ------------------

@@ -23,6 +23,9 @@ BUILT_SOURCES=
 EXTRA_DIST=
 CONFIGURE_DEPENDENCIES=
 
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = libattachsql.pc
+
 #includes additional rules from aminclude.am
 @INC_AMINCLUDE@
 DISTCLEANFILES+= aminclude.am
