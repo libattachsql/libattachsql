@@ -219,7 +219,7 @@ enum attachsql_query_parameter_type_t
 
 typedef enum attachsql_query_parameter_type_t attachsql_query_parameter_type_t;
 
-typedef void (attachsql_callback_fn)(attachsql_connect_t *con, attachsql_events_t events, void *context, attachsql_error_t *error);
+typedef void (attachsql_callback_fn)(attachsql_connect_t *con, uint32_t connection_id, attachsql_events_t events, void *context, attachsql_error_t *error);
 
 #ifdef __cplusplus
 }

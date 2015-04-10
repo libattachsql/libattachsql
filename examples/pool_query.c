@@ -20,26 +20,25 @@
 #include <stdio.h>
 #include <string.h>
 
-uint8_t done_count= 0;
+static uint8_t done_count= 0;
 
-void callbk(attachsql_connect_t *current_con, attachsql_events_t events, void *context, attachsql_error_t *error);
-
-void callbk(attachsql_connect_t *current_con, attachsql_events_t events, void *context, attachsql_error_t *error)
+static void callbk(attachsql_connect_t *current_con, uint32_t connection_id, attachsql_events_t events, void *context, attachsql_error_t *error)
 {
-  uint8_t *con_no= (uint8_t*)context;
+  (void) context;
   attachsql_query_row_st *row;
   uint16_t columns, col;
   switch(events)
   {
     case ATTACHSQL_EVENT_CONNECTED:
-      printf("Connected event on con %d\n", *con_no);
+      printf("Connected event on con %d\n", connection_id);
       break;
     case ATTACHSQL_EVENT_ERROR:
-      printf("Error exists on con %d: %d", *con_no, attachsql_error_code(error));
+      printf("Error exists on con %d: %d", connection_id, attachsql_error_code(error));
+      done_count++;
       attachsql_error_free(error);
       break;
     case ATTACHSQL_EVENT_EOF:
-      printf("Connection %d finished\n", *con_no);
+      printf("Connection %d finished\n", connection_id);
       done_count++;
       attachsql_query_close(current_con);
       break;
@@ -48,7 +47,7 @@ void callbk(attachsql_connect_t *current_con, attachsql_events_t events, void *c
       columns= attachsql_query_column_count(current_con);
       for (col=0; col < columns; col++)
       {
-        printf("Con: %d, Column: %d, Length: %zu, Data: %.*s ", *con_no, col, row[col].length, (int)row[col].length, row[col].data);
+        printf("Con: %d, Column: %d, Length: %zu, Data: %.*s ", connection_id, col, row[col].length, (int)row[col].length, row[col].data);
       }
       attachsql_query_row_next(current_con);
       printf("\n");
@@ -68,18 +67,14 @@ int main(int argc, char *argv[])
   const char *query1= "SELECT * FROM t1 WHERE name='fred'";
   const char *query2= "SELECT * FROM t1 WHERE age >= 40";
   const char *query3= "SELECT * FROM t1 WHERE age < 40";
-  uint8_t con_no[3]= {0, 1, 2};
 
-  pool= attachsql_pool_create(NULL);
+  pool= attachsql_pool_create(callbk, NULL, NULL);
   con[0]= attachsql_connect_create("localhost", 3306, "test", "test", "testdb", NULL);
   attachsql_pool_add_connection(pool, con[0], &error);
-  attachsql_connect_set_callback(con[0], callbk, &con_no[0]);
   con[1]= attachsql_connect_create("localhost", 3306, "test", "test", "testdb", NULL);
   attachsql_pool_add_connection(pool, con[1], &error);
-  attachsql_connect_set_callback(con[1], callbk, &con_no[1]);
   con[2]= attachsql_connect_create("localhost", 3306, "test", "test", "testdb", NULL);
   attachsql_pool_add_connection(pool, con[2], &error);
-  attachsql_connect_set_callback(con[2], callbk, &con_no[2]);
   attachsql_query(con[0], strlen(query1), query1, 0, NULL, &error);
   attachsql_query(con[1], strlen(query2), query2, 0, NULL, &error);
   attachsql_query(con[2], strlen(query3), query3, 0, NULL, &error);

@@ -57,6 +57,8 @@ int attachsql_ssl_buffer_write(attachsql_connect_t *con, uv_buf_t *buf, int buf_
 
 void attachsql_check_for_data_cb(uv_check_t *handle);
 
+void attachsql_send_callback(attachsql_connect_t *con, attachsql_events_t event, attachsql_error_t *error);
+
 #ifdef __cplusplus
 }
 #endif

@@ -19,17 +19,17 @@
 #include "version.h"
 #include <libattachsql2/attachsql.h>
 
-bool done[3]= {false, false, false};
+static int done= 0;
 
-void callbk(attachsql_connect_t *current_con, attachsql_events_t events, void *context, attachsql_error_t *error)
+void callbk(attachsql_connect_t *current_con, uint32_t connection_id, attachsql_events_t events, void *context, attachsql_error_t *error)
 {
-  uint8_t *con_no= (uint8_t*)context;
+  (void) context;
   attachsql_query_row_st *row;
   uint16_t columns, col;
   switch(events)
   {
     case ATTACHSQL_EVENT_CONNECTED:
-      printf("Connected event on con %d\n", *con_no);
+      printf("Connected event on con %d\n", connection_id);
       break;
     case ATTACHSQL_EVENT_ERROR:
       if (error && (attachsql_error_code(error) == 2002))
@@ -38,13 +38,13 @@ void callbk(attachsql_connect_t *current_con, attachsql_events_t events, void *c
       }
       else
       {
-        ASSERT_FALSE_(true, "Error exists on con %d: %d", *con_no, attachsql_error_code(error));
+        ASSERT_FALSE_(true, "Error exists on con %d: %d", connection_id, attachsql_error_code(error));
       }
       // Normally we would attachsql_error_free() here
       break;
     case ATTACHSQL_EVENT_EOF:
-      printf("Connection %d finished\n", *con_no);
-      done[*con_no]= true;
+      printf("Connection %d finished\n", connection_id);
+      done++;
       attachsql_query_close(current_con);
       break;
     case ATTACHSQL_EVENT_ROW_READY:
@@ -52,10 +52,9 @@ void callbk(attachsql_connect_t *current_con, attachsql_events_t events, void *c
       columns= attachsql_query_column_count(current_con);
       for (col=0; col < columns; col++)
       {
-        printf("Con: %d, Column: %d, Length: %zu, Data: %.*s ", *con_no, col, row[col].length, (int)row[col].length, row[col].data);
+        printf("Con: %d, Column: %d, Length: %zu, Data: %.*s \n", connection_id, col, row[col].length, (int)row[col].length, row[col].data);
       }
       attachsql_query_row_next(current_con);
-      printf("\n");
       break;
     case ATTACHSQL_EVENT_NONE:
       break;
@@ -70,23 +69,19 @@ int main(int argc, char *argv[])
   attachsql_pool_t *pool;
   attachsql_error_t *error= NULL;
   const char *data= "SHOW PROCESSLIST";
-  uint8_t con_no[3]= {0, 1, 2};
 
-  pool= attachsql_pool_create(NULL);
+  pool= attachsql_pool_create(callbk, NULL, NULL);
   con[0]= attachsql_connect_create("localhost", 3306, "test", "test", "", NULL);
   attachsql_pool_add_connection(pool, con[0], &error);
-  attachsql_connect_set_callback(con[0], callbk, &con_no[0]);
   con[1]= attachsql_connect_create("localhost", 3306, "test", "test", "", NULL);
   attachsql_pool_add_connection(pool, con[1], &error);
-  attachsql_connect_set_callback(con[1], callbk, &con_no[1]);
   con[2]= attachsql_connect_create("localhost", 3306, "test", "test", "", NULL);
   attachsql_pool_add_connection(pool, con[2], &error);
-  attachsql_connect_set_callback(con[2], callbk, &con_no[2]);
   attachsql_query(con[0], strlen(data), data, 0, NULL, &error);
   attachsql_query(con[1], strlen(data), data, 0, NULL, &error);
   attachsql_query(con[2], strlen(data), data, 0, NULL, &error);
 
-  while((not done[0]) || (not done[1]) || (not done[2]))
+  while(done < 3)
   {
     attachsql_pool_run(pool);
   }

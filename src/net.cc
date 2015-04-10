@@ -1019,7 +1019,7 @@ void attachsql_packet_get_column(attachsql_connect_t *con, column_t *column)
 
 void attachsql_run_uv_loop(attachsql_connect_t *con)
 {
-  if (!con->in_pool)
+  if (con->pool == NULL)
   {
     if (con->options.semi_block)
     {

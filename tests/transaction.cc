@@ -48,11 +48,11 @@ int main(int argc, char *argv[])
   attachsql_connect_t *con;
   attachsql_error_t *error= NULL;
   const char data[]= "CREATE DATABASE IF NOT EXISTS testdb";
-  const char data2[]= "CREATE TABLE IF NOT EXISTS testdb.t1 (a int, b int)";
+  const char data2[]= "CREATE TABLE IF NOT EXISTS testdb.trans_test (a int, b int)";
   const char data3[]= "START TRANSACTION";
-  const char data4[]= "INSERT INTO testdb.t1 VALUES (1,2),(2,3),(3,4)";
+  const char data4[]= "INSERT INTO testdb.trans_test VALUES (1,2),(2,3),(3,4)";
   const char data5[]= "COMMIT";
-  const char data6[]= "SELECT * FROM testdb.t1";
+  const char data6[]= "SELECT * FROM testdb.trans_test";
   attachsql_return_t aret= ATTACHSQL_RETURN_NONE;
   attachsql_query_row_st *row;
 

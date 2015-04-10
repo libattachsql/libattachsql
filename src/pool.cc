@@ -18,7 +18,7 @@
 #include "config.h"
 #include "common.h"
 
-attachsql_pool_t *attachsql_pool_create(attachsql_error_t **error)
+attachsql_pool_t *attachsql_pool_create(attachsql_callback_fn *function, void *context, attachsql_error_t **error)
 {
   attachsql_pool_t *pool= NULL;
 
@@ -37,6 +37,8 @@ attachsql_pool_t *attachsql_pool_create(attachsql_error_t **error)
     delete pool;
     return NULL;
   }
+  pool->callback_fn= function;
+  pool->callback_context= context;
   return pool;
 }
 
@@ -82,9 +84,10 @@ void attachsql_pool_add_connection(attachsql_pool_t *pool, attachsql_connect_t *
   {
     pool->connections= tmp_cons;
     pool->connections[pool->connection_count]= con;
-    con->in_pool= true;
+    con->pool= pool;
     con->uv_objects.loop= pool->loop;
     pool->connection_count++;
+    con->connection_id= pool->connection_count;
   }
   else
   {
