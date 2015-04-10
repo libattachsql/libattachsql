@@ -28,9 +28,6 @@ ASQL_API
 void attachsql_connect_destroy(attachsql_connect_t *con);
 
 ASQL_API
-void attachsql_connect_set_callback(attachsql_connect_t *con, attachsql_callback_fn *function, void *context);
-
-ASQL_API
 const char *attachsql_connect_get_server_version(attachsql_connect_t *con);
 
 ASQL_API

@@ -2,7 +2,7 @@
  * Copyright 2014 Hewlett-Packard Development Company, L.P.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License. You may obtain 
+ * not use this file except in compliance with the License. You may obtain
  * a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
@@ -125,13 +125,13 @@ void attachsql_connect_destroy(attachsql_connect_t *con)
   if ((con->uv_objects.stream != NULL) and (con->status != ATTACHSQL_CON_STATUS_NET_ERROR))
   {
     uv_check_stop(&con->uv_objects.check);
-    if (not con->in_pool)
+    if (con->pool == NULL)
     {
       uv_walk(con->uv_objects.loop, loop_walk_cb, NULL);
       uv_run(con->uv_objects.loop, UV_RUN_DEFAULT);
     }
   }
-  if (not con->in_pool)
+  if (con->pool == NULL)
   {
     int ret= uv_loop_close(con->uv_objects.loop);
     assert(ret == 0);
@@ -194,6 +194,22 @@ attachsql_con_status_t attachsql_do_poll(attachsql_connect_t *con)
   return con->status;
 }
 
+void attachsql_send_callback(attachsql_connect_t *con, attachsql_events_t event, attachsql_error_t *error)
+{
+  if (event == con->last_callback)
+  {
+    /* We already sent this event */
+    asdebug("Duplicate event %d for connection %u", event, con->connection_id);
+    return;
+  }
+  if ((con->pool != NULL) and (con->pool->callback_fn != NULL))
+  {
+    asdebug("Callback event: %d for connection %u", event, con->connection_id);
+    con->last_callback= event;
+    con->pool->callback_fn(con, con->connection_id, event, con->pool->callback_context, error);
+  }
+}
+
 attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_error_t **error)
 {
   attachsql_con_status_t status;
@@ -203,7 +219,7 @@ attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_er
     attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Invalid connection object");
     return ATTACHSQL_RETURN_ERROR;
   }
-  if (not con->in_pool)
+  if (con->pool == NULL)
   {
     status= attachsql_do_poll(con);
   }
@@ -216,10 +232,7 @@ attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_er
   {
     case ATTACHSQL_CON_STATUS_PARAMETER_ERROR:
       attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Bad parameter");
-      if (con->callback_fn != NULL)
-      {
-        con->callback_fn(con, ATTACHSQL_EVENT_ERROR, con->callback_context, *error);
-      }
+      attachsql_send_callback(con, ATTACHSQL_EVENT_ERROR, *error);
       return ATTACHSQL_RETURN_ERROR;
       break;
     case ATTACHSQL_CON_STATUS_NOT_CONNECTED:
@@ -248,10 +261,7 @@ attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_er
           attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_CONNECT, ATTACHSQL_ERROR_LEVEL_ERROR, "08000", "Unknown connection failure");
         }
       }
-      if (con->callback_fn != NULL)
-      {
-        con->callback_fn(con, ATTACHSQL_EVENT_ERROR, con->callback_context, *error);
-      }
+      attachsql_send_callback(con, ATTACHSQL_EVENT_ERROR, *error);
       return ATTACHSQL_RETURN_ERROR;
       break;
     case ATTACHSQL_CON_STATUS_BUSY:
@@ -259,10 +269,7 @@ attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_er
       break;
     case ATTACHSQL_CON_STATUS_SSL_ERROR:
       attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_SSL, ATTACHSQL_ERROR_LEVEL_ERROR, "08000", con->errmsg);
-      if (con->callback_fn != NULL)
-      {
-        con->callback_fn(con, ATTACHSQL_EVENT_ERROR, con->callback_context, *error);
-      }
+      attachsql_send_callback(con, ATTACHSQL_EVENT_ERROR, *error);
       return ATTACHSQL_RETURN_ERROR;
       break;
     case ATTACHSQL_CON_STATUS_IDLE:
@@ -270,18 +277,12 @@ attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_er
       {
         // Server error during query
         attachsql_error_server_create(con, error);
-        if (con->callback_fn != NULL)
-        {
-          con->callback_fn(con, ATTACHSQL_EVENT_ERROR, con->callback_context, *error);
-        }
+        attachsql_send_callback(con, ATTACHSQL_EVENT_ERROR, *error);
         return ATTACHSQL_RETURN_ERROR;
       }
       else if (con->command_status == ATTACHSQL_COMMAND_STATUS_EOF)
       {
-        if (con->callback_fn != NULL)
-        {
-          con->callback_fn(con, ATTACHSQL_EVENT_EOF, con->callback_context, NULL);
-        }
+        attachsql_send_callback(con, ATTACHSQL_EVENT_EOF, *error);
         con->all_rows_buffered= true;
         con->command_status= ATTACHSQL_COMMAND_STATUS_EOF;
         return ATTACHSQL_RETURN_EOF;
@@ -294,19 +295,13 @@ attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_er
         }
         else
         {
-          if (con->callback_fn != NULL)
-          {
-            con->callback_fn(con, ATTACHSQL_EVENT_ROW_READY, con->callback_context, NULL);
-          }
+          attachsql_send_callback(con, ATTACHSQL_EVENT_ROW_READY, *error);
           return ATTACHSQL_RETURN_ROW_READY;
         }
       }
       else if (con->command_status == ATTACHSQL_COMMAND_STATUS_CONNECTED)
       {
-        if (con->callback_fn != NULL)
-        {
-          con->callback_fn(con, ATTACHSQL_EVENT_CONNECTED, con->callback_context, NULL);
-        }
+        attachsql_send_callback(con, ATTACHSQL_EVENT_CONNECTED, *error);
         if (con->query_buffer_length > 0)
         {
           return attachsql_connect_query(con, error);
@@ -322,10 +317,7 @@ attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_er
       break;
     case ATTACHSQL_CON_STATUS_NET_ERROR:
       attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_SERVER_LOST, ATTACHSQL_ERROR_LEVEL_ERROR, "08006", con->errmsg);
-      if (con->callback_fn != NULL)
-      {
-        con->callback_fn(con, ATTACHSQL_EVENT_ERROR, con->callback_context, *error);
-      }
+      attachsql_send_callback(con, ATTACHSQL_EVENT_ERROR, *error);
       return ATTACHSQL_RETURN_ERROR;
       break;
   }
@@ -361,7 +353,7 @@ attachsql_con_status_t attachsql_do_connect(attachsql_connect_t *con)
     return con->status;
   }
 
-  if (not con->in_pool)
+  if (con->pool == NULL)
   {
     con->uv_objects.loop= new (std::nothrow) uv_loop_t;
     ret= uv_loop_init(con->uv_objects.loop);
@@ -456,10 +448,7 @@ bool attachsql_connect(attachsql_connect_t *con, attachsql_error_t **error)
   {
     case ATTACHSQL_CON_STATUS_PARAMETER_ERROR:
       attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Bad parameter");
-      if (con->callback_fn != NULL)
-      {
-        con->callback_fn(con, ATTACHSQL_EVENT_ERROR, con->callback_context, *error);
-      }
+      attachsql_send_callback(con, ATTACHSQL_EVENT_ERROR, *error);
       return false;
       break;
     case ATTACHSQL_CON_STATUS_NOT_CONNECTED:
@@ -489,10 +478,7 @@ bool attachsql_connect(attachsql_connect_t *con, attachsql_error_t **error)
           attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_CONNECT, ATTACHSQL_ERROR_LEVEL_ERROR, "08000", "Unknown connection failure");
         }
       }
-      if (con->callback_fn != NULL)
-      {
-        con->callback_fn(con, ATTACHSQL_EVENT_ERROR, con->callback_context, *error);
-      }
+      attachsql_send_callback(con, ATTACHSQL_EVENT_ERROR, *error);
       return false;
       break;
     case ATTACHSQL_CON_STATUS_BUSY:
@@ -500,27 +486,20 @@ bool attachsql_connect(attachsql_connect_t *con, attachsql_error_t **error)
       return false;
       break;
     case ATTACHSQL_CON_STATUS_IDLE:
-      if ((con->command_status == ATTACHSQL_COMMAND_STATUS_CONNECTED) and (con->callback_fn != NULL))
+      if (con->command_status == ATTACHSQL_COMMAND_STATUS_CONNECTED)
       {
-        con->callback_fn(con, ATTACHSQL_EVENT_CONNECTED, con->callback_context, NULL);
+        attachsql_send_callback(con, ATTACHSQL_EVENT_CONNECTED, *error);
       }
       return true;
       break;
     case ATTACHSQL_CON_STATUS_SSL_ERROR:
       attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_SSL, ATTACHSQL_ERROR_LEVEL_ERROR, "08000", con->errmsg);
-      if (con->callback_fn != NULL)
-      {
-        con->callback_fn(con, ATTACHSQL_EVENT_ERROR, con->callback_context, *error);
-      }
-
+      attachsql_send_callback(con, ATTACHSQL_EVENT_ERROR, *error);
       return false;
       break;
     case ATTACHSQL_CON_STATUS_NET_ERROR:
       attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_SERVER_LOST, ATTACHSQL_ERROR_LEVEL_ERROR, "08006", con->errmsg);
-      if (con->callback_fn != NULL)
-      {
-        con->callback_fn(con, ATTACHSQL_EVENT_ERROR, con->callback_context, *error);
-      }
+      attachsql_send_callback(con, ATTACHSQL_EVENT_ERROR, *error);
       return false;
       break;
   }
@@ -884,12 +863,6 @@ attachsql_ret_t scramble_password(attachsql_connect_t *con, unsigned char *buffe
   }
 
   return ATTACHSQL_RET_OK;
-}
-
-void attachsql_connect_set_callback(attachsql_connect_t *con, attachsql_callback_fn *function, void *context)
-{
-  con->callback_fn= function;
-  con->callback_context= context;
 }
 
 const char *attachsql_connect_get_server_version(attachsql_connect_t *con)

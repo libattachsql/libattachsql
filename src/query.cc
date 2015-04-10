@@ -400,10 +400,13 @@ attachsql_query_row_st *attachsql_query_row_get(attachsql_connect_t *con, attach
 
 void attachsql_query_row_next(attachsql_connect_t *con)
 {
+  asdebug("Row next called");
   if (con == NULL)
   {
     return;
   }
+
+  con->last_callback= ATTACHSQL_EVENT_NONE;
 
   if (con->buffer_rows)
   {

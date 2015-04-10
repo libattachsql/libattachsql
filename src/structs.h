@@ -2,7 +2,7 @@
  * Copyright 2014 Hewlett-Packard Development Company, L.P.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License. You may obtain 
+ * not use this file except in compliance with the License. You may obtain
  * a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
@@ -44,6 +44,7 @@ extern "C" {
 #endif
 
 typedef struct attachsql_connect_t attachsql_connect_t;
+typedef struct attachsql_pool_t attachsql_pool_t;
 
 #define ATTACHSQL_BUFFER_ROW_ALLOC_SIZE 100
 #define ATTACHSQL_STMT_CHAR_BUFFER_SIZE 40
@@ -208,6 +209,7 @@ struct attachsql_connect_t
   uint8_t write_buffer_extra; /* for extra bytes in packet header due to prepared statement */
   uint8_t packet_number;
   uint32_t thread_id;
+  uint32_t connection_id; /* the pool ID */
   char server_version[ATTACHSQL_MAX_SERVER_VERSION_LEN];
   unsigned char scramble_buffer[20];
   char packet_header[4];
@@ -288,9 +290,7 @@ struct attachsql_connect_t
   bool in_statement;
   attachsql_stmt_st *stmt;
   /* the following has been migrated during struct merge */
-  bool in_pool;
-  attachsql_callback_fn *callback_fn;
-  void *callback_context;
+  attachsql_pool_t *pool;
   char *query_buffer;
   size_t query_buffer_length;
   bool query_buffer_alloc;
@@ -308,6 +308,7 @@ struct attachsql_connect_t
   char *stmt_null_bitmap;
   uint16_t stmt_null_bitmap_length;
   char stmt_tmp_buffer[ATTACHSQL_STMT_CHAR_BUFFER_SIZE];
+  attachsql_events_t last_callback;
 
   attachsql_connect_t() :
     host(NULL),
@@ -322,6 +323,7 @@ struct attachsql_connect_t
     write_buffer_extra(0),
     packet_number(0),
     thread_id(0),
+    connection_id(0),
     server_capabilities(ATTACHSQL_CAPABILITY_NONE),
     client_capabilities(0),
     packet_size(0),
@@ -342,9 +344,7 @@ struct attachsql_connect_t
     compressed_packet_number(0),
     in_statement(false),
     stmt(NULL),
-    in_pool(false),
-    callback_fn(NULL),
-    callback_context(NULL),
+    pool(NULL),
     query_buffer(NULL),
     query_buffer_length(0),
     query_buffer_alloc(false),
@@ -360,7 +360,8 @@ struct attachsql_connect_t
     all_rows_buffered(false),
     stmt_row(NULL),
     stmt_null_bitmap(NULL),
-    stmt_null_bitmap_length(0)
+    stmt_null_bitmap_length(0),
+    last_callback(ATTACHSQL_EVENT_NONE)
   {
     str_port[0]= '\0';
     errmsg[0]= '\0';
@@ -394,12 +395,16 @@ struct attachsql_error_t
 struct attachsql_pool_t
 {
   attachsql_connect_t **connections;
-  size_t connection_count;
+  uint32_t connection_count;
+  attachsql_callback_fn *callback_fn;
+  void *callback_context;
   uv_loop_t *loop;
 
   attachsql_pool_t() :
     connections(NULL),
     connection_count(0),
+    callback_fn(NULL),
+    callback_context(NULL),
     loop(NULL)
   { }
 

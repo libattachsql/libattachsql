@@ -22,7 +22,7 @@ extern "C" {
 #endif
 
 ASQL_API
-attachsql_pool_t *attachsql_pool_create(attachsql_error_t **error);
+attachsql_pool_t *attachsql_pool_create(attachsql_callback_fn *function, void *context, attachsql_error_t **error);
 
 ASQL_API
 void attachsql_pool_destroy(attachsql_pool_t *pool);
