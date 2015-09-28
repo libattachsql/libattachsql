@@ -31,7 +31,7 @@ void attachsql_error_free(attachsql_error_t *err)
 
   delete err;
 }
-__attribute__((__format__ (__printf__, 5, 6)))
+
 void attachsql_error_client_create(attachsql_error_t **error, int code, attachsql_error_level_t level, const char *sqlstate, const char *msg, ...)
 {
   va_list args;

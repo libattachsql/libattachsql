@@ -157,10 +157,10 @@ bool attachsql_query(attachsql_connect_t *con, size_t length, const char *statem
           break;
         case ATTACHSQL_ESCAPE_TYPE_FLOAT:
           // Significant digit length from http://msdn.microsoft.com/en-us/library/hd7199ke.aspx
-          buffer_pos+= snprintf(&con->query_buffer[buffer_pos], FLOAT_MAX_LEN, "%.7f", *(float*)parameters[param].data);
+          buffer_pos+= sprintf(&con->query_buffer[buffer_pos], "%.7f", *(float*)parameters[param].data);
           break;
         case ATTACHSQL_ESCAPE_TYPE_DOUBLE:
-          buffer_pos+= snprintf(&con->query_buffer[buffer_pos], DOUBLE_MAX_LEN, "%.15f", *(double*)parameters[param].data);
+          buffer_pos+= sprintf(&con->query_buffer[buffer_pos], "%.15f", *(double*)parameters[param].data);
           break;
       }
       param++;
@@ -210,7 +210,7 @@ size_t attachsql_query_escape_data(char *buffer, char *data, size_t length)
   for (pos= 0; pos < length; pos++)
   {
     newchar= '\0';
-    if (not (data[pos] & 0x80))
+    if (!(data[pos] & 0x80))
     {
       switch(data[pos])
       {
@@ -262,7 +262,7 @@ void attachsql_query_close(attachsql_connect_t *con)
     return;
   }
 
-  if (con->query_buffer_alloc and (con->query_buffer_length != 0))
+  if (con->query_buffer_alloc && (con->query_buffer_length != 0))
   {
     delete[] con->query_buffer;
     con->query_buffer= NULL;
@@ -275,13 +275,13 @@ void attachsql_query_close(attachsql_connect_t *con)
     delete[] con->columns;
     con->columns= NULL;
   }
-  if ((con->row != NULL) and not con->buffer_rows)
+  if ((con->row != NULL) && !con->buffer_rows)
   {
     delete[] con->row;
   }
   con->row= NULL;
   /* We are still in query if there are more results */
-  if (not (con->core_con->server_status & ASCORE_SERVER_STATUS_MORE_RESULTS))
+  if (!(con->core_con->server_status & ASCORE_SERVER_STATUS_MORE_RESULTS))
   {
     con->in_query= false;
   }
@@ -322,7 +322,7 @@ attachsql_query_column_st *attachsql_query_column_get(attachsql_connect_t *con, 
   }
   column_count= con->core_con->result.column_count;
 
-  if ((column > column_count) or (column < 1))
+  if ((column > column_count) || (column < 1))
   {
     return NULL;
   }
@@ -489,11 +489,11 @@ uint64_t attachsql_query_row_count(attachsql_connect_t *con)
   {
     return 0;
   }
-  if (not con->buffer_rows)
+  if (!con->buffer_rows)
   {
     return 0;
   }
-  if (not con->all_rows_buffered)
+  if (!con->all_rows_buffered)
   {
     return 0;
   }
@@ -546,7 +546,7 @@ attachsql_return_t attachsql_query_row_buffer(attachsql_connect_t *con, attachsq
     con->row_buffer[con->row_buffer_count]= row;
     con->row_buffer_count++;
     ascore_get_next_row(con->core_con);
-  } while (ascore_con_process_packets(con->core_con) and (con->core_con->status != ASCORE_CON_STATUS_IDLE));
+  } while (ascore_con_process_packets(con->core_con) && (con->core_con->status != ASCORE_CON_STATUS_IDLE));
   return ATTACHSQL_RETURN_PROCESSING;
 }
 

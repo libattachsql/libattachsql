@@ -38,7 +38,7 @@ ascon_st *ascore_con_create(const char *host, in_port_t port, const char *user, 
 
   con->host= host;
   con->port= port;
-  if ((user == NULL) or (strlen(user) > ASCORE_MAX_USER_SIZE))
+  if ((user == NULL) || (strlen(user) > ASCORE_MAX_USER_SIZE))
   {
     con->local_errcode= ASRET_USER_TOO_LONG;
     con->status= ASCORE_CON_STATUS_PARAMETER_ERROR;
@@ -48,7 +48,7 @@ ascon_st *ascore_con_create(const char *host, in_port_t port, const char *user, 
   // We don't really care how long pass is since we itterate though it during
   // SHA1 passes.  Needs to be nul terminated.  NULL is also acceptable.
   con->pass= pass;
-  if ((schema == NULL) or (strlen(schema) > ASCORE_MAX_SCHEMA_SIZE))
+  if ((schema == NULL) || (strlen(schema) > ASCORE_MAX_SCHEMA_SIZE))
   {
     con->local_errcode= ASRET_SCHEMA_TOO_LONG;
     con->status= ASCORE_CON_STATUS_PARAMETER_ERROR;
@@ -111,16 +111,16 @@ void ascore_con_destroy(ascon_st *con)
   }
 #endif
   // On a net error we already closed the connection
-  if ((con->uv_objects.stream != NULL) and (con->status != ASCORE_CON_STATUS_NET_ERROR))
+  if ((con->uv_objects.stream != NULL) && (con->status != ASCORE_CON_STATUS_NET_ERROR))
   {
     uv_check_stop(&con->uv_objects.check);
     uv_close((uv_handle_t*)con->uv_objects.stream, NULL);
-    if (not con->in_group)
+    if (!con->in_group)
     {
       uv_run(con->uv_objects.loop, UV_RUN_DEFAULT);
     }
   }
-  if (not con->in_group)
+  if (!con->in_group)
   {
     if (con->uv_objects.loop != NULL)
     {
@@ -140,7 +140,7 @@ void on_resolved(uv_getaddrinfo_t *resolver, int status, struct addrinfo *res)
     asdebug("DNS lookup failure: %s", uv_err_name(uv_last_error(resolver->loop)));
     con->status= ASCORE_CON_STATUS_CONNECT_FAILED;
     con->local_errcode= ASRET_DNS_ERROR;
-    snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "DNS lookup failure: %s", uv_err_name(uv_last_error(resolver->loop)));
+    attachsql_snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "DNS lookup failure: %s", uv_err_name(uv_last_error(resolver->loop)));
     return;
   }
   char addr[17] = {'\0'};
@@ -163,7 +163,7 @@ ascore_con_status_t ascore_con_poll(ascon_st *con)
     return ASCORE_CON_STATUS_PARAMETER_ERROR;
   }
 
-  if ((con->status == ASCORE_CON_STATUS_NOT_CONNECTED) or (con->status == ASCORE_CON_STATUS_CONNECT_FAILED) or (con->status == ASCORE_CON_STATUS_IDLE) or (con->status == ASCORE_CON_STATUS_SSL_ERROR))
+  if ((con->status == ASCORE_CON_STATUS_NOT_CONNECTED) || (con->status == ASCORE_CON_STATUS_CONNECT_FAILED) || (con->status == ASCORE_CON_STATUS_IDLE) || (con->status == ASCORE_CON_STATUS_SSL_ERROR))
   {
     return con->status;
   }
@@ -205,7 +205,7 @@ ascore_con_status_t ascore_connect(ascon_st *con)
     return con->status;
   }
 
-  if (not con->in_group)
+  if (!con->in_group)
   {
     con->uv_objects.loop= uv_loop_new();
   }
@@ -213,12 +213,12 @@ ascore_con_status_t ascore_connect(ascon_st *con)
   {
     asdebug("Loop initalize failure");
     con->local_errcode= ASRET_OUT_OF_MEMORY_ERROR;
-    snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "Loop initialization failure, either out of memory or out of file descripitors (usually the latter)");
+    attachsql_snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "Loop initialization failure, either out of memory or out of file descripitors (usually the latter)");
     con->status= ASCORE_CON_STATUS_CONNECT_FAILED;
     return con->status;
   }
 
-  snprintf(con->str_port, 6, "%d", con->port);
+  attachsql_snprintf(con->str_port, 6, "%d", con->port);
   // If port is 0 and no explicit option set then assume we mean UDS
   // instead of TCP
   if (con->options.protocol == ASCORE_CON_PROTOCOL_UNKNOWN)
@@ -243,7 +243,7 @@ ascore_con_status_t ascore_connect(ascon_st *con)
       {
         asdebug("DNS lookup fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
         con->local_errcode= ASRET_DNS_ERROR;
-        snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "DNS lookup failure: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
+        attachsql_snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "DNS lookup failure: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
         con->status= ASCORE_CON_STATUS_CONNECT_FAILED;
         return con->status;
       }
@@ -277,7 +277,7 @@ void on_connect(uv_connect_t *req, int status)
     asdebug("Connect fail: %s", uv_err_name(uv_last_error(req->handle->loop)));
     con->local_errcode= ASRET_CONNECT_ERROR;
     con->status= ASCORE_CON_STATUS_CONNECT_FAILED;
-    snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "Connection failed: %s", uv_err_name(uv_last_error(req->handle->loop)));
+    attachsql_snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "Connection failed: %s", uv_err_name(uv_last_error(req->handle->loop)));
     return;
   }
   asdebug("Connection succeeded!");
@@ -316,7 +316,7 @@ uv_buf_t on_alloc(uv_handle_t *client, size_t suggested_size)
   }
 #endif
 
-  if (not con->options.compression)
+  if (!con->options.compression)
   {
     asdebug("%zd bytes requested for read buffer", suggested_size);
 
@@ -383,7 +383,7 @@ void ascore_packet_read_handshake(ascon_st *con)
     // Note that 255 is a special immediate auth fail case
     asdebug("Bad protocol version");
     con->local_errcode= ASRET_BAD_PROTOCOL;
-    snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "Incompatible protocol version");
+    attachsql_snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "Incompatible protocol version");
     return;
   }
 
@@ -405,11 +405,11 @@ void ascore_packet_read_handshake(ascon_st *con)
   con->server_capabilities= (ascore_capabilities_t)ascore_unpack_int2(buffer->buffer_read_ptr);
   buffer->buffer_read_ptr+= 2;
   // Check MySQL 4.1 protocol capability is on, we won't support old auth
-  if (not (con->server_capabilities & ASCORE_CAPABILITY_PROTOCOL_41))
+  if (!(con->server_capabilities & ASCORE_CAPABILITY_PROTOCOL_41))
   {
     asdebug("MySQL <4.1 Auth not supported");
     con->local_errcode= ASRET_NO_OLD_AUTH;
-    snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "MySQL 4.1 protocol and higher required");
+    attachsql_snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "MySQL 4.1 protocol and higher required");
   }
 
   con->charset= buffer->buffer_read_ptr[0];
@@ -445,11 +445,11 @@ void ascore_handshake_response(ascon_st *con)
 #ifdef HAVE_OPENSSL
   if (con->ssl.ssl != NULL)
   {
-    if (not (con->server_capabilities & ASCORE_CAPABILITY_SSL))
+    if (!(con->server_capabilities & ASCORE_CAPABILITY_SSL))
     {
       asdebug("SSL disabled on server");
       con->local_errcode= ASRET_NET_SSL_ERROR;
-      snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "SSL auth not supported enabled on server");
+      attachsql_snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "SSL auth not supported enabled on server");
       con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
       con->next_packet_queue_used= 0;
       con->status= ASCORE_CON_STATUS_CONNECT_FAILED;
@@ -475,7 +475,7 @@ void ascore_handshake_response(ascon_st *con)
   buffer_ptr+= 23;
 
 #ifdef HAVE_OPENSSL
-  if ((con->ssl.ssl != NULL) and (ascore_packet_queue_peek(con) != ASCORE_PACKET_TYPE_HANDSHAKE_SSL))
+  if ((con->ssl.ssl != NULL) && (ascore_packet_queue_peek(con) != ASCORE_PACKET_TYPE_HANDSHAKE_SSL))
   {
     /* for SSL we do a short handshake ending here in plain text,
      * no user/password sent.
@@ -489,7 +489,7 @@ void ascore_handshake_response(ascon_st *con)
     return;
   }
 
-  if ((con->ssl.ssl != NULL) and (ascore_packet_queue_peek(con) == ASCORE_PACKET_TYPE_HANDSHAKE_SSL))
+  if ((con->ssl.ssl != NULL) && (ascore_packet_queue_peek(con) == ASCORE_PACKET_TYPE_HANDSHAKE_SSL))
   {
     /* second entry into handshake for SSL, this response and all other send /
      * receives should be encrypted from now on
