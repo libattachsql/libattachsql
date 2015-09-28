@@ -54,7 +54,7 @@ bool attachsql_statement_execute(attachsql_connect_t *con, attachsql_error_t **e
   }
   /* Free anything left over from last exec */
   ascore_command_free(con->core_con);
-  if (not ascore_stmt_execute(con->stmt))
+  if (!ascore_stmt_execute(con->stmt))
   {
     if (con->core_con->local_errcode == ASRET_BAD_STMT_PARAMETER)
     {
@@ -926,11 +926,11 @@ char *attachsql_statement_get_char(attachsql_connect_t *con, uint16_t column, si
     case ASCORE_COLUMN_TYPE_TINY:
       if (con->core_con->result.columns[column].flags & ASCORE_COLUMN_FLAGS_UNSIGNED)
       {
-        *length= snprintf(con->stmt_tmp_buffer, ATTACHSQL_STMT_CHAR_BUFFER_SIZE, "%" PRIu8, column_data->data[0]);
+        *length= sprintf(con->stmt_tmp_buffer, "%" PRIu8, column_data->data[0]);
       }
       else
       {
-        *length= snprintf(con->stmt_tmp_buffer, ATTACHSQL_STMT_CHAR_BUFFER_SIZE, "%" PRId8, column_data->data[0]);
+        *length= sprintf(con->stmt_tmp_buffer, "%" PRId8, column_data->data[0]);
       }
       return con->stmt_tmp_buffer;
       break;
@@ -938,46 +938,46 @@ char *attachsql_statement_get_char(attachsql_connect_t *con, uint16_t column, si
     case ASCORE_COLUMN_TYPE_SHORT:
       if (con->core_con->result.columns[column].flags & ASCORE_COLUMN_FLAGS_UNSIGNED)
       {
-        *length= snprintf(con->stmt_tmp_buffer, ATTACHSQL_STMT_CHAR_BUFFER_SIZE, "%" PRIu16, ascore_unpack_int2(column_data->data));
+        *length= sprintf(con->stmt_tmp_buffer, "%" PRIu16, ascore_unpack_int2(column_data->data));
       }
       else
       {
-        *length= snprintf(con->stmt_tmp_buffer, ATTACHSQL_STMT_CHAR_BUFFER_SIZE, "%" PRId16, ascore_unpack_int2(column_data->data));
+        *length= sprintf(con->stmt_tmp_buffer, "%" PRId16, ascore_unpack_int2(column_data->data));
       }
       return con->stmt_tmp_buffer;
       break;
     case ASCORE_COLUMN_TYPE_LONG:
       if (con->core_con->result.columns[column].flags & ASCORE_COLUMN_FLAGS_UNSIGNED)
       {
-        *length= snprintf(con->stmt_tmp_buffer, ATTACHSQL_STMT_CHAR_BUFFER_SIZE, "%" PRIu32, ascore_unpack_int4(column_data->data));
+        *length= sprintf(con->stmt_tmp_buffer, "%" PRIu32, ascore_unpack_int4(column_data->data));
       }
       else
       {
-        *length= snprintf(con->stmt_tmp_buffer, ATTACHSQL_STMT_CHAR_BUFFER_SIZE, "%" PRId32, ascore_unpack_int4(column_data->data));
+        *length= sprintf(con->stmt_tmp_buffer, "%" PRId32, ascore_unpack_int4(column_data->data));
       }
       return con->stmt_tmp_buffer;
       break;
     case ASCORE_COLUMN_TYPE_LONGLONG:
       if (con->core_con->result.columns[column].flags & ASCORE_COLUMN_FLAGS_UNSIGNED)
       {
-        *length= snprintf(con->stmt_tmp_buffer, ATTACHSQL_STMT_CHAR_BUFFER_SIZE, "%" PRIu64, ascore_unpack_int8(column_data->data));
+        *length= sprintf(con->stmt_tmp_buffer, "%" PRIu64, ascore_unpack_int8(column_data->data));
       }
       else
       {
-        *length= snprintf(con->stmt_tmp_buffer, ATTACHSQL_STMT_CHAR_BUFFER_SIZE, "%" PRId64, ascore_unpack_int8(column_data->data));
+        *length= sprintf(con->stmt_tmp_buffer, "%" PRId64, ascore_unpack_int8(column_data->data));
       }
       return con->stmt_tmp_buffer;
       break;
     case ASCORE_COLUMN_TYPE_FLOAT:
       float f;
       memcpy(&f, column_data->data, 4);
-      *length= snprintf(con->stmt_tmp_buffer, ATTACHSQL_STMT_CHAR_BUFFER_SIZE, "%f", f);
+      *length= sprintf(con->stmt_tmp_buffer, "%f", f);
       return con->stmt_tmp_buffer;
       break;
     case ASCORE_COLUMN_TYPE_DOUBLE:
       double d;
       memcpy(&d, column_data->data, 8);
-      *length= snprintf(con->stmt_tmp_buffer, ATTACHSQL_STMT_CHAR_BUFFER_SIZE, "%f", d);
+      *length= sprintf(con->stmt_tmp_buffer, "%f", d);
       return con->stmt_tmp_buffer;
       break;
     case ASCORE_COLUMN_TYPE_NULL:
@@ -986,11 +986,11 @@ char *attachsql_statement_get_char(attachsql_connect_t *con, uint16_t column, si
     case ASCORE_COLUMN_TYPE_INT24:
       if (con->core_con->result.columns[column].flags & ASCORE_COLUMN_FLAGS_UNSIGNED)
       {
-        *length= snprintf(con->stmt_tmp_buffer, ATTACHSQL_STMT_CHAR_BUFFER_SIZE, "%" PRIu32, ascore_unpack_int3(column_data->data));
+        *length= sprintf(con->stmt_tmp_buffer, "%" PRIu32, ascore_unpack_int3(column_data->data));
       }
       else
       {
-        *length= snprintf(con->stmt_tmp_buffer, ATTACHSQL_STMT_CHAR_BUFFER_SIZE, "%" PRId32, ascore_unpack_int3(column_data->data));
+        *length= sprintf(con->stmt_tmp_buffer, "%" PRId32, ascore_unpack_int3(column_data->data));
       }
       return con->stmt_tmp_buffer;
       break;
@@ -1013,10 +1013,10 @@ char *attachsql_statement_get_char(attachsql_connect_t *con, uint16_t column, si
       break;
     case ASCORE_COLUMN_TYPE_TIME:
       ascore_unpack_time(column_data->data, column_data->length, &datetime);
-      *length= snprintf(con->stmt_tmp_buffer, ATTACHSQL_STMT_CHAR_BUFFER_SIZE, "%s%02u:%02" PRIu8 ":%02" PRIu8, (datetime.is_negative) ? "-" : "", datetime.hour + 24 * datetime.day, datetime.minute, datetime.second);
+      *length= sprintf(con->stmt_tmp_buffer, "%s%02u:%02" PRIu8 ":%02" PRIu8, (datetime.is_negative) ? "-" : "", datetime.hour + 24 * datetime.day, datetime.minute, datetime.second);
       if (datetime.microsecond)
       {
-        *length+= snprintf(con->stmt_tmp_buffer+(*length), ATTACHSQL_STMT_CHAR_BUFFER_SIZE-(*length), ".%06" PRIu32, datetime.microsecond);
+        *length+= sprintf(con->stmt_tmp_buffer+(*length), ".%06" PRIu32, datetime.microsecond);
       }
       return con->stmt_tmp_buffer;
       break;
@@ -1024,16 +1024,16 @@ char *attachsql_statement_get_char(attachsql_connect_t *con, uint16_t column, si
     case ASCORE_COLUMN_TYPE_DATE:
     case ASCORE_COLUMN_TYPE_DATETIME:
       ascore_unpack_datetime(column_data->data, column_data->length, &datetime);
-      *length= snprintf(con->stmt_tmp_buffer, ATTACHSQL_STMT_CHAR_BUFFER_SIZE, "%04" PRIu16 "-%02" PRIu8 "-%02" PRIu32, datetime.year, datetime.month, datetime.day);
+      *length= sprintf(con->stmt_tmp_buffer, "%04" PRIu16 "-%02" PRIu8 "-%02" PRIu32, datetime.year, datetime.month, datetime.day);
       if (column_data->type == ASCORE_COLUMN_TYPE_DATE)
       {
         return con->stmt_tmp_buffer;
       }
-      *length+= snprintf(con->stmt_tmp_buffer+(*length), ATTACHSQL_STMT_CHAR_BUFFER_SIZE-(*length), " %02" PRIu8 ":%02" PRIu8 ":%02" PRIu8, datetime.hour, datetime.minute, datetime.second);
+      *length+= sprintf(con->stmt_tmp_buffer+(*length), " %02" PRIu8 ":%02" PRIu8 ":%02" PRIu8, datetime.hour, datetime.minute, datetime.second);
 
       if (datetime.microsecond)
       {
-        *length+= snprintf(con->stmt_tmp_buffer+(*length), ATTACHSQL_STMT_CHAR_BUFFER_SIZE-(*length), ".%06" PRIu32, datetime.microsecond);
+        *length+= sprintf(con->stmt_tmp_buffer+(*length), ".%06" PRIu32, datetime.microsecond);
       }
       return con->stmt_tmp_buffer;
       break;
