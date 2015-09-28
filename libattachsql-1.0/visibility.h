@@ -14,21 +14,24 @@
  * under the License.
  *
  */
+#if defined(ASQL_DLL)
+# if defined(BUILDING_ASQL)
+#  if defined(_MSC_VER)
+#   define ASQL_API extern __declspec(dllexport)
+#  elif defined(HAVE_VISIBILITY) && HAVE_VISIBILITY
+#   define ASQL_API __attribute__ ((visibility("default")))
+#  elif defined (__SUNPRO_C) && (__SUNPRO_C >= 0x550)
+#   define ASQL_API __global
+#  endif /* defined(HAVE_VISIBILITY) */
+# else  /* defined(BUILDING_ASQL) */
+#  if defined(_MSC_VER)
+#   define ASQL_API extern __declspec(dllimport)
+#  else
+#   define ASQL_API
+#  endif /* defined(_MSC_VER) */
+# endif /* defined(BUILDING_ASQL) */
+#endif /* defined(ASQL_DLL) */
 
-#if defined(BUILDING_ASQL)
-# if defined(HAVE_VISIBILITY) && HAVE_VISIBILITY
-#  define ASQL_API __attribute__ ((visibility("default")))
-# elif defined (__SUNPRO_C) && (__SUNPRO_C >= 0x550)
-#  define ASQL_API __global
-# elif defined(_MSC_VER)
-#  define ASQL_API extern __declspec(dllexport)
-# else
-#  define ASQL_API
-# endif /* defined(HAVE_VISIBILITY) */
-#else  /* defined(BUILDING_ASQL) */
-# if defined(_MSC_VER)
-#  define ASQL_API extern __declspec(dllimport)
-# else
-#  define ASQL_API
-# endif /* defined(_MSC_VER) */
-#endif /* defined(BUILDING_ASQL) */
+#ifndef ASQL_API
+# define ASQL_API
+#endif
