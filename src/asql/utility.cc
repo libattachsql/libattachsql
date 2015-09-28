@@ -18,6 +18,8 @@
 #include "config.h"
 #include "version.h"
 #include "src/asql/common.h"
+#include <stdarg.h>
+#include <string.h>
 
 const char *attachsql_get_library_version(void)
 {
