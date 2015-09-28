@@ -114,9 +114,9 @@ void ascore_con_destroy(ascon_st *con)
   if ((con->uv_objects.stream != NULL) && (con->status != ASCORE_CON_STATUS_NET_ERROR))
   {
     uv_check_stop(&con->uv_objects.check);
-    uv_close((uv_handle_t*)con->uv_objects.stream, NULL);
     if (!con->in_group)
     {
+      uv_walk(con->uv_objects.loop, loop_walk_cb, NULL);
       uv_run(con->uv_objects.loop, UV_RUN_DEFAULT);
     }
   }
@@ -128,6 +128,12 @@ void ascore_con_destroy(ascon_st *con)
     }
     delete con;
   }
+}
+
+void loop_walk_cb(uv_handle_t *handle, void *arg)
+{
+  (void) arg;
+  uv_close(handle, NULL);
 }
 
 void on_resolved(uv_getaddrinfo_t *resolver, int status, struct addrinfo *res)

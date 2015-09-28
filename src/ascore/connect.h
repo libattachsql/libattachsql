@@ -39,6 +39,8 @@ ascore_con_status_t ascore_con_poll(ascon_st *con);
 
 void ascore_con_destroy(ascon_st *con);
 
+void loop_walk_cb(uv_handle_t *handle, void *arg);
+
 void on_resolved(uv_getaddrinfo_t *resolver, int status, struct addrinfo *res);
 
 void on_connect(uv_connect_t *req, int status);
