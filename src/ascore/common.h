@@ -25,6 +25,7 @@
 #include "structs.h"
 #include <new>
 #include <uv.h>
+#include <libattachsql-1.0/attachsql.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

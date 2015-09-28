@@ -74,7 +74,7 @@ void attachsql_connect_destroy(attachsql_connect_t *con)
     in_group= con->core_con->in_group;
     ascore_con_destroy(con->core_con);
   }
-  if (not in_group)
+  if (!in_group)
   {
     delete con;
   }
@@ -114,7 +114,7 @@ attachsql_return_t attachsql_connect_poll(attachsql_connect_t *con, attachsql_er
     attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_PARAMETER, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", "Invalid connection object");
     return ATTACHSQL_RETURN_ERROR;
   }
-  if (not con->core_con->in_group)
+  if (!con->core_con->in_group)
   {
     status= ascore_con_poll(con->core_con);
   }
@@ -276,14 +276,11 @@ bool attachsql_connect(attachsql_connect_t *con, attachsql_error_t **error)
         con->callback_fn(con, ATTACHSQL_EVENT_ERROR, con->callback_context, *error);
       }
       return false;
-      break;
     case ASCORE_CON_STATUS_NOT_CONNECTED:
       /* Shouldn't happen */
       return true;
-      break;
     case ASCORE_CON_STATUS_CONNECTING:
       return true;
-      break;
     case ASCORE_CON_STATUS_CONNECT_FAILED:
       if (con->core_con->local_errcode == ASRET_DNS_ERROR)
       {
@@ -309,18 +306,15 @@ bool attachsql_connect(attachsql_connect_t *con, attachsql_error_t **error)
         con->callback_fn(con, ATTACHSQL_EVENT_ERROR, con->callback_context, *error);
       }
       return false;
-      break;
     case ASCORE_CON_STATUS_BUSY:
       /* Should never be hit */
       return false;
-      break;
     case ASCORE_CON_STATUS_IDLE:
-      if ((con->core_con->command_status == ASCORE_COMMAND_STATUS_CONNECTED) and (con->callback_fn != NULL))
+      if ((con->core_con->command_status == ASCORE_COMMAND_STATUS_CONNECTED) && (con->callback_fn != NULL))
       {
         con->callback_fn(con, ATTACHSQL_EVENT_CONNECTED, con->callback_context, NULL);
       }
       return true;
-      break;
     case ASCORE_CON_STATUS_SSL_ERROR:
       attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_SSL, ATTACHSQL_ERROR_LEVEL_ERROR, "08000", con->core_con->errmsg);
       if (con->callback_fn != NULL)
@@ -329,7 +323,6 @@ bool attachsql_connect(attachsql_connect_t *con, attachsql_error_t **error)
       }
 
       return false;
-      break;
     case ASCORE_CON_STATUS_NET_ERROR:
       attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_SERVER_LOST, ATTACHSQL_ERROR_LEVEL_ERROR, "08006", con->core_con->errmsg);
       if (con->callback_fn != NULL)
@@ -337,7 +330,6 @@ bool attachsql_connect(attachsql_connect_t *con, attachsql_error_t **error)
         con->callback_fn(con, ATTACHSQL_EVENT_ERROR, con->callback_context, *error);
       }
       return false;
-      break;
   }
 
   return true;
@@ -407,7 +399,7 @@ bool attachsql_connect_set_ssl(attachsql_connect_t *con, const char *key, const 
     return false;
   }
 
-  if (not ascore_con_set_ssl(con->core_con, key, cert, ca, capath, cipher, verify))
+  if (!ascore_con_set_ssl(con->core_con, key, cert, ca, capath, cipher, verify))
   {
     attachsql_error_client_create(error, ATTACHSQL_ERROR_CODE_SSL, ATTACHSQL_ERROR_LEVEL_ERROR, "22023", con->core_con->errmsg);
     return false;

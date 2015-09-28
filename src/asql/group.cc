@@ -50,6 +50,7 @@ void attachsql_group_destroy(attachsql_group_t *group)
   {
     attachsql_connect_destroy(group->connections[connection]);
   }
+  uv_walk(group->loop, loop_walk_cb, NULL);
   uv_run(group->loop, UV_RUN_DEFAULT);
   uv_loop_delete(group->loop);
   for (connection= 0; connection < group->connection_count; connection++)

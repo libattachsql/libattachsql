@@ -36,6 +36,9 @@ uint8_t attachsql_get_library_version_patch(void);
 ASQL_API
 void attachsql_library_init(void);
 
+ASQL_API
+void attachsql_snprintf(char *buffer, size_t count, const char *format, ...);
+
 #ifdef __cplusplus
 }
 #endif

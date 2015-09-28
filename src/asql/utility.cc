@@ -18,6 +18,8 @@
 #include "config.h"
 #include "version.h"
 #include "src/asql/common.h"
+#include <stdarg.h>
+#include <string.h>
 
 const char *attachsql_get_library_version(void)
 {
@@ -42,4 +44,13 @@ uint8_t attachsql_get_library_version_patch(void)
 void attachsql_library_init(void)
 {
   ascore_library_init();
+}
+
+void attachsql_snprintf(char *buffer, size_t count, const char *format, ...)
+{
+	va_list args;
+	va_start(args, format);
+	vsnprintf(buffer, count, format, args);
+	va_end(args);
+	buffer[count - 1] = 0;
 }
