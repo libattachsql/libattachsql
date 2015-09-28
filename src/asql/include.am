@@ -13,8 +13,8 @@ lib_LTLIBRARIES+= src/asql/libattachsql.la
 src_asql_libattachsql_la_SOURCES=
 src_asql_libattachsql_la_LIBADD=
 src_asql_libattachsql_la_LDFLAGS=
-src_asql_libattachsql_la_CFLAGS= -DBUILDING_ASQL
-src_asql_libattachsql_la_CXXFLAGS= -DBUILDING_ASQL
+src_asql_libattachsql_la_CFLAGS= -DBUILDING_ASQL -DASQL_DLL
+src_asql_libattachsql_la_CXXFLAGS= -DBUILDING_ASQL -DASQL_DLL
 
 if BUILD_WIN32
 src_asql_libattachsql_la_LIBADD+= -lmingw32
