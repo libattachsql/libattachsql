@@ -101,7 +101,7 @@ void ascore_ssl_data_check(ascon_st *con)
     if (ret != 0)
     {
       con->local_errcode= ASRET_NET_WRITE_ERROR;
-      asdebug("Write fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
+      asdebug("Write fail: %s", uv_err_name(ret));
       con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
       con->next_packet_queue_used= 0;
     }
@@ -210,7 +210,7 @@ void ascore_send_data(ascon_st *con, char *data, size_t length)
   if (r != 0)
   {
       con->local_errcode= ASRET_NET_WRITE_ERROR;
-      asdebug("Write fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
+      asdebug("Write fail: %s", uv_err_name(r));
       con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
       con->next_packet_queue_used= 0;
   }
@@ -340,7 +340,7 @@ void ascore_send_compressed_packet(ascon_st *con, char *data, size_t length, uin
   if (r != 0)
   {
     con->local_errcode= ASRET_NET_WRITE_ERROR;
-    asdebug("Write fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
+    asdebug("Write fail: %s", uv_err_name(r));
     con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
     con->next_packet_queue_used= 0;
   }
@@ -360,18 +360,18 @@ void on_write(uv_write_t *req, int status)
   if (status != 0)
   {
     con->local_errcode= ASRET_NET_WRITE_ERROR;
-    asdebug("Write fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
+    asdebug("Write fail: %s", uv_err_name(status));
     con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
     con->next_packet_queue_used= 0;
     con->status= ASCORE_CON_STATUS_NET_ERROR;
-    attachsql_snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "Net write failure: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
+    attachsql_snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "Net write failure: %s", uv_err_name(status));
     uv_check_stop(&con->uv_objects.check);
     uv_close((uv_handle_t*)con->uv_objects.stream, NULL);
   }
   delete req;
 }
 
-void ascore_read_data_cb(uv_stream_t* tcp, ssize_t read_size, const uv_buf_t buf)
+void ascore_read_data_cb(uv_stream_t* tcp, ssize_t read_size, const uv_buf_t* buf)
 {
   (void) buf;
   struct ascon_st *con= (struct ascon_st*)tcp->data;
@@ -379,11 +379,11 @@ void ascore_read_data_cb(uv_stream_t* tcp, ssize_t read_size, const uv_buf_t buf
   if (read_size < 0)
   {
     con->local_errcode= ASRET_NET_READ_ERROR;
-    asdebug("Read fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
+    asdebug("Read fail: %s", uv_err_name(read_size));
     con->command_status= ASCORE_COMMAND_STATUS_READ_FAILED;
     con->next_packet_queue_used= 0;
     con->status= ASCORE_CON_STATUS_NET_ERROR;
-    attachsql_snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "Net read failure: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
+    attachsql_snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "Net read failure: %s", uv_err_name(read_size));
     uv_check_stop(&con->uv_objects.check);
     uv_close((uv_handle_t*)con->uv_objects.stream, NULL);
     return;
@@ -393,7 +393,7 @@ void ascore_read_data_cb(uv_stream_t* tcp, ssize_t read_size, const uv_buf_t buf
   if (con->ssl.handshake_done)
   {
     asdebug("Got encrypted data, %zd bytes", read_size);
-    BIO_write(con->ssl.read_bio, buf.base, (int)read_size);
+    BIO_write(con->ssl.read_bio, buf->base, (int)read_size);
     buffer_st *buffer= NULL;
     if (con->options.compression)
     {

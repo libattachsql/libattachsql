@@ -110,11 +110,11 @@ ascore_command_status_t ascore_command_send(ascon_st *con, ascore_command_t comm
   if (ret != 0)
   {
     con->local_errcode= ASRET_NET_WRITE_ERROR;
-    asdebug("Write fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
+    asdebug("Write fail: %s", uv_err_name(ret));
     con->command_status= ASCORE_COMMAND_STATUS_SEND_FAILED;
     con->next_packet_queue_used= 0;
     con->local_errcode= ASRET_NET_WRITE_ERROR;
-    attachsql_snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "Query send failed: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
+    attachsql_snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "Query send failed: %s", uv_err_name(ret));
     return con->command_status;
   }
 

@@ -47,7 +47,7 @@ void on_connect(uv_connect_t *req, int status);
 
 void ascore_packet_read_handshake(ascon_st *con);
 
-uv_buf_t on_alloc(uv_handle_t *client, size_t suggested_size);
+void on_alloc(uv_handle_t* client, size_t suggested_size, uv_buf_t* pbuf);
 
 asret_t scramble_password(ascon_st *con, unsigned char *buffer);
 
@@ -61,7 +61,7 @@ bool ascore_con_set_ssl(ascon_st *con, const char *key, const char *cert, const 
 int ascore_ssl_buffer_write(ascon_st *con, uv_buf_t *buf, int buf_len);
 #endif
 
-void ascore_check_for_data_cb(uv_check_t *handle, int status);
+void ascore_check_for_data_cb(uv_check_t* handle);
 
 #ifdef __cplusplus
 }

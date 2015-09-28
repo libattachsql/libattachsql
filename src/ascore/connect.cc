@@ -143,10 +143,10 @@ void on_resolved(uv_getaddrinfo_t *resolver, int status, struct addrinfo *res)
   asdebug("Resolver callback");
   if (status != 0)
   {
-    asdebug("DNS lookup failure: %s", uv_err_name(uv_last_error(resolver->loop)));
+    asdebug("DNS lookup failure: %s", uv_err_name(status));
     con->status= ASCORE_CON_STATUS_CONNECT_FAILED;
     con->local_errcode= ASRET_DNS_ERROR;
-    attachsql_snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "DNS lookup failure: %s", uv_err_name(uv_last_error(resolver->loop)));
+    attachsql_snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "DNS lookup failure: %s", uv_err_name(status));
     return;
   }
   char addr[17] = {'\0'};
@@ -156,7 +156,7 @@ void on_resolved(uv_getaddrinfo_t *resolver, int status, struct addrinfo *res)
   uv_tcp_init(resolver->loop, &con->uv_objects.socket.tcp);
   con->uv_objects.socket.tcp.data= con;
   con->uv_objects.connect_req.data= (void*) &con->uv_objects.socket.tcp;
-  uv_tcp_connect(&con->uv_objects.connect_req, &con->uv_objects.socket.tcp, *(struct sockaddr_in*) res->ai_addr, on_connect);
+  uv_tcp_connect(&con->uv_objects.connect_req, &con->uv_objects.socket.tcp, res->ai_addr, on_connect);
 
   uv_freeaddrinfo(res);
 }
@@ -184,9 +184,8 @@ ascore_con_status_t ascore_con_poll(ascon_st *con)
   return con->status;
 }
 
-void ascore_check_for_data_cb(uv_check_t *handle, int status)
+void ascore_check_for_data_cb(uv_check_t* handle)
 {
-  (void) status;
   asdebug("Check called");
   struct ascon_st *con= (struct ascon_st*)handle->data;
   ascore_con_process_packets(con);
@@ -245,11 +244,11 @@ ascore_con_status_t ascore_connect(ascon_st *con)
       asdebug("Async DNS lookup: %s", con->host);
       con->uv_objects.resolver.data= con;
       ret= uv_getaddrinfo(con->uv_objects.loop, &con->uv_objects.resolver, on_resolved, con->host, con->str_port, &con->uv_objects.hints);
-      if (ret)
+      if (ret != 0)
       {
-        asdebug("DNS lookup fail: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
+        asdebug("DNS lookup fail: %s", uv_err_name(ret));
         con->local_errcode= ASRET_DNS_ERROR;
-        attachsql_snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "DNS lookup failure: %s", uv_err_name(uv_last_error(con->uv_objects.loop)));
+        attachsql_snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "DNS lookup failure: %s", uv_err_name(ret));
         con->status= ASCORE_CON_STATUS_CONNECT_FAILED;
         return con->status;
       }
@@ -280,10 +279,10 @@ void on_connect(uv_connect_t *req, int status)
   asdebug("Connect event callback");
   if (status != 0)
   {
-    asdebug("Connect fail: %s", uv_err_name(uv_last_error(req->handle->loop)));
+    asdebug("Connect fail: %s", uv_err_name(status));
     con->local_errcode= ASRET_CONNECT_ERROR;
     con->status= ASCORE_CON_STATUS_CONNECT_FAILED;
-    attachsql_snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "Connection failed: %s", uv_err_name(uv_last_error(req->handle->loop)));
+    attachsql_snprintf(con->errmsg, ASCORE_ERROR_BUFFER_SIZE, "Connection failed: %s", uv_err_name(status));
     return;
   }
   asdebug("Connection succeeded!");
@@ -296,7 +295,7 @@ void on_connect(uv_connect_t *req, int status)
   uv_read_start((uv_stream_t*)req->data, on_alloc, ascore_read_data_cb);
 }
 
-uv_buf_t on_alloc(uv_handle_t *client, size_t suggested_size)
+void on_alloc(uv_handle_t* client, size_t suggested_size, uv_buf_t* pbuf)
 {
   size_t buffer_free;
   uv_buf_t buf;
@@ -369,7 +368,7 @@ uv_buf_t on_alloc(uv_handle_t *client, size_t suggested_size)
   }
 #endif
 
-  return buf;
+  *pbuf = buf;
 }
 
 void ascore_packet_read_handshake(ascon_st *con)
