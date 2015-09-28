@@ -4,8 +4,13 @@ Version: @VERSION@
 Release: 1
 License: Apache2
 Group: System Environment/Libraries
-BuildRequires: libuv-devel zlib-devel openssl-devel redhat-rpm-config
-Requires: libuv zlib openssl
+BuildRequires: libuv-devel >= 1.0
+BuildRequires: zlib-devel
+BuildRequires: openssl-devel
+BuildRequires: redhat-rpm-config
+Requires: libuv >= 1.0
+Requires: zlib
+Requires: openssl
 URL: https://libattachsql.org/
 
 Packager: Andrew Hutchings <andrew@linuxjedi.co.uk>
