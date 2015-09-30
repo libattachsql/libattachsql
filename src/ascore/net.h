@@ -27,7 +27,7 @@ void ascore_send_data(ascon_st *con, char *data, size_t length);
 
 void on_write(uv_write_t *req, int status);
 
-void ascore_read_data_cb(uv_stream_t* tcp, ssize_t read_size, const uv_buf_t buf);
+void ascore_read_data_cb(uv_stream_t* tcp, ssize_t read_size, const uv_buf_t* buf);
 
 bool ascore_con_process_packets(ascon_st *con);
 

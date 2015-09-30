@@ -89,21 +89,21 @@ char *ascore_pack_length(char *buffer, size_t length)
   }
   else if (length <= UINT16_MAX)
   {
-    buffer[0]= 0xfc;
+    buffer[0]= (char)0xfc;
     buffer++;
     ascore_pack_int2(buffer, length);
     buffer+= 2;
   }
   else if (length <= 0xffffff)
   {
-    buffer[0]= 0xfd;
+    buffer[0]= (char)0xfd;
     buffer++;
     ascore_pack_int3(buffer, length);
     buffer+= 3;
   }
   else
   {
-    buffer[0]= 0xfe;
+    buffer[0]= (char)0xfe;
     buffer++;
     ascore_pack_int8(buffer, (uint64_t)length);
     buffer+= 8;
@@ -116,7 +116,7 @@ char *ascore_pack_datetime(char *buffer, ascore_datetime_st *datetime, bool date
 {
   uint8_t length= 0;
 
-  if (not date_only)
+  if (!date_only)
   {
     if (datetime->microsecond > 0)
     {
@@ -124,9 +124,9 @@ char *ascore_pack_datetime(char *buffer, ascore_datetime_st *datetime, bool date
       length= 11;
     }
 
-    if ((length > 0) or
-        (datetime->hour > 0) or
-        (datetime->minute > 0) or
+    if ((length > 0) ||
+        (datetime->hour > 0) ||
+        (datetime->minute > 0) ||
         (datetime->second > 0))
     {
       buffer[5]= (char) datetime->hour;
@@ -139,9 +139,9 @@ char *ascore_pack_datetime(char *buffer, ascore_datetime_st *datetime, bool date
     }
   }
 
-  if ((length > 0) or
-      (datetime->year > 0) or
-      (datetime->month > 0) or
+  if ((length > 0) ||
+      (datetime->year > 0) ||
+      (datetime->month > 0) ||
       (datetime->day > 0))
   {
     ascore_pack_int2(buffer+1, datetime->year);
@@ -183,7 +183,7 @@ void ascore_unpack_time(char *buffer, size_t length, ascore_datetime_st *datetim
 {
   if (length)
   {
-    datetime->is_negative= buffer[0];
+    datetime->is_negative= buffer[0]!=0;
     datetime->day= ascore_unpack_int4(&buffer[1]);
     datetime->hour= buffer[5];
     datetime->minute= buffer[6];
@@ -205,9 +205,9 @@ char *ascore_pack_time(char *buffer, ascore_datetime_st *time)
     length= 12;
   }
 
-  if ((length > 0) or
-      (time->day > 0) or
-      (time->minute > 0) or
+  if ((length > 0) ||
+      (time->day > 0) ||
+      (time->minute > 0) ||
       (time->second > 0))
   {
     buffer[1]= time->is_negative;

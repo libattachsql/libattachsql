@@ -44,7 +44,7 @@ bool ascore_stmt_execute(ascore_stmt_st *stmt)
   uint16_t param_count= 0;
 
   /* Need minimum of 2K plus a bit extra for packet header */
-  if (not ascore_stmt_check_buffer_size(stmt, 2060))
+  if (!ascore_stmt_check_buffer_size(stmt, 2060))
   {
     return false;
   }
@@ -113,7 +113,7 @@ bool ascore_stmt_execute(ascore_stmt_st *stmt)
      */
     param_bytes= param_type_pos - stmt->exec_buffer;
     buffer_bytes= buffer_pos - stmt->exec_buffer;
-    if (not ascore_stmt_check_buffer_size(stmt, sizeof(ascore_datetime_st)))
+    if (!ascore_stmt_check_buffer_size(stmt, sizeof(ascore_datetime_st)))
     {
       return false;
     }
@@ -161,7 +161,7 @@ bool ascore_stmt_execute(ascore_stmt_st *stmt)
         /* check buffer for size */
         param_bytes= param_type_pos - stmt->exec_buffer;
         buffer_bytes= buffer_pos - stmt->exec_buffer;
-        if (not ascore_stmt_check_buffer_size(stmt, param_data->length))
+        if (!ascore_stmt_check_buffer_size(stmt, param_data->length))
         {
           return false;
         }
