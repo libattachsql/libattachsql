@@ -114,6 +114,7 @@ void ascore_con_destroy(ascon_st *con)
   if ((con->uv_objects.stream != NULL) and (con->status != ASCORE_CON_STATUS_NET_ERROR))
   {
     uv_check_stop(&con->uv_objects.check);
+    uv_close((uv_handle_t*)&con->uv_objects.check, NULL);
     uv_close((uv_handle_t*)con->uv_objects.stream, NULL);
     if (not con->in_group)
     {
