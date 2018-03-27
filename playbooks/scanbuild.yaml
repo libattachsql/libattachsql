@@ -13,5 +13,5 @@
               ./configure --enable-debug
               scan-build --use-cc=clang --use-c++=clang --status-bugs make
           executable: /bin/bash
-          #          chdir: '{{ ansible_user_dir }}/workspace'
+          chdir: '~/src/github.com/libattachsql/libattachsql/'
 
