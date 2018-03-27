@@ -16,5 +16,4 @@
               scan-build --use-cc=clang --use-c++=clang --status-bugs make
           executable: /bin/bash
           chdir: '{{ ansible_user_dir }}/workspace'
-      environment: '{{ zuul | zuul_legacy_vars }}'
 
