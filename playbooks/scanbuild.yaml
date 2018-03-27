@@ -1,0 +1,20 @@
+- hosts: xenial
+  name: CLang Scan Build
+  tasks:
+      - name: Ensure legacy workspace directory
+        file:
+            path: '{{ ansible_user_dir }}/workspace'
+            state: directory
+      - shell:
+          cmd: |
+              sudo apt-get install -y build-essential libtool libc6-dev zlib1g-dev clang libssl-dev libuv1-dev
+
+              CC="clang"
+              CXX="clang++"
+              autoreconf -fi
+              ./configure --enable-debug
+              scan-build --use-cc=clang --use-c++=clang --status-bugs make
+          executable: /bin/bash
+          chdir: '{{ ansible_user_dir }}/workspace'
+      environment: '{{ zuul | zuul_legacy_vars }}'
+
