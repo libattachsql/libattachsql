@@ -1,9 +1,5 @@
-- job:
-    name: scanbuild
-    run: playbooks/scanbuild.yaml
-    timeout: 7200
-
 - project:
     check:
         jobs:
             - scanbuild
+            - noop
