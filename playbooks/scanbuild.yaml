@@ -6,14 +6,14 @@
         file:
             path: '{{ ansible_user_dir }}/workspace'
             state: directory
-      - shell:
+        shell:
           cmd: |
               autoreconf -fi
               ./configure --enable-debug
               scan-build --use-cc=clang --use-c++=clang --status-bugs make
           executable: /bin/bash
           chdir: '~/src/github.com/libattachsql/libattachsql/'
-          environment:
-              CC="clang"
-              CXX="clang++"
+        environment:
+          CC="clang"
+          CXX="clang++"
 
