@@ -1,0 +1,12 @@
+- hosts: xenial
+  name: Build docs
+  tasks:
+      - name: Build with Sphinx
+        shell:
+          cmd: |
+            autoreconf -fi
+            ./configure
+            make html
+        args:
+          chdir: ~/src/github.com/libattachsql/libattachsql/
+          executable: /bin/bash

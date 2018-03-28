@@ -1,12 +1,13 @@
 - hosts: xenial
-  name: CLang Scan Build
+  name: CLang Build
   tasks:
-      - name: Build and run Clang ScanBuild
+      - name: Build with Clang
         shell:
           cmd: |
             autoreconf -fi
             ./configure --enable-debug
-            scan-build --use-cc=clang --use-c++=clang --status-bugs make
+            make
+            make check
         args:
           chdir: ~/src/github.com/libattachsql/libattachsql/
           executable: /bin/bash
