@@ -6,6 +6,8 @@
           cmd: |
             autoreconf -fi
             ./configure --enable-debug
+            make
+            make clean
             scan-build --use-cc=clang --use-c++=clang --status-bugs make
         args:
           chdir: ~/src/github.com/libattachsql/libattachsql/
