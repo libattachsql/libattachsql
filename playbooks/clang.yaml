@@ -1,0 +1,17 @@
+- hosts: xenial
+  name: CLang Build
+  tasks:
+      - name: Build with Clang
+        shell:
+          cmd: |
+            autoreconf -fi
+            ./configure --enable-debug
+            make
+            make check
+        args:
+          chdir: ~/src/github.com/libattachsql/libattachsql/
+          executable: /bin/bash
+        environment:
+          CC: clang
+          CXX: clang++
+

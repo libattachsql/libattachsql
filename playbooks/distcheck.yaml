@@ -1,0 +1,12 @@
+- hosts: xenial
+  name: GCC Dist Check
+  tasks:
+      - name: Build with dist check
+        shell:
+          cmd: |
+            autoreconf -fi
+            ./configure --enable-debug
+            make distcheck
+        args:
+          chdir: ~/src/github.com/libattachsql/libattachsql/
+          executable: /bin/bash

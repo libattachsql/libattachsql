@@ -1,0 +1,54 @@
+- job:
+    name: scanbuild
+    run: playbooks/scanbuild.yaml
+    timeout: 7200
+    nodeset:
+        nodes:
+            - name: xenial
+              label: ubuntu-xenial
+
+- job:
+    name: clang
+    run: playbooks/clang.yaml
+    timeout: 7200
+    nodeset:
+        nodes:
+            - name: xenial
+              label: ubuntu-xenial
+
+- job:
+    name: distcheck
+    run: playbooks/distcheck.yaml
+    timeout: 7200
+    nodeset:
+        nodes:
+            - name: xenial
+              label: ubuntu-xenial
+
+- job:
+    name: docs
+    run: playbooks/docs.yaml
+    timeout: 7200
+    nodeset:
+        nodes:
+            - name: xenial
+              label: ubuntu-xenial
+
+- job:
+    name: valgrind
+    run: playbooks/valgrind.yaml
+    timeout: 7200
+    nodeset:
+        nodes:
+            - name: xenial
+              label: ubuntu-xenial
+
+- project:
+    check:
+        jobs:
+            - scanbuild
+            - noop
+            - clang
+            - distcheck
+            - docs
+            - valgrind

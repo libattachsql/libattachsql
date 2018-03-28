@@ -1,0 +1,13 @@
+- hosts: xenial
+  name: CLang Scan Build
+  tasks:
+      - name: Build and run Clang ScanBuild
+        shell:
+          cmd: |
+            autoreconf -fi
+            ./configure --enable-debug
+            TESTS_ENVIRONMENT="./libtool --mode=execute valgrind --error-exitcode=1 --leak-check=yes --track-fds=no --malloc-fill=A5 --free-fill=DE --suppressions=valgrind.supp" make check 2>/dev/null
+        args:
+          chdir: ~/src/github.com/libattachsql/libattachsql/
+          executable: /bin/bash
+
