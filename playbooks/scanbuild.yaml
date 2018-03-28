@@ -1,5 +1,6 @@
 - hosts: xenial
   name: CLang Scan Build
+  any_errors_fatal: true
   tasks:
       - name: Ensure legacy workspace directory
         file:
@@ -7,11 +8,12 @@
             state: directory
       - shell:
           cmd: |
-              CC="clang"
-              CXX="clang++"
               autoreconf -fi
               ./configure --enable-debug
               scan-build --use-cc=clang --use-c++=clang --status-bugs make
           executable: /bin/bash
           chdir: '~/src/github.com/libattachsql/libattachsql/'
+          environment:
+              CC="clang"
+              CXX="clang++"
 
