@@ -1,0 +1,12 @@
+build-essential [platform:dpkg]
+libuv-devel [platform:rpm build]
+libuv1-dev [platform:dpkg build]
+zlib-devel [platform:rpm build]
+zlib1g-dev [platform:dpkg build]
+openssl-devel [platform:rpm build]
+libssl-dev [platform:dpkg build]
+libuv [platform:rpm]
+libuv1 [platform:dpkg]
+zlib [platform:rpm]
+zlib1g [platform:dpkg]
+openssl
