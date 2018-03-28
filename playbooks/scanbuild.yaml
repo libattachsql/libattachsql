@@ -2,10 +2,7 @@
   name: CLang Scan Build
   any_errors_fatal: true
   tasks:
-      - name: Ensure legacy workspace directory
-        file:
-            path: '{{ ansible_user_dir }}/workspace'
-            state: directory
+      - name: Build and run Clang ScanBuild
         shell:
           cmd: |
               autoreconf -fi
