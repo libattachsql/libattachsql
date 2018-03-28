@@ -3,13 +3,11 @@
   any_errors_fatal: true
   tasks:
       - name: Build and run Clang ScanBuild
-        shell:
-          cmd: |
-              autoreconf -fi
-              ./configure --enable-debug
-              scan-build --use-cc=clang --use-c++=clang --status-bugs make
-          executable: /bin/bash
-          chdir: '~/src/github.com/libattachsql/libattachsql/'
+        command: "{{ item }} chdir=~/src/github.com/libattachsql/libattachsql/"
+        with_items:
+          - autoreconf -fi
+          - ./configure --enable-debug
+          - scan-build --use-cc=clang --use-c++=clang --status-bugs make
         environment:
           CC="clang"
           CXX="clang++"
