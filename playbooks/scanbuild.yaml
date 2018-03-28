@@ -3,7 +3,7 @@
   any_errors_fatal: true
   tasks:
       - name: Build and run Clang ScanBuild
-        command: "{{ item }} chdir=~/src/github.com/libattachsql/libattachsql/"
+        shell: "{{ item }} chdir=~/src/github.com/libattachsql/libattachsql/"
         with_items:
           - autoreconf -fi
           - ./configure --enable-debug
