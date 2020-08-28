@@ -1,6 +1,8 @@
 libattachsql
 ============
 
+** This is now a dead project **
+
 .. |travis| image:: https://travis-ci.org/libattachsql/libattachsql.svg?branch=master
             :target: https://travis-ci.org/libattachsql/libattachsql
 
